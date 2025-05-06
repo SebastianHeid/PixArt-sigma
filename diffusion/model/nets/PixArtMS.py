@@ -219,13 +219,14 @@ class PixArtMS(PixArt):
 
         self.initialize()
 
-    def forward(self, x, timestep, y, mask=None, data_info=None, **kwargs):
+    def forward(self, x, timestep, y, mask=None, data_info=None, train=False, **kwargs):
         """
         Forward pass of PixArt.
         x: (N, C, H, W) tensor of spatial inputs (images or latent representations of images)
         t: (N,) tensor of diffusion timesteps
         y: (N, 1, 120, C) tensor of class labels
         """
+        feat_list = []
         bs = x.shape[0]
         x = x.to(self.dtype)
         timestep = timestep.to(self.dtype)
@@ -278,11 +279,14 @@ class PixArtMS(PixArt):
             x = auto_grad_checkpoint(
                 block, x, y, t0, y_lens, (self.h, self.w), **kwargs
             )  # (N, T, D) #support grad checkpoint
+            feat_list.append(x)
 
         x = self.final_layer(x, t)  # (N, T, patch_size ** 2 * out_channels)
         x = self.unpatchify(x)  # (N, out_channels, H, W)
-
-        return x
+        if train:
+            return x, feat_list
+        else:
+            return x
 
     def forward_with_dpmsolver(self, x, timestep, y, data_info, **kwargs):
         """

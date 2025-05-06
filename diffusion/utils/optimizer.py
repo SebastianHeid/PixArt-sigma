@@ -1,18 +1,16 @@
 import math
-
-from mmcv import Config
-from mmcv.runner import build_optimizer as mm_build_optimizer, OPTIMIZER_BUILDERS, DefaultOptimizerConstructor, \
-    OPTIMIZERS
-from mmcv.utils import _BatchNorm, _InstanceNorm
-from torch.nn import GroupNorm, LayerNorm
-
-from .logger import get_root_logger
-
-from typing import Tuple, Optional, Callable
+from typing import Callable, Optional, Tuple
 
 import torch
-from torch.optim.optimizer import Optimizer
 from came_pytorch import CAME
+from mmcv import Config
+from mmcv.runner import OPTIMIZER_BUILDERS, OPTIMIZERS, DefaultOptimizerConstructor
+from mmcv.runner import build_optimizer as mm_build_optimizer
+from mmcv.utils import _BatchNorm, _InstanceNorm
+from torch.nn import GroupNorm, LayerNorm
+from torch.optim.optimizer import Optimizer
+
+from .logger import get_root_logger
 
 
 def auto_scale_lr(effective_bs, optimizer_cfg, rule='linear', base_batch_size=256):

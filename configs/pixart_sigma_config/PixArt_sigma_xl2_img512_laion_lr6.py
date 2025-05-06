@@ -4,7 +4,8 @@ image_list_json = ["data_info.json"]
 
 data = dict(
     type="InternalDataMSSigma",
-    root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart-sigma-toy-dataset/InternData",
+    root="/export/data/vislearn/rother_subgroup/sheid/pixart/laion",
+    img_root="/export/data/vislearn/rother_subgroup/dzavadsk/datasets/laion/subset_250/images/",
     image_list_json=image_list_json,
     transform="default_train",
     load_vae_feat=False,
@@ -28,13 +29,13 @@ pe_interpolation = 1.0
 # training setting
 num_workers = 0
 train_batch_size = 32  # 48 as default
-num_epochs = 10  # 3
+num_epochs = 1  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
 gradient_clip = 0.01
 optimizer = dict(
     type="CAMEWrapper",
-    lr=2e-5,
+    lr=2e-6,
     weight_decay=0.0,
     betas=(0.9, 0.999, 0.9999),
     eps=(1e-30, 1e-16),
@@ -44,13 +45,13 @@ lr_schedule_args = dict(num_warmup_steps=1000)
 eval_sampling_steps = 500
 visualize = True
 log_interval = 20
-save_model_epochs = 5
-save_model_steps = 2500
+save_model_epochs = 1
+save_model_steps = 50000
 work_dir = "output/debug"
 
 # pixart-sigma
 scale_factor = 0.13025
-real_prompt_ratio = 0.5
+real_prompt_ratio = 1.0
 model_max_length = 300
 class_dropout_prob = 0.1
 

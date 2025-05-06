@@ -4,7 +4,8 @@ image_list_json = ["data_info.json"]
 
 data = dict(
     type="InternalDataMSSigma",
-    root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart-sigma-toy-dataset/InternData",
+    root="/export/data/vislearn/rother_subgroup/sheid/pixart/laion",
+    img_root="/export/data/vislearn/rother_subgroup/dzavadsk/datasets/laion/subset_250/images/",
     image_list_json=image_list_json,
     transform="default_train",
     load_vae_feat=False,
@@ -50,16 +51,16 @@ work_dir = "output/debug"
 
 # pixart-sigma
 scale_factor = 0.13025
-real_prompt_ratio = 0.5
+real_prompt_ratio = 1.0
 model_max_length = 300
 class_dropout_prob = 0.1
 
 # Intermediate loss
 intermediate_loss_flag = True
-intermediate_loss_blocks = [4]
+intermediate_loss_blocks = [4, 7]
 final_output_loss_flag = True
 
 # Modfication of Model
-transformer_blocks = [4]
-trainable_blocks = [3]
+transformer_blocks = [4,7]
+trainable_blocks = [3,6]
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
