@@ -31,6 +31,7 @@ def main(args):
     interpolation_scale = interpolation_scale_alpha if args.version == "alpha" else interpolation_scale_sigma
     all_state_dict = torch.load(args.orig_ckpt_path, map_location=torch.device('cpu'))
     state_dict = all_state_dict.pop("state_dict")
+    print(state_dict.keys())
     converted_state_dict = {}
 
     # Patch embeddings.

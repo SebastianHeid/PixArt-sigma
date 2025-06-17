@@ -7,6 +7,8 @@ import types
 import warnings
 from pathlib import Path
 
+from tqdm import tqdm
+
 current_file_path = Path(__file__).resolve()
 sys.path.insert(0, str(current_file_path.parent.parent))
 import numpy as np
@@ -173,7 +175,7 @@ def train():
     for epoch in range(start_epoch + 1, config.num_epochs + 1):
         data_time_start = time.time()
         data_time_all = 0
-        for step, batch in enumerate(train_dataloader):
+        for step, batch in enumerate(tqdm(train_dataloader)):
             if step < skip_step:
                 global_step += 1
                 continue  # skip data in the resumed ckpt
@@ -231,6 +233,7 @@ def train():
                         ref_model=ref_model,
                         intermediate_loss_blocks=config.intermediate_loss_blocks,
                         final_output_loss_flag=config.final_output_loss_flag,
+                        org_loss_flag = config.org_loss_flag,
                         model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
                     )
                 else:
@@ -598,7 +601,7 @@ if __name__ == "__main__":
         )
         if config.intermediate_loss_flag:
             ref_missing, ref_unexpected = load_checkpoint(
-                config.load_from,
+                config.ref_load_from,
                 ref_model,
                 load_ema=config.get("load_ema", False),
                 max_length=max_length,
@@ -614,7 +617,8 @@ if __name__ == "__main__":
         for block_num in config.trainable_blocks:
             for param in model.blocks[block_num].parameters():
                 param.requires_grad = True
-        model = modify_model(model, config.transformer_blocks)
+                
+    model = modify_model(model, config.transformer_blocks)
     logger.info(
         f"{model.__class__.__name__} Model Parameters: {sum(p.numel() for p in model.parameters()):,}"
     )
@@ -658,7 +662,6 @@ if __name__ == "__main__":
             batch_size=config.train_batch_size,
             shuffle=True,
         )
-    
     # build optimizer and lr scheduler
     lr_scale_ratio = 1
     if config.get("auto_lr", None):

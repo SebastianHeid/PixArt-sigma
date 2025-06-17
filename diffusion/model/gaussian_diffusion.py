@@ -787,6 +787,7 @@ class GaussianDiffusion:
         ref_model=None,
         intermediate_loss_blocks=[],
         final_output_loss_flag=False,
+        org_loss_flag=True,
         model_kwargs=None,
         noise=None,
         skip_noise=False,
@@ -933,7 +934,10 @@ class GaussianDiffusion:
             if "mae" in terms:
                 terms["loss"] = terms["loss"] + terms["mae"]
             if intermediate_loss_blocks:
-                terms["loss"] = terms["loss"] + terms["intermediate_loss"]
+                if org_loss_flag:
+                    terms["loss"] = terms["loss"] + terms["intermediate_loss"]
+                else:
+                    terms["loss"] = terms["intermediate_loss"]
         else:
             raise NotImplementedError(self.loss_type)
         return terms
@@ -1119,6 +1123,17 @@ class GaussianDiffusion:
             "mse": mse,
         }
 
+    def normalization_feature_loss(self, feat_teacher):
+        num_stages = len(feat_teacher)
+        stage_norms = []
+        for t_feat in feat_teacher:
+            stage_norm = th.norm(t_feat, p=2)
+            stage_norms.append(stage_norm)
+        stage_norms = th.stack(stage_norms)
+        norm_sum = stage_norms.sum()
+        alphas = norm_sum / ((stage_norms + 10**(-8)) * num_stages)
+        return alphas
+
     def intermediate_loss(
         self,
         feat_list,
@@ -1138,8 +1153,10 @@ class GaussianDiffusion:
                  Some mean or variance settings may also have other keys.
         """
         loss = []
-        for block in intermediate_loss_blocks:
-            loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]))
+        alphas = self.normalization_feature_loss(ref_feat_list)
+        for idx, block in enumerate(intermediate_loss_blocks):
+            #loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]))
+            loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]) * alphas[block])
         if final_output_loss_flag:
             loss.append(F.mse_loss(model_output, ref_model_output))
         loss_th = th.stack(loss)

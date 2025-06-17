@@ -8,7 +8,7 @@ data = dict(
     load_t5_feat=True,
 )
 image_size = 256  # the generated image resolution
-train_batch_size = 32
+train_batch_size = 16
 eval_batch_size = 16
 use_fsdp = False  # if use FSDP mode
 valid_num = 0  # take as valid aspect-ratio when sample number >= valid_num
