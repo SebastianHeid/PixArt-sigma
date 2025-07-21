@@ -4,40 +4,43 @@ image_list_json = ["data_info.json"]
 
 data = dict(
     type="InternalDataMSSigma",
-    root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/json",
-    img_root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/images",
+    root="/export/data/vislearn/rother_subgroup/sheid/ImageNet/",
+    img_root="/export/data/ntatsch/imageNet/train",
     image_list_json=image_list_json,
     transform="default_train",
     load_vae_feat=False,
     load_t5_feat=False,
 )
-image_size = 512
+image_size = 256
 
 # model setting
 model = "PixArtMS_XL_2"
 mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
 fp32_attention = True
-load_from = "/export/data/sheid/pixart/PixArt_sigma_xl2_img512_laion_o_17_15_8_20_11_n_14_finetuning/checkpoints/epoch_1_step_38082.pth"  # https://huggingface.co/PixArt-alpha/PixArt-Sigma
-ref_load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth" 
-resume_from = None
+
+
+
+resume_from = dict(
+    checkpoint="/export/data/sheid/pixart/PixArt_sigma_xl2_img512_image_net_lre4/checkpoints/epoch_14_step_140074.pth", load_ema=False, resume_optimizer=True, resume_lr_scheduler=True
+)
 vae_pretrained = (
     "/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
 )
-aspect_ratio_type = "ASPECT_RATIO_512"
+aspect_ratio_type = "ASPECT_RATIO_256"
 multi_scale = True  # if use multiscale dataset model training
 pe_interpolation = 1.0
 
 # training setting
 num_workers = 0
-train_batch_size = 8 # using 2 gpus, so 8 is 16 in total
-num_epochs = 3  # 3
+train_batch_size = 128  # compgpu7: 64; compgpu11: 128 
+num_epochs = 100  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
 gradient_clip = 0.01
 optimizer = dict(
     type="CAMEWrapper",
-    lr=2e-6,
-    weight_decay=0.0,
+    lr=5e-4,
+    weight_decay=0.03,
     betas=(0.9, 0.999, 0.9999),
     eps=(1e-30, 1e-16),
 )
@@ -47,7 +50,7 @@ eval_sampling_steps = 500
 visualize = True
 log_interval = 20
 save_model_epochs = 1
-save_model_steps = 10000
+save_model_steps = 50000
 work_dir = "output/debug"
 
 # pixart-sigma
@@ -57,12 +60,21 @@ model_max_length = 300
 class_dropout_prob = 0.1
 
 # Intermediate loss
-intermediate_loss_flag = True
-intermediate_loss_blocks = [8,9,11,12,15,17,18,20,21,22,23,24,25,26,27]
-final_output_loss_flag = True
-org_loss_flag = False
+intermediate_loss_flag = False
+intermediate_loss_blocks = []
+final_output_loss_flag = False
+org_loss_flag = True
 
-# Modfication of Model
-transformer_blocks = [8,15,17, 20,11, 14]
+# Modfication of Modelcd 
+transformer_blocks = []
 trainable_blocks = []
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
+
+
+validation_prompts = [
+    "dog",
+    "great_white_shark",
+    "bald_eagle",
+    "spotted_salamander",
+    "green_lizard",
+]

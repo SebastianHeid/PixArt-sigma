@@ -575,6 +575,7 @@ if __name__ == "__main__":
         input_size=latent_size,
         learn_sigma=learn_sigma,
         pred_sigma=pred_sigma,
+        skip_connections = config.skip_connections,
         **model_kwargs,
     ).train()
     if config.intermediate_loss_flag:

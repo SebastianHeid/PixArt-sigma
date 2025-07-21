@@ -4,39 +4,41 @@ image_list_json = ["data_info.json"]
 
 data = dict(
     type="InternalDataMSSigma",
-    root="/export/data/vislearn/rother_subgroup/sheid/pixart/laion",
-    img_root="/export/data/vislearn/rother_subgroup/dzavadsk/datasets/laion/subset_250/images/",
+    root="/export/data/vislearn/rother_subgroup/sheid/ImageNet/",
+    img_root="/export/data/ntatsch/imageNet/train",
     image_list_json=image_list_json,
     transform="default_train",
     load_vae_feat=False,
     load_t5_feat=False,
 )
-image_size = 512
+image_size = 256
 
 # model setting
 model = "PixArtMS_XL_2"
 mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
 fp32_attention = True
-load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth"  # https://huggingface.co/PixArt-alpha/PixArt-Sigma
-resume_from = None
+
+resume_from = dict(
+    checkpoint="/export/data/sheid/pixart/PixArt_sigma_xl2_img512_image_net_2/checkpoints/epoch_88_step_445255.pth", load_ema=False, resume_optimizer=True, resume_lr_scheduler=True
+)
 vae_pretrained = (
     "/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
 )
-aspect_ratio_type = "ASPECT_RATIO_512"
+aspect_ratio_type = "ASPECT_RATIO_256"
 multi_scale = True  # if use multiscale dataset model training
 pe_interpolation = 1.0
 
 # training setting
 num_workers = 0
-train_batch_size = 32  # 48 as default
-num_epochs = 10  # 3
+train_batch_size = 64  # compgpu7: 64; compgpu11: 128 
+num_epochs = 200  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
 gradient_clip = 0.01
 optimizer = dict(
     type="CAMEWrapper",
     lr=2e-5,
-    weight_decay=0.0,
+    weight_decay=0.03,
     betas=(0.9, 0.999, 0.9999),
     eps=(1e-30, 1e-16),
 )
@@ -45,8 +47,8 @@ lr_schedule_args = dict(num_warmup_steps=1000)
 eval_sampling_steps = 500
 visualize = True
 log_interval = 20
-save_model_epochs = 5
-save_model_steps = 2500
+save_model_epochs = 1
+save_model_steps = 50000
 work_dir = "output/debug"
 
 # pixart-sigma
@@ -61,7 +63,16 @@ intermediate_loss_blocks = []
 final_output_loss_flag = False
 org_loss_flag = True
 
-# Modfication of Model
+# Modfication of Modelcd 
 transformer_blocks = []
 trainable_blocks = []
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
+
+
+validation_prompts = [
+    "dog",
+    "great_white_shark",
+    "bald_eagle",
+    "spotted_salamander",
+    "green_lizard",
+]

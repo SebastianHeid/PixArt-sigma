@@ -168,6 +168,7 @@ class InternalDataMS(InternalData):
             ])
 
         if self.transform:
+            print("Transform")
             img = self.transform(img)
 
         return img, txt_fea, attention_mask, data_info
@@ -352,7 +353,7 @@ class InternalDataMSSigma(InternalDataSigma):
                 T.ToTensor(),
                 T.Normalize([.5], [.5]),
             ])
-
+        
         if self.transform:
             img = self.transform(img)
 

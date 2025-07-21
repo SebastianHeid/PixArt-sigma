@@ -26,6 +26,26 @@ from diffusion.model.nets.PixArt_blocks import (
 )
 from diffusion.model.utils import auto_grad_checkpoint, to_2tuple
 
+import torch
+import torch.nn as nn
+
+class ZeroConv1d(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=True):
+        super().__init__()
+        self.conv = nn.Conv1d(
+            in_channels, out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            bias=bias
+        )
+        # Initialize weights and bias to zero
+        nn.init.zeros_(self.conv.weight)
+        if bias:
+            nn.init.zeros_(self.conv.bias)
+
+    def forward(self, x):
+        return self.conv(x)
 
 class PatchEmbed(nn.Module):
     """2D Image to Patch Embedding"""
@@ -149,6 +169,7 @@ class PixArtMS(PixArt):
         micro_condition=False,
         qk_norm=False,
         kv_compress_config=None,
+        skip_connections = False,
         **kwargs,
     ):
         super().__init__(
@@ -170,6 +191,7 @@ class PixArtMS(PixArt):
             kv_compress_config=kv_compress_config,
             **kwargs,
         )
+        self.skip_connections = skip_connections
         self.h = self.w = 0
         approx_gelu = lambda: nn.GELU(approximate="tanh")
         self.t_block = nn.Sequential(
@@ -215,6 +237,10 @@ class PixArtMS(PixArt):
                 for i in range(depth)
             ]
         )
+        
+        if self.skip_connections:
+            print("SKIP CONNECTIONS ENABLED")
+            self.zero_conv = nn.ModuleList([ZeroConv1d(1152, 1152, kernel_size=1, bias=True) for i in range (depth//2)])
         self.final_layer = T2IFinalLayer(hidden_size, patch_size, self.out_channels)
 
         self.initialize()
@@ -226,6 +252,7 @@ class PixArtMS(PixArt):
         t: (N,) tensor of diffusion timesteps
         y: (N, 1, 120, C) tensor of class labels
         """
+        
         feat_list = []
         bs = x.shape[0]
         x = x.to(self.dtype)
@@ -275,12 +302,19 @@ class PixArtMS(PixArt):
         else:
             y_lens = [y.shape[2]] * y.shape[0]
             y = y.squeeze(1).view(1, -1, x.shape[-1])
-        for block in self.blocks:
+        idx_2 = 0 
+        for idx, block in enumerate(self.blocks):
             x = auto_grad_checkpoint(
                 block, x, y, t0, y_lens, (self.h, self.w), **kwargs
             )  # (N, T, D) #support grad checkpoint
             feat_list.append(x)
 
+            if idx> 13 and self.skip_connections:
+                skip_x = feat_list[13-idx_2]
+                skip_x = self.zero_conv[idx_2](skip_x.permute(0, 2, 1)).permute(0, 2, 1)
+                x = x + skip_x
+                idx_2 += 1
+                
         x = self.final_layer(x, t)  # (N, T, patch_size ** 2 * out_channels)
         x = self.unpatchify(x)  # (N, out_channels, H, W)
         if train:

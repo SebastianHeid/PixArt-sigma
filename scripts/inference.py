@@ -6,6 +6,7 @@ sys.path.insert(0, str(current_file_path.parent.parent))
 import warnings
 warnings.filterwarnings("ignore")  # ignore warning
 import re
+import json
 import argparse
 from datetime import datetime
 from tqdm import tqdm
@@ -17,21 +18,21 @@ from transformers import T5EncoderModel, T5Tokenizer
 from diffusion.model.utils import prepare_prompt_ar
 from diffusion import IDDPM, DPMS, SASolverSampler
 from tools.download import find_model
-from diffusion.model.nets import PixArtMS_XL_2, PixArt_XL_2
+from diffusion.model.nets import PixArtMS, PixArt_XL_2
 from diffusion.data.datasets import get_chunks
 import diffusion.data.datasets.utils as ds_utils
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--image_size', default=1024, type=int)
+    parser.add_argument('--image_size', default=512, type=int)
     parser.add_argument('--version', default='sigma', type=str)
     parser.add_argument(
-        "--pipeline_load_from", default='output/pretrained_models/pixart_sigma_sdxlvae_T5_diffusers',
+        "--pipeline_load_from", default="/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers",
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
-    parser.add_argument('--txt_file', default='asset/samples.txt', type=str)
-    parser.add_argument('--model_path', default='output/pretrained_models/PixArt-XL-2-1024x1024.pth', type=str)
+    parser.add_argument('--txt_file', default='/export/data/vislearn/rother_subgroup/dzavadsk/datasets/coco2017/coco2017_image_captions_val_all.json', type=str)
+    parser.add_argument('--model_path', default='/export/data/sheid/pixart/PixArt_sigma_xl2_img512_laion2M_skipConnection/checkpoints/epoch_1_step_127226.pth', type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
     parser.add_argument('--bs', default=1, type=int)
     parser.add_argument('--cfg_scale', default=4.5, type=float)
@@ -40,6 +41,9 @@ def get_args():
     parser.add_argument('--dataset', default='custom', type=str)
     parser.add_argument('--step', default=-1, type=int)
     parser.add_argument('--save_name', default='test_sample', type=str)
+    parser.add_argument('--save_path', default='/export/data/sheid/pixart/generated_coco/pixart_sigma_xl2_img512_laion2M_skipConnection/', type=str,)
+    parser.add_argument('--pe_interpolation', default=1.0, type=float)
+
 
     return parser.parse_args()
 
@@ -51,15 +55,15 @@ def set_env(seed=0):
         torch.randn(1, 4, args.image_size, args.image_size)
 
 @torch.inference_mode()
-def visualize(items, bs, sample_steps, cfg_scale):
+def visualize( items,keys, bs, sample_steps, cfg_scale):
 
-    for chunk in tqdm(list(get_chunks(items, bs)), unit='batch'):
-
+    for idx, chunk in enumerate(tqdm(list(get_chunks(items, bs)), unit='batch')):
+        key = keys[idx]
         prompts = []
         if bs == 1:
-            save_path = os.path.join(save_root, f"{prompts[0][:100]}.jpg")
-            if os.path.exists(save_path):
-                continue
+            # save_path = os.path.join(save_root, f"{prompts[0][:100]}.jpg")
+            # if os.path.exists(save_path):
+            #     continue
             prompt_clean, _, hw, ar, custom_hw = prepare_prompt_ar(chunk[0], base_ratios, device=device, show=False)  # ar for aspect ratio
             if args.image_size == 1024:
                 latent_size_h, latent_size_w = int(hw[0, 0] // 8), int(hw[0, 1] // 8)
@@ -74,7 +78,7 @@ def visualize(items, bs, sample_steps, cfg_scale):
             for prompt in chunk:
                 prompts.append(prepare_prompt_ar(prompt, base_ratios, device=device, show=False)[0].strip())
             latent_size_h, latent_size_w = latent_size, latent_size
-
+        print(f'prompts: {prompts}')
         caption_token = tokenizer(prompts, max_length=max_sequence_length, padding="max_length", truncation=True,
                                   return_tensors="pt").to(device)
         caption_embs = text_encoder(caption_token.input_ids, attention_mask=caption_token.attention_mask)[0]
@@ -138,7 +142,7 @@ def visualize(items, bs, sample_steps, cfg_scale):
         # Save images:
         os.umask(0o000)  # file permission: 666; dir permission: 777
         for i, sample in enumerate(samples):
-            save_path = os.path.join(save_root, f"{prompts[i][:100]}.jpg")
+            save_path = os.path.join(save_root, f"{key}.jpg")
             print("Saving path: ", save_path)
             save_image(sample, save_path, nrow=1, normalize=True, value_range=(-1, 1))
 
@@ -154,7 +158,7 @@ if __name__ == '__main__':
     # only support fixed latent size currently
     latent_size = args.image_size // 8
     max_sequence_length = {"alpha": 120, "sigma": 300}[args.version]
-    pe_interpolation = args.image_size / 512
+    pe_interpolation = args.pe_interpolation if args.pe_interpolation > 0 else args.image_size / 512
     micro_condition = True if args.version == 'alpha' and args.image_size == 1024 else False
     sample_steps_dict = {'iddpm': 100, 'dpm-solver': 20, 'sa-solver': 25}
     sample_steps = args.step if args.step != -1 else sample_steps_dict[args.sampling_algo]
@@ -164,17 +168,19 @@ if __name__ == '__main__':
     # model setting
     micro_condition = True if args.version == 'alpha' and args.image_size == 1024 else False
     if args.image_size in [512, 1024, 2048] or args.version == 'sigma':
-        model = PixArtMS_XL_2(
+        model = PixArtMS(
             input_size=latent_size,
             pe_interpolation=pe_interpolation,
             micro_condition=micro_condition,
             model_max_length=max_sequence_length,
+             skip_connections=True
         ).to(device)
     else:
-        model = PixArt_XL_2(
+        model = PixArtMS(
             input_size=latent_size,
             pe_interpolation=pe_interpolation,
             model_max_length=max_sequence_length,
+            skip_connections=True
         ).to(device)
 
     print("Generating sample from ckpt: %s" % args.model_path)
@@ -205,9 +211,16 @@ if __name__ == '__main__':
     work_dir = '/'+work_dir if args.model_path[0] == '/' else work_dir
 
     # data setting
-    with open(args.txt_file, 'r') as f:
-        items = [item.strip() for item in f.readlines()]
+    # with open(args.txt_file, 'r') as f:
+    #     items = [item.strip() for item in f.readlines()]
+    with open(args.txt_file, "r") as f:
+        data = json.load(f)
 
+    # Get string values, assuming each dict has one key-value pair
+    items = [d[0] for d in data.values()]
+    keys = [k for k in data.keys()]
+    
+    print(items[0])
     # img save setting
     try:
         epoch_name = re.search(r'.*epoch_(\d+).*', args.model_path).group(1)
@@ -219,6 +232,7 @@ if __name__ == '__main__':
     os.umask(0o000)  # file permission: 666; dir permission: 777
     os.makedirs(img_save_dir, exist_ok=True)
 
-    save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
+    #save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
+    save_root = args.save_path
     os.makedirs(save_root, exist_ok=True)
-    visualize(items, args.bs, sample_steps, args.cfg_scale)
+    visualize( items,keys, args.bs, sample_steps, args.cfg_scale)
