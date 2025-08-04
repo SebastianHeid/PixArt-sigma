@@ -16,11 +16,6 @@ import torch
 from accelerate import Accelerator, InitProcessGroupKwargs
 from accelerate.utils import DistributedType
 from diffusers.models import AutoencoderKL
-from mmcv.runner import LogBuffer
-from PIL import Image
-from torch.utils.data import RandomSampler
-from transformers import T5EncoderModel, T5Tokenizer
-
 from diffusion import DPMS, IDDPM
 from diffusion.data.builder import build_dataloader, build_dataset, set_data_root
 from diffusion.model.builder import build_model
@@ -42,7 +37,11 @@ from diffusion.utils.misc import (
     set_random_seed,
 )
 from diffusion.utils.optimizer import auto_scale_lr, build_optimizer
-
+from mmcv.runner import LogBuffer
+from PIL import Image
+from torch.utils.data import RandomSampler
+from transformers import T5EncoderModel, T5Tokenizer
+from diffusion.model.nets.repa_mlps import RepaMLP
 warnings.filterwarnings("ignore")  # ignore warning
 
 
@@ -62,7 +61,7 @@ def log_validation(model, step, device, vae=None):
     ).repeat(1, 1)
     ar = torch.tensor([[1.0]], device=device).repeat(1, 1)
     null_y = torch.load(
-        f"/export/scratch/sheid/pixart/pretrained_models/null_embed_diffusers_{max_length}token.pth"
+        f"/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/null_embed_diffusers_{max_length}token.pth"
     )
     null_y = null_y["uncond_prompt_embeds"].to(device)
 
@@ -171,6 +170,7 @@ def train():
 
     load_vae_feat = getattr(train_dataloader.dataset, "load_vae_feat", False)
     load_t5_feat = getattr(train_dataloader.dataset, "load_t5_feat", False)
+    load_img_vae_feat = getattr(train_dataloader.dataset, "load_img_vae_feat", False)
     # Now you train the model
     for epoch in range(start_epoch + 1, config.num_epochs + 1):
         data_time_start = time.time()
@@ -179,7 +179,7 @@ def train():
             if step < skip_step:
                 global_step += 1
                 continue  # skip data in the resumed ckpt
-            if load_vae_feat:
+            if load_vae_feat or load_img_vae_feat:
                 z = batch[0]
             else:
                 with torch.no_grad():
@@ -189,15 +189,20 @@ def train():
                             or config.mixed_precision == "bf16"
                         )
                     ):
+                        
                         posterior = vae.encode(batch[0]).latent_dist
+                        
                         if config.sample_posterior:
                             z = posterior.sample()
                         else:
                             z = posterior.mode()
-
+                       
+            
             clean_images = z * config.scale_factor
             data_info = batch[3]
-
+            dino_image = None
+            if load_img_vae_feat:
+                dino_image = batch[-1]
             if load_t5_feat:
                 y = batch[1]
                 y_mask = batch[2]
@@ -225,6 +230,7 @@ def train():
             with accelerator.accumulate(model):
                 # Predict the noise residual
                 optimizer.zero_grad()
+            
                 if config.intermediate_loss_flag:
                     loss_term = train_diffusion.training_losses(
                         model,
@@ -236,6 +242,20 @@ def train():
                         org_loss_flag = config.org_loss_flag,
                         model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
                     )
+                elif config.repa_flag:
+     
+                    loss_term = train_diffusion.training_losses(
+                        model,
+                        clean_images,
+                        timesteps,
+                        model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
+                        dino_model = dino_model,
+                        img = batch[0].to(device=accelerator.device, dtype=torch.float16),
+                        repa_depth=config.repa_depth,  # Use the repa_depth from config
+                        dino_image=dino_image,
+            
+                    )
+                    
                 else:
                     loss_term = train_diffusion.training_losses(
                         model,
@@ -354,7 +374,7 @@ def parse_args():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument(
         "--pipeline_load_from",
-        default="/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers",
+        default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/pixart_sigma_sdxlvae_T5_diffusers",
         type=str,
         help="Download for loading text_encoder, "
         "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers",
@@ -467,7 +487,7 @@ if __name__ == "__main__":
     max_length = config.model_max_length
     kv_compress_config = config.kv_compress_config if config.kv_compress else None
     vae = None
-    if not config.data.load_vae_feat:
+    if not config.data.load_vae_feat and not config.data.load_img_vae_feat:
         vae = AutoencoderKL.from_pretrained(
             config.vae_pretrained, torch_dtype=torch.float16
         ).to(accelerator.device)
@@ -546,7 +566,7 @@ if __name__ == "__main__":
                     "uncond_prompt_embeds": null_token_emb,
                     "uncond_prompt_embeds_mask": null_tokens.attention_mask,
                 },
-                f"/export/scratch/sheid/pixart/pretrained_models/null_embed_diffusers_{max_length}token.pth",
+                f"/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/null_embed_diffusers_{max_length}token.pth",
             )
             del null_tokens
             del null_token_emb
@@ -572,6 +592,19 @@ if __name__ == "__main__":
         pred_sigma=pred_sigma,
         snr=config.snr_loss,
     )
+    if config.repa_flag:
+        if config.dino_version == "dinov2_vitg14":
+            token_dim = 1536
+        elif config.dino_version == "dinov2_vitb14":
+            token_dim = 768
+        else:
+            raise ValueError(f"Unsupported DINO version: {config.dino_version}")
+        dino_model = torch.hub.load('facebookresearch/dinov2', config.dino_version, pretrained=True)
+        dino_model = dino_model.to(accelerator.device)
+        dino_model = accelerator.prepare(dino_model)
+        dino_model = dino_model.half()
+        dino_model.eval()
+        
     model = build_model(
         config.model,
         config.grad_checkpointing,
@@ -579,8 +612,13 @@ if __name__ == "__main__":
         input_size=latent_size,
         learn_sigma=learn_sigma,
         pred_sigma=pred_sigma,
+        skip_connections = config.skip_connections,
+        repa_flag = config.repa_flag,
+        repa_depth = config.repa_depth,
+        token_dim = token_dim if config.repa_flag else None,
         **model_kwargs,
     ).train()
+        
     if config.intermediate_loss_flag:
         ref_model = build_model(
             config.model,
@@ -719,4 +757,6 @@ if __name__ == "__main__":
     optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
         optimizer, train_dataloader, lr_scheduler
     )
+    
+    
     train()

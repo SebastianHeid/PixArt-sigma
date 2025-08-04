@@ -104,3 +104,10 @@ final_output_loss_flag = False
 # Modfication of Mode
 transformer_blocks = []
 trainable_blocks = []
+
+
+skip_connections=False
+
+# repa loss
+repa_flag = False
+repa_depth = 8

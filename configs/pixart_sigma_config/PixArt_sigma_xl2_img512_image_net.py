@@ -1,0 +1,84 @@
+_base_ = ["../PixArt_xl2_internal.py"]
+data_root = "pixart-sigma-toy-dataset"
+image_list_json = ["data_info.json"]
+
+data = dict(
+    type="InternalDataMSSigma",
+    root="/gpfs/bwfor/work/ws/hd_om233-flux/ImageNet/feature_pixart",
+    img_root="/gpfs/lsdf02/sd23g007/datasets/imageNet/train",
+    #img_root= "/gpfs/bwfor/work/ws/hd_om233-flux/ImageNet/feature_pixart",
+    image_list_json=image_list_json,
+    transform="default_train",
+    load_vae_feat=True,
+    load_t5_feat=True,
+    load_img_vae_feat=False
+)
+image_size = 256
+
+# model setting
+model = "PixArtMS_XL_2"
+mixed_precision = "bf16"  # ['fp16', 'no', 'bf16']
+fp32_attention = False
+resume_from = dict(
+    checkpoint="/gpfs/bwfor/work/ws/hd_om233-flux/pixart/ImageNet/exp1/checkpoints/epoch_128_step_650372.pth", load_ema=False, resume_optimizer=True, resume_lr_scheduler=True
+)
+vae_pretrained = (
+    "/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
+)
+aspect_ratio_type = "ASPECT_RATIO_256"
+multi_scale = False  # if use multiscale dataset model training
+pe_interpolation = 1.0
+
+# training setting
+num_workers = 32
+train_batch_size = 200  # compgpu7: 64; compgpu11: 128 
+num_epochs = 400  # 3
+gradient_accumulation_steps = 1
+grad_checkpointing = True
+gradient_clip = 0.01
+optimizer = dict(
+    type="CAMEWrapper",
+    lr=2.3e-5,
+    weight_decay=0.03,
+    betas=(0.9, 0.999, 0.9999),
+    eps=(1e-30, 1e-16),
+)
+lr_schedule_args = dict(num_warmup_steps=1000)
+
+eval_sampling_steps = 500
+visualize = True
+log_interval = 20
+save_model_epochs = 1
+save_model_steps = 50000
+work_dir = "output/debug"
+
+# pixart-sigma
+scale_factor = 0.13025
+real_prompt_ratio = 1.0
+model_max_length = 300
+class_dropout_prob = 0.1
+
+# Intermediate loss
+intermediate_loss_flag = False
+intermediate_loss_blocks = []
+final_output_loss_flag = False
+org_loss_flag = True
+
+# Modfication of Modelcd 
+transformer_blocks = []
+trainable_blocks = []
+# wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
+
+
+validation_prompts = [
+    "dog",
+    "great_white_shark",
+    "bald_eagle",
+    "spotted_salamander",
+    "green_lizard",
+]
+
+# If REPA should be used for training
+repa_flag = False 
+repa_depth: 8
+dino_version = "dinov2_vitg14"

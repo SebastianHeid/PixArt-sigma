@@ -144,6 +144,7 @@ def extract_caption_t5_job(item):
         # make sure the save path is unique here
         save_path = os.path.join(t5_save_dir, f"{Path(item['path']).stem}")
         if os.path.exists(save_path + ".npz"):
+            print("File already exists, skipping:", save_path)
             count += 1
             return
 

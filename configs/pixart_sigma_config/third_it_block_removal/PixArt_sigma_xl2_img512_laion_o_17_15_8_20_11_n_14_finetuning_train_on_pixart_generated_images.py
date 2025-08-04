@@ -1,11 +1,11 @@
 _base_ = ["../PixArt_xl2_internal.py"]
 data_root = "pixart-sigma-toy-dataset"
-image_list_json = ["data_info_fixed.json"]
+image_list_json = ["data_info.json"]
 
 data = dict(
     type="InternalDataMSSigma",
-    root="/export/data/vislearn/rother_subgroup/sheid/pixart/laion2M",
-    img_root="/export/data/vislearn/rother_subgroup/rother_datasets/LaionAE/laion2B-en-art_512/",
+    root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/json",
+    img_root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/images",
     image_list_json=image_list_json,
     transform="default_train",
     load_vae_feat=False,
@@ -17,7 +17,7 @@ image_size = 512
 model = "PixArtMS_XL_2"
 mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
 fp32_attention = True
-load_from = "/export/data/sheid/pixart/PixArt_sigma_xl2_img512_laion_4_19/checkpoints/epoch_1_step_250000.pth"  # https://huggingface.co/PixArt-alpha/PixArt-Sigma
+load_from = "/export/data/sheid/pixart/PixArt_sigma_xl2_img512_laion_o_17_15_8_20_11_n_14_finetuning/checkpoints/epoch_1_step_38082.pth"  # https://huggingface.co/PixArt-alpha/PixArt-Sigma
 ref_load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth" 
 resume_from = None
 vae_pretrained = (
@@ -29,8 +29,8 @@ pe_interpolation = 1.0
 
 # training setting
 num_workers = 0
-train_batch_size = 32  # 48 as default
-num_epochs = 1  # 3
+train_batch_size = 8 # using 2 gpus, so 8 is 16 in total
+num_epochs = 30  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
 gradient_clip = 0.01
@@ -47,7 +47,7 @@ eval_sampling_steps = 500
 visualize = True
 log_interval = 20
 save_model_epochs = 1
-save_model_steps = 50000
+save_model_steps = 10000
 work_dir = "output/debug"
 
 # pixart-sigma
@@ -58,10 +58,11 @@ class_dropout_prob = 0.1
 
 # Intermediate loss
 intermediate_loss_flag = True
-intermediate_loss_blocks = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18, 19,20,21, 22,23,24,25,26,27]
+intermediate_loss_blocks = [8,9,11,12,15,17,18,20,21,22,23,24,25,26,27]
 final_output_loss_flag = True
 org_loss_flag = False
+
 # Modfication of Model
-transformer_blocks = [4,19]
-trainable_blocks = [3,18]
+transformer_blocks = [8,15,17, 20,11, 14]
+trainable_blocks = []
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr

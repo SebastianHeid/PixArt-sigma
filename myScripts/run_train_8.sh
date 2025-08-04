@@ -1,4 +1,5 @@
 
+
 available_gpus=(3,7)
 for gpu in "${available_gpus[@]}"; do
   export CUDA_VISIBLE_DEVICES=$gpu
