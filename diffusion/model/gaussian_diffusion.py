@@ -10,7 +10,7 @@ import math
 import numpy as np
 import torch as th
 import torch.nn.functional as F
-
+from torchvision import transforms
 from .diffusion_utils import discretized_gaussian_log_likelihood, normal_kl
 
 
@@ -785,21 +785,32 @@ class GaussianDiffusion:
         x_start,
         timestep,
         ref_model=None,
+        dino_model = None,
         intermediate_loss_blocks=[],
         final_output_loss_flag=False,
         org_loss_flag=True,
         model_kwargs=None,
         noise=None,
         skip_noise=False,
+        img = None,
+        repa_depth=None,
+        repa_coefficient=0.5,
+        dino_image=None,
     ):
         """
         Compute training losses for a single timestep.
         :param model: the model to evaluate loss on.
         :param x_start: the [N x C x ...] tensor of inputs.
-        :param t: a batch of timestep indices.
+        :param timestep: a batch of timestep indices.
+        :param ref_model: teacher for knowledge distillation.
+        :param dino_model: DINO model for REPA loss.
+        :param intermediate_loss_blocks: if not empty, a list of blocks that features are used to compute KD loss.
+        :param final_output_loss_flag: if True, the final output of the model is used for loss computation.
+        :param org_loss_flag: if True, the original loss is computed.
         :param model_kwargs: if not None, a dict of extra keyword arguments to
             pass to the model. This can be used for conditioning.
         :param noise: if specified, the specific Gaussian noise to try to remove.
+        :param img: original image for REPA loss.
         :return: a dict with the key "loss" containing a tensor of shape [N].
                  Some mean or variance settings may also have other keys.
         """
@@ -827,7 +838,7 @@ class GaussianDiffusion:
             if self.loss_type == LossType.RESCALED_KL:
                 terms["loss"] *= self.num_timesteps
         elif self.loss_type == LossType.MSE or self.loss_type == LossType.RESCALED_MSE:
-            model_output, feat_list = model(x_t, t, **model_kwargs, train=True)
+            model_output, feat_list, repa_x = model(x_t, t, **model_kwargs, train=True)
             if ref_model is not None:
                 with th.no_grad():
                     ref_model_output, ref_feat_list = ref_model(
@@ -842,6 +853,9 @@ class GaussianDiffusion:
                     intermediate_loss_blocks,
                     final_output_loss_flag,
                 )
+            
+            if repa_x is not None:
+                terms["repa_loss"] = self.repa_loss(dino_model,  img, repa_x, dino_image)
             if (
                 isinstance(model_output, dict)
                 and model_output.get("x", None) is not None
@@ -938,6 +952,8 @@ class GaussianDiffusion:
                     terms["loss"] = terms["loss"] + terms["intermediate_loss"]
                 else:
                     terms["loss"] = terms["intermediate_loss"]
+            if repa_x is not None:
+                terms["loss"] = terms["loss"] + terms["repa_loss"] *repa_coefficient
         else:
             raise NotImplementedError(self.loss_type)
         return terms
@@ -1161,6 +1177,42 @@ class GaussianDiffusion:
             loss.append(F.mse_loss(model_output, ref_model_output))
         loss_th = th.stack(loss)
         return th.mean(loss_th)
+    
+    def repa_loss(self, dino_model,  img, repa_x, dino_image):
+        """
+        Compute the REPA loss for a single timestep.
+        :param dino_model: the DINO model to evaluate loss on.
+        :param img: the [N x C x ...] tensor of inputs.
+        :param feat_list: Intermediate features from the model.
+        :return: a dict with the key "loss" containing a tensor of shape [N].
+                 Some mean or variance settings may also have other keys.
+        """
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
+        transform_dino = transforms.Compose([
+            transforms.Resize((224, 224)),
+            normalize
+            ])
+        
+        if dino_image is not None:
+            dino_image = dino_image.to(dtype=th.float16)
+            dino_x = transform_dino(dino_image)
+        else:
+            dino_x = transform_dino(img)
+        with th.no_grad():
+            #intermediate_outputs = dino_model.get_intermediate_layers(img, n=len(dino_model.blocks))
+            actual_dino_model = dino_model.module if hasattr(dino_model, 'module') else dino_model
+            dino_outputs = actual_dino_model.get_intermediate_layers(dino_x, n=len(actual_dino_model.blocks))
+            dino_output = dino_outputs[-1]
+        cos_sim = -F.cosine_similarity(
+                    dino_output.unsqueeze(1),
+                    repa_x.unsqueeze(1),
+                    dim=-1,
+                ).mean()
+        return cos_sim
+
+        
+
 
 
 def _extract_into_tensor(arr, timesteps, broadcast_shape):

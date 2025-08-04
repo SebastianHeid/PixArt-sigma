@@ -30,7 +30,7 @@ multi_scale = False  # if use multiscale dataset model training
 pe_interpolation = 1.0
 
 # training setting
-num_workers = 32
+num_workers = 4
 train_batch_size = 200  # compgpu7: 64; compgpu11: 128 
 num_epochs = 400  # 3
 gradient_accumulation_steps = 1

@@ -192,7 +192,6 @@ class InternalDataMSSigma(InternalDataSigma):
                  sample_subset=None,
                  load_vae_feat=False,
                  load_t5_feat=False,
-                 load_img_vae_feat=False,
                  input_size=32,
                  patch_size=2,
                  mask_ratio=0.0,
@@ -202,14 +201,13 @@ class InternalDataMSSigma(InternalDataSigma):
                  max_length=300,
                  config=None,
                  **kwargs):
-    
+        
         self.multi_scale = config.multi_scale
         self.root = get_data_path(root)
         self.img_root = get_data_path(img_root)
         self.transform = transform
         self.load_vae_feat = load_vae_feat
         self.load_t5_feat = load_t5_feat
-        self.load_img_vae_feat = load_img_vae_feat
         self.ori_imgs_nums = 0
         self.resolution = resolution
         self.N = int(resolution // (input_size // patch_size))
@@ -290,10 +288,6 @@ class InternalDataMSSigma(InternalDataSigma):
         if load_vae_feat:
             self.transform = None
             self.loader = self.vae_feat_loader
-        elif load_img_vae_feat:
-            self.vae_loader = self.vae_feat_loader
-            self.img_loader = default_loader
-            self.loader = self.vae_feat_loader
         else:
             self.loader = default_loader
 
@@ -314,8 +308,6 @@ class InternalDataMSSigma(InternalDataSigma):
         npz_path = self.txt_feat_samples[index] if real_prompt else self.gpt4v_txt_feat_samples[index]
         txt = self.txt_samples[index] if real_prompt else self.sharegpt4v_txt_samples[index]
         npy_path = self.vae_feat_samples[index]
-   
- 
         data_info = {}
         ori_h, ori_w = self.meta_data_clean[index]['height'], self.meta_data_clean[index]['width']
 
@@ -330,15 +322,6 @@ class InternalDataMSSigma(InternalDataSigma):
                 self.ratio_index[closest_ratio].append(index)
             h, w = (img.shape[1], img.shape[2])
             assert h, w == (ori_h//8, ori_w//8)
-        elif self.load_img_vae_feat:
-            dino_img = self.img_loader(img_path)
-            
-            img = self.vae_loader(npy_path)
-            h, w = (img.shape[1], img.shape[2])
-            if index not in self.ratio_index[closest_ratio]:
-                self.ratio_index[closest_ratio].append(index)
-            
-            
         else:
             img = self.loader(img_path)
             h, w = (img.size[1], img.size[0])
@@ -375,13 +358,10 @@ class InternalDataMSSigma(InternalDataSigma):
                     T.Normalize([.5], [.5]),
                 ])
         
-        if self.load_img_vae_feat and self.transform:
-            dino_img = self.transform(dino_img)
-        elif self.transform:
+ 
+        if self.transform:
             img = self.transform(img)
 
-        if self.load_img_vae_feat:
-            return img, txt_fea, attention_mask.to(torch.int16), data_info, dino_img
         return img, txt_fea, attention_mask.to(torch.int16), data_info
 
     def __getitem__(self, idx):

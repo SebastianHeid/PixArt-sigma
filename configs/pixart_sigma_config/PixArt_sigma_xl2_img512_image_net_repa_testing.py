@@ -1,6 +1,6 @@
 _base_ = ["../PixArt_xl2_internal.py"]
 data_root = "pixart-sigma-toy-dataset"
-image_list_json = ["data_info.json"]
+image_list_json = ["data_info_feat.json"]
 
 data = dict(
     type="InternalDataMSSigma",
@@ -9,9 +9,9 @@ data = dict(
     #img_root= "/gpfs/bwfor/work/ws/hd_om233-flux/ImageNet/feature_pixart",
     image_list_json=image_list_json,
     transform="default_train",
-    load_vae_feat=True,
+    load_vae_feat=False,
     load_t5_feat=True,
-    load_img_vae_feat=False
+    load_img_vae_feat=True
 )
 image_size = 256
 
@@ -19,9 +19,7 @@ image_size = 256
 model = "PixArtMS_XL_2"
 mixed_precision = "bf16"  # ['fp16', 'no', 'bf16']
 fp32_attention = False
-resume_from = dict(
-    checkpoint="/gpfs/bwfor/work/ws/hd_om233-flux/pixart/ImageNet/exp1/checkpoints/epoch_128_step_650372.pth", load_ema=False, resume_optimizer=True, resume_lr_scheduler=True
-)
+
 vae_pretrained = (
     "/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
 )
@@ -30,15 +28,15 @@ multi_scale = False  # if use multiscale dataset model training
 pe_interpolation = 1.0
 
 # training setting
-num_workers = 32
-train_batch_size = 200  # compgpu7: 64; compgpu11: 128 
-num_epochs = 400  # 3
+num_workers = 2
+train_batch_size =16  # compgpu7: 64; compgpu11: 128 
+num_epochs = 200  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
 gradient_clip = 0.01
 optimizer = dict(
     type="CAMEWrapper",
-    lr=2.3e-5,
+    lr=2e-5,
     weight_decay=0.03,
     betas=(0.9, 0.999, 0.9999),
     eps=(1e-30, 1e-16),

@@ -18,11 +18,8 @@ model = "PixArtMS_XL_2"
 mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
 fp32_attention = True
 
-resume_from = dict(
-    checkpoint="/export/data/sheid/pixart/PixArt_sigma_xl2_img512_image_net_skip/checkpoints/epoch_13_step_65026.pth", load_ema=False, resume_optimizer=True, resume_lr_scheduler=True
-)
 vae_pretrained = (
-    "/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
+    "/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
 )
 aspect_ratio_type = "ASPECT_RATIO_256"
 multi_scale = True  # if use multiscale dataset model training

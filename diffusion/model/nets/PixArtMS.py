@@ -47,6 +47,22 @@ class ZeroConv1d(nn.Module):
     def forward(self, x):
         return self.conv(x)
 
+class RepaMLP(nn.Module):
+    def __init__(self, hidden_size=1152, projector_dim=2048, z_dim=1536):
+        super().__init__()
+        self.proj = nn.Sequential(
+                nn.Linear(hidden_size, projector_dim),
+                nn.SiLU(),
+                nn.Linear(projector_dim, projector_dim),
+                nn.SiLU(),
+                nn.Linear(projector_dim, z_dim),
+            )
+       
+
+    def forward(self, x):
+        return self.proj(x)
+
+
 class PatchEmbed(nn.Module):
     """2D Image to Patch Embedding"""
 
@@ -170,6 +186,9 @@ class PixArtMS(PixArt):
         qk_norm=False,
         kv_compress_config=None,
         skip_connections = False,
+        repa_flag = False,
+        repa_depth = 8,
+        token_dim = None, 
         **kwargs,
     ):
         super().__init__(
@@ -191,6 +210,8 @@ class PixArtMS(PixArt):
             kv_compress_config=kv_compress_config,
             **kwargs,
         )
+        self.repa_flag = repa_flag
+        self.repa_depth = repa_depth
         self.skip_connections = skip_connections
         self.h = self.w = 0
         approx_gelu = lambda: nn.GELU(approximate="tanh")
@@ -237,6 +258,10 @@ class PixArtMS(PixArt):
                 for i in range(depth)
             ]
         )
+        
+        if self.repa_flag:
+            self.repa_mlp = RepaMLP(z_dim=token_dim)
+            print("REPA MLP ENABLED")
         
         if self.skip_connections:
             print("SKIP CONNECTIONS ENABLED")
@@ -317,8 +342,13 @@ class PixArtMS(PixArt):
                 
         x = self.final_layer(x, t)  # (N, T, patch_size ** 2 * out_channels)
         x = self.unpatchify(x)  # (N, out_channels, H, W)
-        if train:
-            return x, feat_list
+        
+        if self.repa_flag and train:
+            B,L,D = feat_list[self.repa_depth].shape
+            repa_x = self.repa_mlp(feat_list[self.repa_depth].reshape(-1, D)).reshape(B, L, -1)
+            return x, feat_list, repa_x
+        elif train:
+            return x, feat_list, None
         else:
             return x
 

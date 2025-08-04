@@ -1,11 +1,10 @@
 import os
 import time
 
-from mmcv import Registry, build_from_cfg
-from torch.utils.data import DataLoader
-
 from diffusion.data.transforms import get_transform
 from diffusion.utils.logger import get_root_logger
+from mmcv import Registry, build_from_cfg
+from torch.utils.data import DataLoader
 
 DATASETS = Registry('datasets')
 
