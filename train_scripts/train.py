@@ -309,6 +309,9 @@ def train():
                         optimizer=optimizer,
                         lr_scheduler=lr_scheduler,
                     )
+                # exit after 38000 steps because now have to use 2Mio laion dataset instead of 600k -> was deleted
+                sys.exit()
+                
             if config.visualize and (
                 global_step % config.eval_sampling_steps == 0 or (step + 1) == 1
             ):
@@ -331,6 +334,7 @@ def train():
                     optimizer=optimizer,
                     lr_scheduler=lr_scheduler,
                 )
+                
         accelerator.wait_for_everyone()
 
 
