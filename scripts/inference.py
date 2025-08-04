@@ -1,33 +1,46 @@
 import os
 import sys
 from pathlib import Path
+
 current_file_path = Path(__file__).resolve()
 sys.path.insert(0, str(current_file_path.parent.parent))
 import warnings
+
 warnings.filterwarnings("ignore")  # ignore warning
+
 import re
 import json
+
 import argparse
+import re
 from datetime import datetime
-from tqdm import tqdm
+
 import torch
-from torchvision.utils import save_image
 from diffusers.models import AutoencoderKL
+from torchvision.utils import save_image
+from tqdm import tqdm
 from transformers import T5EncoderModel, T5Tokenizer
 
+import diffusion.data.datasets.utils as ds_utils
+from diffusion import DPMS, IDDPM, SASolverSampler
+from diffusion.data.datasets import get_chunks
+from diffusion.model.nets import PixArt_XL_2, PixArtMS_XL_2
 from diffusion.model.utils import prepare_prompt_ar
-from diffusion import IDDPM, DPMS, SASolverSampler
 from tools.download import find_model
+
 from diffusion.model.nets import PixArtMS, PixArt_XL_2
 from diffusion.data.datasets import get_chunks
 import diffusion.data.datasets.utils as ds_utils
+
 
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--image_size', default=512, type=int)
     parser.add_argument('--version', default='sigma', type=str)
     parser.add_argument(
+
         "--pipeline_load_from", default="/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers",
+
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
@@ -42,6 +55,7 @@ def get_args():
     parser.add_argument('--step', default=-1, type=int)
     parser.add_argument('--save_name', default='test_sample', type=str)
     parser.add_argument('--save_path', default='/export/data/sheid/pixart/generated_coco/pixart_sigma_xl2_img512_laion2M_skipConnection/', type=str,)
+
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
 
 
@@ -61,6 +75,7 @@ def visualize( items,keys, bs, sample_steps, cfg_scale):
         key = keys[idx]
         prompts = []
         if bs == 1:
+
             # save_path = os.path.join(save_root, f"{prompts[0][:100]}.jpg")
             # if os.path.exists(save_path):
             #     continue
@@ -72,6 +87,7 @@ def visualize( items,keys, bs, sample_steps, cfg_scale):
                 ar = torch.tensor([[1.]], device=device).repeat(bs, 1)
                 latent_size_h, latent_size_w = latent_size, latent_size
             prompts.append(prompt_clean.strip())
+            print(prompts)
         else:
             hw = torch.tensor([[args.image_size, args.image_size]], dtype=torch.float, device=device).repeat(bs, 1)
             ar = torch.tensor([[1.]], device=device).repeat(bs, 1)

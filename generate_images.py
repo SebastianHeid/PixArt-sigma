@@ -2,6 +2,7 @@ import os
 
 import torch
 from diffusers import AutoencoderKL, PixArtSigmaPipeline
+
 from diffusion.model.nets.PixArtMS import PixArtMS
 from PIL import Image
 from torchvision.utils import save_image
@@ -11,12 +12,14 @@ from diffusion.utils.checkpoint import load_checkpoint
 prompt = "A futuristic city in the clouds, digital painting"
 output_path = "output.png"
 image_size = 512  # or 512 for smaller models
+
 guidance_scale = 4.0
 num_inference_steps = 50
 seed = 42
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load pipeline to get VAE + tokenizer + T5
+
 weight_dtype = torch.float16
 pipe = PixArtSigmaPipeline.from_pretrained(
     "PixArt-alpha/PixArt-Sigma-XL-2-1024-MS", 
@@ -24,6 +27,7 @@ pipe = PixArtSigmaPipeline.from_pretrained(
     use_safetensors=True,
 )
 pipe.to(device)
+
 # Extract pretrained VAE and tokenizer/text encoder
 vae: AutoencoderKL = pipe.vae
 vae.eval()
@@ -33,21 +37,26 @@ tokenizer: T5Tokenizer = pipe.tokenizer
 text_encoder.eval()
 
 # Load only the PixArtSigma model separately
+
 ckpt_path = "/export/data/sheid/pixart/PixArt_sigma_xl2_img512_laion2M_skipConnection/checkpoints/epoch_1_step_127226.pth"
 model = PixArtMS(skip_connections=True, model_max_length=300)
 missing, unexpected  = load_checkpoint(checkpoint=ckpt_path, model=model, max_length=300)
 model.to(device)
+
 model.eval()
 
 # Prompt encoding
 with torch.no_grad():
+
     txt_tokens = tokenizer(
         [prompt],
         max_length=300,
+
         padding="max_length",
         return_tensors="pt",
         truncation=True
     ).to(device)
+
 
     prompt_embeds = text_encoder(
                         txt_tokens.input_ids
@@ -58,6 +67,7 @@ batch_size = 1
 latent_shape = (4, image_size // 8, image_size // 8)
 latents = torch.randn(
     (batch_size, *latent_shape),
+
     device=device,
     dtype=torch.float16
 )
@@ -79,12 +89,15 @@ with torch.no_grad():
         timestep = torch.tensor([t], dtype=torch.float16, device=device)
 
         # Duplicate text encoder hidden states for guidance
-        #prompt_embeds_input = torch.cat([torch.zeros_like(prompt_embeds), prompt_embeds])
+
+        prompt_embeds_input = torch.cat([torch.zeros_like(prompt_embeds), prompt_embeds])
+
 
         noise_pred = model(
             latent_model_input,
             timestep,
-            prompt_embeds
+            encoder_hidden_states=prompt_embeds_input
+
         ).sample
 
         # Apply classifier-free guidance
