@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 from __future__ import annotations
+
 import argparse
 import os
 import sys
 from pathlib import Path
+
 current_file_path = Path(__file__).resolve()
 sys.path.insert(0, str(current_file_path.parent.parent))
-
 import torch
+import yaml
+from box import Box
+from diffusers import (
+    AutoencoderKL,
+    DPMSolverMultistepScheduler,
+    PixArtAlphaPipeline,
+    PixArtSigmaPipeline,
+    Transformer2DModel,
+)
 from transformers import T5EncoderModel, T5Tokenizer
-
-from diffusers import AutoencoderKL, DPMSolverMultistepScheduler, Transformer2DModel,\
-    PixArtAlphaPipeline, PixArtSigmaPipeline
-
 
 ckpt_id = "PixArt-alpha"
 # https://github.com/PixArt-alpha/PixArt-alpha/blob/0f55e922376d8b797edd44d25d0e7464b260dcab/scripts/inference.py#L125
@@ -21,9 +27,11 @@ interpolation_scale_sigma = {256: 0.5, 512: 1, 1024: 2, 2048: 4}
 
 
 def main(args):
+
     interpolation_scale = interpolation_scale_alpha if args.version == "alpha" else interpolation_scale_sigma
     all_state_dict = torch.load(args.orig_ckpt_path, map_location=torch.device('cpu'))
     state_dict = all_state_dict.pop("state_dict")
+    print(state_dict.keys())
     converted_state_dict = {}
 
     # Patch embeddings.
@@ -80,6 +88,9 @@ def main(args):
 
     for depth in range(28):
         # Transformer blocks.
+        if depth in args.model.transformer_blocks:
+            print(depth)
+            continue
         converted_state_dict[f"transformer_blocks.{depth}.scale_shift_table"] = state_dict.pop(
             f"blocks.{depth}.scale_shift_table"
         )
@@ -174,7 +185,7 @@ def main(args):
         interpolation_scale=interpolation_scale[args.image_size],
         use_additional_conditions=args.micro_condition,
     )
-    transformer.load_state_dict(converted_state_dict, strict=True)
+    transformer.load_state_dict(converted_state_dict, strict=False)
 
     assert transformer.pos_embed.pos_embed is not None
     try:
@@ -216,28 +227,33 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-
     parser.add_argument(
-        "--micro_condition", action="store_true", help="If use Micro-condition in PixArtMS structure during training."
+        "--config_path", default="", type=str, help="Path to config file"
     )
-    parser.add_argument("--qk_norm", action="store_true", help="If use qk norm during training.")
-    parser.add_argument("--kv_compress", action="store_true", help="If use kv compression during training.")
-    parser.add_argument(
-        "--orig_ckpt_path", default=None, type=str, required=False, help="Path to the checkpoint to convert."
-    )
-    parser.add_argument(
-        "--version", default="alpha", type=str, help="PixArt version to convert", choices=["alpha", "sigma"]
-    )
-    parser.add_argument(
-        "--image_size",
-        default=1024,
-        type=int,
-        choices=[256, 512, 1024, 2048],
-        required=False,
-        help="Image size of pretrained model, 256, 512, 1024, or 2048.",
-    )
-    parser.add_argument("--dump_path", default=None, type=str, required=True, help="Path to the output pipeline.")
-    parser.add_argument("--only_transformer", default=True, type=bool, required=True)
+    # parser.add_argument(
+    #     "--micro_condition", action="store_true", help="If use Micro-condition in PixArtMS structure during training."
+    # )
+    # parser.add_argument("--qk_norm", action="store_true", help="If use qk norm during training.")
+    # parser.add_argument("--kv_compress", action="store_true", help="If use kv compression during training."
+    # parser.add_argument(
+    #     "--orig_ckpt_path", default=None, type=str, required=False, help="Path to the checkpoint to convert."
+    # )
+    # parser.add_argument(
+    #     "--version", default="alpha", type=str, help="PixArt version to convert", choices=["alpha", "sigma"]
+    # )
+    # parser.add_argument(
+    #     "--image_size",
+    #     default=1024,
+    #     type=int,
+    #     choices=[256, 512, 1024, 2048],
+    #     required=False,
+    #     help="Image size of pretrained model, 256, 512, 1024, or 2048.",
+    # )
+    # parser.add_argument("--dump_path", default=None, type=str, required=True, help="Path to the output pipeline.")
+    # parser.add_argument("--only_transformer", default=True, type=bool, required=True)
 
     args = parser.parse_args()
-    main(args)
+    with open(args.config_path, "r") as file:
+        config = Box(yaml.safe_load(file))
+
+    main(config)

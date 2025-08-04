@@ -39,6 +39,10 @@ def build_dataset(cfg, resolution=224, **kwargs):
     t = time.time()
     transform = cfg.pop('transform', 'default_train')
     transform = get_transform(transform, resolution)
+    print("---------------------------")
+    print("---------------------------")
+    print("---------------------------")
+    print(cfg)
     dataset = build_from_cfg(cfg, DATASETS, default_args=dict(transform=transform, resolution=resolution, **kwargs))
     logger.info(f"Dataset {dataset_type} constructed. time: {(time.time() - t):.2f} s, length (use/ori): {len(dataset)}/{dataset.ori_imgs_nums}")
     return dataset

@@ -7,9 +7,10 @@ import types
 import warnings
 from pathlib import Path
 
+from tqdm import tqdm
+
 current_file_path = Path(__file__).resolve()
 sys.path.insert(0, str(current_file_path.parent.parent))
-
 import numpy as np
 import torch
 from accelerate import Accelerator, InitProcessGroupKwargs
@@ -23,6 +24,7 @@ from transformers import T5EncoderModel, T5Tokenizer
 from diffusion import DPMS, IDDPM
 from diffusion.data.builder import build_dataloader, build_dataset, set_data_root
 from diffusion.model.builder import build_model
+from diffusion.model.modify_model import modify_model
 from diffusion.utils.checkpoint import load_checkpoint, save_checkpoint
 from diffusion.utils.data_sampler import AspectRatioBatchSampler
 from diffusion.utils.dist_utils import (
@@ -173,7 +175,7 @@ def train():
     for epoch in range(start_epoch + 1, config.num_epochs + 1):
         data_time_start = time.time()
         data_time_all = 0
-        for step, batch in enumerate(train_dataloader):
+        for step, batch in enumerate(tqdm(train_dataloader)):
             if step < skip_step:
                 global_step += 1
                 continue  # skip data in the resumed ckpt
@@ -223,12 +225,24 @@ def train():
             with accelerator.accumulate(model):
                 # Predict the noise residual
                 optimizer.zero_grad()
-                loss_term = train_diffusion.training_losses(
-                    model,
-                    clean_images,
-                    timesteps,
-                    model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
-                )
+                if config.intermediate_loss_flag:
+                    loss_term = train_diffusion.training_losses(
+                        model,
+                        clean_images,
+                        timesteps,
+                        ref_model=ref_model,
+                        intermediate_loss_blocks=config.intermediate_loss_blocks,
+                        final_output_loss_flag=config.final_output_loss_flag,
+                        org_loss_flag = config.org_loss_flag,
+                        model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
+                    )
+                else:
+                    loss_term = train_diffusion.training_losses(
+                        model,
+                        clean_images,
+                        timesteps,
+                        model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
+                    )
                 loss = loss_term["loss"].mean()
                 accelerator.backward(loss)
                 if accelerator.sync_gradients:
@@ -295,6 +309,9 @@ def train():
                         optimizer=optimizer,
                         lr_scheduler=lr_scheduler,
                     )
+                # exit after 38000 steps because now have to use 2Mio laion dataset instead of 600k -> was deleted
+                sys.exit()
+                
             if config.visualize and (
                 global_step % config.eval_sampling_steps == 0 or (step + 1) == 1
             ):
@@ -303,6 +320,7 @@ def train():
                     log_validation(
                         model, global_step, device=accelerator.device, vae=vae
                     )
+                    model.train()
 
         if epoch % config.save_model_epochs == 0 or epoch == config.num_epochs:
             accelerator.wait_for_everyone()
@@ -316,6 +334,7 @@ def train():
                     optimizer=optimizer,
                     lr_scheduler=lr_scheduler,
                 )
+                
         accelerator.wait_for_everyone()
 
 
@@ -365,8 +384,8 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    print(args.config)
     config = read_config(args.config)
+
     if args.work_dir is not None:
         config.work_dir = args.work_dir
     if args.resume_from is not None:
@@ -562,10 +581,19 @@ if __name__ == "__main__":
         pred_sigma=pred_sigma,
         **model_kwargs,
     ).train()
+    if config.intermediate_loss_flag:
+        ref_model = build_model(
+            config.model,
+            config.grad_checkpointing,
+            config.get("fp32_attention", False),
+            input_size=latent_size,
+            learn_sigma=learn_sigma,
+            pred_sigma=pred_sigma,
+            **model_kwargs,
+        ).eval()
     logger.info(
         f"{model.__class__.__name__} Model Parameters: {sum(p.numel() for p in model.parameters()):,}"
     )
-
     if args.load_from is not None:
         config.load_from = args.load_from
     if config.load_from is not None:
@@ -575,8 +603,32 @@ if __name__ == "__main__":
             load_ema=config.get("load_ema", False),
             max_length=max_length,
         )
+        if config.intermediate_loss_flag:
+            ref_missing, ref_unexpected = load_checkpoint(
+                config.ref_load_from,
+                ref_model,
+                load_ema=config.get("load_ema", False),
+                max_length=max_length,
+            )
+            ref_model.requires_grad_(False)
         logger.warning(f"Missing keys: {missing}")
         logger.warning(f"Unexpected keys: {unexpected}")
+
+    # modify model, e.g., remove transformer blocks
+    if config.trainable_blocks:
+        model.requires_grad_(False)  # Disable grad for all layers initially
+
+        for block_num in config.trainable_blocks:
+            for param in model.blocks[block_num].parameters():
+                param.requires_grad = True
+                
+    model = modify_model(model, config.transformer_blocks)
+    logger.info(
+        f"{model.__class__.__name__} Model Parameters: {sum(p.numel() for p in model.parameters()):,}"
+    )
+    logger.info(
+        f"{model.__class__.__name__} Trainable Model Parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
+    )
 
     # prepare for FSDP clip grad norm calculation
     if accelerator.distributed_type == DistributedType.FSDP:
@@ -614,7 +666,6 @@ if __name__ == "__main__":
             batch_size=config.train_batch_size,
             shuffle=True,
         )
-
     # build optimizer and lr scheduler
     lr_scale_ratio = 1
     if config.get("auto_lr", None):
@@ -663,6 +714,8 @@ if __name__ == "__main__":
     # There is no specific order to remember, you just need to unpack the
     # objects in the same order you gave them to the prepare method.
     model = accelerator.prepare(model)
+    if config.intermediate_loss_flag:
+        ref_model = accelerator.prepare(ref_model)
     optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
         optimizer, train_dataloader, lr_scheduler
     )

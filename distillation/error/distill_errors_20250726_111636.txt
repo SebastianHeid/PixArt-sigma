@@ -1,0 +1,41 @@
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launch.py:183: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  warnings.warn(
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+Traceback (most recent call last):
+  File "/export/home/sheid/PixArt-sigma/train_scripts/train.py", line 387, in <module>
+Traceback (most recent call last):
+  File "/export/home/sheid/PixArt-sigma/train_scripts/train.py", line 387, in <module>
+    config = read_config(args.config)
+  File "/export/home/sheid/PixArt-sigma/diffusion/utils/misc.py", line 25, in read_config
+    config = read_config(args.config)
+  File "/export/home/sheid/PixArt-sigma/diffusion/utils/misc.py", line 25, in read_config
+    config = Config.fromfile(file)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/utils/config.py", line 340, in fromfile
+    config = Config.fromfile(file)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/utils/config.py", line 340, in fromfile
+    cfg_dict, cfg_text = Config._file2dict(filename,    
+cfg_dict, cfg_text = Config._file2dict(filename,
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/utils/config.py", line 252, in _file2dict
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/utils/config.py", line 252, in _file2dict
+    _cfg_dict, _cfg_text = Config._file2dict(osp.join(cfg_dir, f))
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/utils/config.py", line 183, in _file2dict
+    check_file_exist(filename)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/utils/path.py", line 23, in check_file_exist
+    _cfg_dict, _cfg_text = Config._file2dict(osp.join(cfg_dir, f))
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/utils/config.py", line 183, in _file2dict
+    check_file_exist(filename)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/utils/path.py", line 23, in check_file_exist
+    raise FileNotFoundError(msg_tmpl.format(filename))
+FileNotFoundError: file "/export/home/sheid/PixArt-sigma/configs/pixart_sigma_config/PixArt_xl2_internal.py" does not exist
+    raise FileNotFoundError(msg_tmpl.format(filename))
+FileNotFoundError: file "/export/home/sheid/PixArt-sigma/configs/pixart_sigma_config/PixArt_xl2_internal.py" does not exist

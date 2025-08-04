@@ -3,7 +3,6 @@ from mmcv import Registry
 from diffusion.model.utils import set_grad_checkpoint
 
 MODELS = Registry("models")
-from diffusion.model.nets.place_holder_blocks import Identity
 
 
 def build_model(
@@ -16,7 +15,4 @@ def build_model(
         set_grad_checkpoint(
             model, use_fp32_attention=use_fp32_attention, gc_step=gc_step
         )
-
-    print(cfg)
-
     return model

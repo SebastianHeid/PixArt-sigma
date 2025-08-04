@@ -1,32 +1,36 @@
 import os
 import sys
 from pathlib import Path
+
 current_file_path = Path(__file__).resolve()
 sys.path.insert(0, str(current_file_path.parent.parent))
 import warnings
+
 warnings.filterwarnings("ignore")  # ignore warning
-import re
 import argparse
+import re
 from datetime import datetime
-from tqdm import tqdm
+
 import torch
-from torchvision.utils import save_image
 from diffusers.models import AutoencoderKL
+from torchvision.utils import save_image
+from tqdm import tqdm
 from transformers import T5EncoderModel, T5Tokenizer
 
-from diffusion.model.utils import prepare_prompt_ar
-from diffusion import IDDPM, DPMS, SASolverSampler
-from tools.download import find_model
-from diffusion.model.nets import PixArtMS_XL_2, PixArt_XL_2
-from diffusion.data.datasets import get_chunks
 import diffusion.data.datasets.utils as ds_utils
+from diffusion import DPMS, IDDPM, SASolverSampler
+from diffusion.data.datasets import get_chunks
+from diffusion.model.nets import PixArt_XL_2, PixArtMS_XL_2
+from diffusion.model.utils import prepare_prompt_ar
+from tools.download import find_model
+
 
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--image_size', default=1024, type=int)
     parser.add_argument('--version', default='sigma', type=str)
     parser.add_argument(
-        "--pipeline_load_from", default='output/pretrained_models/pixart_sigma_sdxlvae_T5_diffusers',
+        "--pipeline_load_from", default='/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers',
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
@@ -40,6 +44,7 @@ def get_args():
     parser.add_argument('--dataset', default='custom', type=str)
     parser.add_argument('--step', default=-1, type=int)
     parser.add_argument('--save_name', default='test_sample', type=str)
+    parser.add_argument('--save_path', default='/export/data/sheid/pixart/generated_coco/pixart_sigma_xl2_img512_laion2M_skipConnection/', type=str,)
 
     return parser.parse_args()
 
@@ -57,9 +62,10 @@ def visualize(items, bs, sample_steps, cfg_scale):
 
         prompts = []
         if bs == 1:
-            save_path = os.path.join(save_root, f"{prompts[0][:100]}.jpg")
-            if os.path.exists(save_path):
-                continue
+            
+            # save_path = os.path.join(save_root, f"{prompts[0][:100]}.jpg")
+            # if os.path.exists(save_path):
+            #     continue
             prompt_clean, _, hw, ar, custom_hw = prepare_prompt_ar(chunk[0], base_ratios, device=device, show=False)  # ar for aspect ratio
             if args.image_size == 1024:
                 latent_size_h, latent_size_w = int(hw[0, 0] // 8), int(hw[0, 1] // 8)
@@ -68,6 +74,7 @@ def visualize(items, bs, sample_steps, cfg_scale):
                 ar = torch.tensor([[1.]], device=device).repeat(bs, 1)
                 latent_size_h, latent_size_w = latent_size, latent_size
             prompts.append(prompt_clean.strip())
+            print(prompts)
         else:
             hw = torch.tensor([[args.image_size, args.image_size]], dtype=torch.float, device=device).repeat(bs, 1)
             ar = torch.tensor([[1.]], device=device).repeat(bs, 1)
@@ -219,6 +226,7 @@ if __name__ == '__main__':
     os.umask(0o000)  # file permission: 666; dir permission: 777
     os.makedirs(img_save_dir, exist_ok=True)
 
-    save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
+    #save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
+    save_root = args.save_path
     os.makedirs(save_root, exist_ok=True)
     visualize(items, args.bs, sample_steps, args.cfg_scale)

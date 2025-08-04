@@ -1,14 +1,20 @@
 import os
+import random
+
 import numpy as np
 import torch
-import random
-from torchvision.datasets.folder import default_loader
-from diffusion.data.datasets.InternalData import InternalData, InternalDataSigma, replace_img_ext
-from diffusion.data.builder import get_data_path, DATASETS
-from diffusion.utils.logger import get_root_logger
 import torchvision.transforms as T
+from torchvision.datasets.folder import default_loader
 from torchvision.transforms.functional import InterpolationMode
+
+from diffusion.data.builder import DATASETS, get_data_path
+from diffusion.data.datasets.InternalData import (
+    InternalData,
+    InternalDataSigma,
+    replace_img_ext,
+)
 from diffusion.data.datasets.utils import *
+from diffusion.utils.logger import get_root_logger
 
 
 def get_closest_ratio(height: float, width: float, ratios: dict):
@@ -21,6 +27,7 @@ def get_closest_ratio(height: float, width: float, ratios: dict):
 class InternalDataMS(InternalData):
     def __init__(self,
                  root,
+                 img_root="",
                  image_list_json='data_info.json',
                  transform=None,
                  resolution=256,
@@ -36,6 +43,7 @@ class InternalDataMS(InternalData):
                  config=None,
                  **kwargs):
         self.root = get_data_path(root)
+        self.img_root = get_data_path(img_root)
         self.transform = transform
         self.load_vae_feat = load_vae_feat
         self.ori_imgs_nums = 0
@@ -66,9 +74,14 @@ class InternalDataMS(InternalData):
             self.ori_imgs_nums += len(meta_data)
             meta_data_clean = [item for item in meta_data if item['ratio'] <= 4]
             self.meta_data_clean.extend(meta_data_clean)
-            self.img_samples.extend([
-                os.path.join(self.root.replace('InternData', "InternImgs"), item['path']) for item in meta_data_clean
-            ])
+            if img_root:
+                self.img_samples.extend([
+                    os.path.join(img_root, item['path']) for item in meta_data_clean
+                ])
+            else:
+                self.img_samples.extend([
+                    os.path.join(self.root.replace('InternData', "InternImgs"), item['path']) for item in meta_data_clean
+                ])
             self.txt_feat_samples.extend([
                 os.path.join(
                     self.root,
@@ -173,6 +186,7 @@ class InternalDataMS(InternalData):
 class InternalDataMSSigma(InternalDataSigma):
     def __init__(self,
                  root,
+                 img_root="",
                  image_list_json='data_info.json',
                  transform=None,
                  resolution=256,
@@ -189,6 +203,7 @@ class InternalDataMSSigma(InternalDataSigma):
                  config=None,
                  **kwargs):
         self.root = get_data_path(root)
+        self.img_root = get_data_path(img_root)
         self.transform = transform
         self.load_vae_feat = load_vae_feat
         self.load_t5_feat = load_t5_feat
@@ -225,16 +240,20 @@ class InternalDataMSSigma(InternalDataSigma):
         logger.info(f"ratio of real user prompt: {self.real_prompt_ratio}")
 
         image_list_json = image_list_json if isinstance(image_list_json, list) else [image_list_json]
-        
         for json_file in image_list_json:
             meta_data = self.load_json(os.path.join(self.root, json_file))
             logger.info(f"{json_file} data volume: {len(meta_data)}")
             self.ori_imgs_nums += len(meta_data)
             meta_data_clean = [item for item in meta_data if item['ratio'] <= 4.5]
             self.meta_data_clean.extend(meta_data_clean)
-            self.img_samples.extend([
-                os.path.join(self.root.replace('InternData'+suffix, 'InternImgs'), item['path']) for item in meta_data_clean
-            ])
+            if img_root:
+                self.img_samples.extend([
+                    os.path.join(img_root, item['path']) for item in meta_data_clean
+                ])
+            else:
+                self.img_samples.extend([
+                    os.path.join(self.root.replace('InternData', "InternImgs"), item['path']) for item in meta_data_clean
+                ])
             self.txt_samples.extend([item['prompt'] for item in meta_data_clean])
             self.sharegpt4v_txt_samples.extend([item['sharegpt4v'] if 'sharegpt4v' in item else '' for item in meta_data_clean])
             self.txt_feat_samples.extend([
@@ -259,7 +278,6 @@ class InternalDataMSSigma(InternalDataSigma):
                         replace_img_ext('_'.join(item['path'].rsplit('/', 1)), '.npy')
                     ) for item in meta_data_clean
                 ])
-
         if self.real_prompt_ratio < 1:
             assert len(self.sharegpt4v_txt_samples[0]) != 0
 
@@ -349,4 +367,7 @@ class InternalDataMSSigma(InternalDataSigma):
                 print(f"Error details: {str(e)}")
                 idx = random.choice(self.ratio_index[self.closest_ratio])
         raise RuntimeError('Too many bad data.')
+
+
+
 

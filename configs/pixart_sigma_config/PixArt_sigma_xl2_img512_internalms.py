@@ -14,7 +14,7 @@ image_size = 512
 
 # model setting
 model = "PixArtMS_XL_2"
-mixed_precision = "fp16"  # ['fp16', 'fp32', 'bf16']
+mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
 fp32_attention = True
 load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth"  # https://huggingface.co/PixArt-alpha/PixArt-Sigma
 resume_from = None
@@ -26,8 +26,8 @@ multi_scale = True  # if use multiscale dataset model training
 pe_interpolation = 1.0
 
 # training setting
-num_workers = 10
-train_batch_size = 2  # 48 as default
+num_workers = 0
+train_batch_size = 32  # 48 as default
 num_epochs = 10  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
@@ -53,3 +53,13 @@ scale_factor = 0.13025
 real_prompt_ratio = 0.5
 model_max_length = 300
 class_dropout_prob = 0.1
+
+# Intermediate loss
+intermediate_loss_flag = True
+intermediate_loss_blocks = [4]
+final_output_loss_flag = True
+
+# Modfication of Model
+transformer_blocks = [4]
+trainable_blocks = [3]
+# wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr

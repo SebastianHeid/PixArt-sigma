@@ -780,7 +780,17 @@ class GaussianDiffusion:
         return {"output": output, "pred_xstart": out["pred_xstart"]}
 
     def training_losses(
-        self, model, x_start, timestep, model_kwargs=None, noise=None, skip_noise=False
+        self,
+        model,
+        x_start,
+        timestep,
+        ref_model=None,
+        intermediate_loss_blocks=[],
+        final_output_loss_flag=False,
+        org_loss_flag=True,
+        model_kwargs=None,
+        noise=None,
+        skip_noise=False,
     ):
         """
         Compute training losses for a single timestep.
@@ -802,7 +812,7 @@ class GaussianDiffusion:
             if noise is None:
                 noise = th.randn_like(x_start)
             x_t = self.q_sample(x_start, t, noise=noise)
-
+        
         terms = {}
 
         if self.loss_type == LossType.KL or self.loss_type == LossType.RESCALED_KL:
@@ -817,7 +827,21 @@ class GaussianDiffusion:
             if self.loss_type == LossType.RESCALED_KL:
                 terms["loss"] *= self.num_timesteps
         elif self.loss_type == LossType.MSE or self.loss_type == LossType.RESCALED_MSE:
-            model_output = model(x_t, t, **model_kwargs)
+            model_output, feat_list = model(x_t, t, **model_kwargs, train=True)
+            if ref_model is not None:
+                with th.no_grad():
+                    ref_model_output, ref_feat_list = ref_model(
+                        x_t, t, **model_kwargs, train=True
+                    )
+            if intermediate_loss_blocks:
+                terms["intermediate_loss"] = self.intermediate_loss(
+                    feat_list,
+                    ref_feat_list,
+                    model_output,
+                    ref_model_output,
+                    intermediate_loss_blocks,
+                    final_output_loss_flag,
+                )
             if (
                 isinstance(model_output, dict)
                 and model_output.get("x", None) is not None
@@ -909,9 +933,13 @@ class GaussianDiffusion:
                 terms["loss"] = terms["mse"]
             if "mae" in terms:
                 terms["loss"] = terms["loss"] + terms["mae"]
+            if intermediate_loss_blocks:
+                if org_loss_flag:
+                    terms["loss"] = terms["loss"] + terms["intermediate_loss"]
+                else:
+                    terms["loss"] = terms["intermediate_loss"]
         else:
             raise NotImplementedError(self.loss_type)
-
         return terms
 
     def training_losses_diffusers(
@@ -1094,6 +1122,45 @@ class GaussianDiffusion:
             "xstart_mse": xstart_mse,
             "mse": mse,
         }
+
+    def normalization_feature_loss(self, feat_teacher):
+        num_stages = len(feat_teacher)
+        stage_norms = []
+        for t_feat in feat_teacher:
+            stage_norm = th.norm(t_feat, p=2)
+            stage_norms.append(stage_norm)
+        stage_norms = th.stack(stage_norms)
+        norm_sum = stage_norms.sum()
+        alphas = norm_sum / ((stage_norms + 10**(-8)) * num_stages)
+        return alphas
+
+    def intermediate_loss(
+        self,
+        feat_list,
+        ref_feat_list,
+        model_output,
+        ref_model_output,
+        intermediate_loss_blocks,
+        final_output_loss_flag,
+    ):
+        """
+        Compute intermediate loss for a single timestep.
+        :param feat_list: Intermediate features from the model.
+        :param ref_feat_list: Intermdiate features from a reference model
+        :param model_output: the model output.
+        :param ref_model_output: the reference model output.
+        :return: a dict with the key "loss" containing a tensor of shape [N].
+                 Some mean or variance settings may also have other keys.
+        """
+        loss = []
+        alphas = self.normalization_feature_loss(ref_feat_list)
+        for idx, block in enumerate(intermediate_loss_blocks):
+            #loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]))
+            loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]) * alphas[block])
+        if final_output_loss_flag:
+            loss.append(F.mse_loss(model_output, ref_model_output))
+        loss_th = th.stack(loss)
+        return th.mean(loss_th)
 
 
 def _extract_into_tensor(arr, timesteps, broadcast_shape):
