@@ -1,0 +1,189 @@
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launch.py:183: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  warnings.warn(
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+2025-08-10 13:58:18,896 - PixArt - INFO - Distributed environment: MULTI_GPU  Backend: nccl
+Num processes: 2
+Process index: 0
+Local process index: 0
+Device: cuda:0
+
+Mixed precision type: bf16
+
+2025-08-10 13:58:19,006 - PixArt - INFO - Config: 
+data_root = 'pixart-sigma-toy-dataset'
+data = dict(
+    type='InternalDataMSSigma',
+    root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/laion2M/feature_pixart',
+    image_list_json=['data_info.json'],
+    transform='default_train',
+    load_vae_feat=True,
+    load_t5_feat=True,
+    img_root=
+    '/export/data/vislearn/rother_subgroup/rother_datasets/LaionAE/laion2B-en-art_512/',
+    load_img_vae_feat=False)
+image_size = 512
+train_batch_size = 8
+eval_batch_size = 16
+use_fsdp = False
+valid_num = 0
+fp32_attention = False
+model = 'PixArtMS_XL_2'
+aspect_ratio_type = 'ASPECT_RATIO_512'
+multi_scale = True
+pe_interpolation = 1.0
+qk_norm = False
+kv_compress = False
+kv_compress_config = dict(sampling=None, scale_factor=1, kv_compress_layer=[])
+num_workers = 3
+train_sampling_steps = 1000
+visualize = True
+deterministic_validation = False
+eval_sampling_steps = 500
+model_max_length = 300
+lora_rank = 4
+num_epochs = 1
+gradient_accumulation_steps = 1
+grad_checkpointing = True
+gradient_clip = 0.01
+gc_step = 1
+auto_lr = dict(rule='sqrt')
+validation_prompts = [
+    'dog',
+    'portrait photo of a girl, photograph, highly detailed face, depth of field',
+    'Self-portrait oil painting, a beautiful cyborg with golden hair, 8k',
+    'Astronaut in a jungle, cold color palette, muted colors, detailed, 8k',
+    'A photo of beautiful mountain with realistic sunset and blue lake, highly detailed, masterpiece'
+]
+optimizer = dict(
+    type='CAMEWrapper',
+    lr=0.0002,
+    weight_decay=0.03,
+    eps=(1e-30, 1e-16),
+    betas=(0.9, 0.999, 0.9999))
+lr_schedule = 'constant'
+lr_schedule_args = dict(num_warmup_steps=1000)
+save_image_epochs = 1
+save_model_epochs = 1
+save_model_steps = 38000
+sample_posterior = True
+mixed_precision = 'bf16'
+scale_factor = 0.13025
+ema_rate = 0.9999
+tensorboard_mox_interval = 50
+log_interval = 20
+cfg_scale = 4
+mask_type = 'null'
+num_group_tokens = 0
+mask_loss_coef = 0.0
+load_mask_index = False
+vae_pretrained = '/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae'
+load_from = '/export/data/sheid/pixart/third_pruning_attempt/PixArt_sigma_xl2_img512_laion_17_15_8_20_12_16_21_11_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12500.pth'
+resume_from = None
+snr_loss = False
+real_prompt_ratio = 1.0
+class_dropout_prob = 0.1
+work_dir = '/export/data/sheid/pixart/third_pruning_attempt/PixArt_sigma_xl2_img512_laion_17_15_8_20_12_16_21_11_7'
+s3_work_dir = None
+micro_condition = False
+seed = 43
+skip_step = 0
+loss_type = 'huber'
+huber_c = 0.001
+num_ddim_timesteps = 50
+w_max = 15.0
+w_min = 3.0
+ema_decay = 0.95
+intermediate_loss_flag = True
+intermediate_loss_blocks = [7, 8, 9, 12, 13, 17, 18, 21, 22, 23, 24, 25]
+final_output_loss_flag = True
+transformer_blocks = [8, 15, 17, 20, 12, 16, 21, 11, 7]
+trainable_blocks = [6]
+reserve_memory = True
+image_list_json = ['data_info.json']
+ref_load_from = '/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth'
+org_loss_flag = False
+
+2025-08-10 13:58:19,007 - PixArt - INFO - World_size: 2, seed: 43
+2025-08-10 13:58:19,007 - PixArt - INFO - Initializing: DDP for training
+2025-08-10 13:58:19,007 - PixArt - INFO - vae scale factor: 0.13025
+2025-08-10 13:58:19,008 - PixArt - INFO - Preparing Visualization prompt embeddings...
+2025-08-10 13:58:19,008 - PixArt - INFO - Loading text encoder and tokenizer from /export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers ...
+You are using the default legacy behaviour of the <class 'transformers.models.t5.tokenization_t5.T5Tokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.29s/it]/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.10s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.12s/it]
+2025-08-10 13:58:43,007 - PixArt - WARNING - position embed interpolation: 1.0, base size: 32
+2025-08-10 13:58:43,008 - PixArt - WARNING - kv compress config: {'sampling': None, 'scale_factor': 1, 'kv_compress_layer': []}
+2025-08-10 13:58:56,427 - PixArt - WARNING - position embed interpolation: 1.0, base size: 32
+2025-08-10 13:58:56,427 - PixArt - WARNING - kv compress config: {'sampling': None, 'scale_factor': 1, 'kv_compress_layer': []}
+2025-08-10 13:59:02,951 - PixArt - INFO - PixArtMS Model Parameters: 610,856,096
+2025-08-10 13:59:04,701 - PixArt - INFO - Load checkpoint from /export/data/sheid/pixart/third_pruning_attempt/PixArt_sigma_xl2_img512_laion_17_15_8_20_12_16_21_11_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12500.pth. Load ema: False.
+2025-08-10 13:59:05,718 - PixArt - INFO - Load checkpoint from /export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth. Load ema: False.
+2025-08-10 13:59:05,732 - PixArt - WARNING - Missing keys: ['pos_embed', 'blocks.8.scale_shift_table', 'blocks.8.attn.qkv.weight', 'blocks.8.attn.qkv.bias', 'blocks.8.attn.proj.weight', 'blocks.8.attn.proj.bias', 'blocks.8.cross_attn.q_linear.weight', 'blocks.8.cross_attn.q_linear.bias', 'blocks.8.cross_attn.kv_linear.weight', 'blocks.8.cross_attn.kv_linear.bias', 'blocks.8.cross_attn.proj.weight', 'blocks.8.cross_attn.proj.bias', 'blocks.8.mlp.fc1.weight', 'blocks.8.mlp.fc1.bias', 'blocks.8.mlp.fc2.weight', 'blocks.8.mlp.fc2.bias', 'blocks.11.scale_shift_table', 'blocks.11.attn.qkv.weight', 'blocks.11.attn.qkv.bias', 'blocks.11.attn.proj.weight', 'blocks.11.attn.proj.bias', 'blocks.11.cross_attn.q_linear.weight', 'blocks.11.cross_attn.q_linear.bias', 'blocks.11.cross_attn.kv_linear.weight', 'blocks.11.cross_attn.kv_linear.bias', 'blocks.11.cross_attn.proj.weight', 'blocks.11.cross_attn.proj.bias', 'blocks.11.mlp.fc1.weight', 'blocks.11.mlp.fc1.bias', 'blocks.11.mlp.fc2.weight', 'blocks.11.mlp.fc2.bias', 'blocks.12.scale_shift_table', 'blocks.12.attn.qkv.weight', 'blocks.12.attn.qkv.bias', 'blocks.12.attn.proj.weight', 'blocks.12.attn.proj.bias', 'blocks.12.cross_attn.q_linear.weight', 'blocks.12.cross_attn.q_linear.bias', 'blocks.12.cross_attn.kv_linear.weight', 'blocks.12.cross_attn.kv_linear.bias', 'blocks.12.cross_attn.proj.weight', 'blocks.12.cross_attn.proj.bias', 'blocks.12.mlp.fc1.weight', 'blocks.12.mlp.fc1.bias', 'blocks.12.mlp.fc2.weight', 'blocks.12.mlp.fc2.bias', 'blocks.15.scale_shift_table', 'blocks.15.attn.qkv.weight', 'blocks.15.attn.qkv.bias', 'blocks.15.attn.proj.weight', 'blocks.15.attn.proj.bias', 'blocks.15.cross_attn.q_linear.weight', 'blocks.15.cross_attn.q_linear.bias', 'blocks.15.cross_attn.kv_linear.weight', 'blocks.15.cross_attn.kv_linear.bias', 'blocks.15.cross_attn.proj.weight', 'blocks.15.cross_attn.proj.bias', 'blocks.15.mlp.fc1.weight', 'blocks.15.mlp.fc1.bias', 'blocks.15.mlp.fc2.weight', 'blocks.15.mlp.fc2.bias', 'blocks.16.scale_shift_table', 'blocks.16.attn.qkv.weight', 'blocks.16.attn.qkv.bias', 'blocks.16.attn.proj.weight', 'blocks.16.attn.proj.bias', 'blocks.16.cross_attn.q_linear.weight', 'blocks.16.cross_attn.q_linear.bias', 'blocks.16.cross_attn.kv_linear.weight', 'blocks.16.cross_attn.kv_linear.bias', 'blocks.16.cross_attn.proj.weight', 'blocks.16.cross_attn.proj.bias', 'blocks.16.mlp.fc1.weight', 'blocks.16.mlp.fc1.bias', 'blocks.16.mlp.fc2.weight', 'blocks.16.mlp.fc2.bias', 'blocks.17.scale_shift_table', 'blocks.17.attn.qkv.weight', 'blocks.17.attn.qkv.bias', 'blocks.17.attn.proj.weight', 'blocks.17.attn.proj.bias', 'blocks.17.cross_attn.q_linear.weight', 'blocks.17.cross_attn.q_linear.bias', 'blocks.17.cross_attn.kv_linear.weight', 'blocks.17.cross_attn.kv_linear.bias', 'blocks.17.cross_attn.proj.weight', 'blocks.17.cross_attn.proj.bias', 'blocks.17.mlp.fc1.weight', 'blocks.17.mlp.fc1.bias', 'blocks.17.mlp.fc2.weight', 'blocks.17.mlp.fc2.bias', 'blocks.20.scale_shift_table', 'blocks.20.attn.qkv.weight', 'blocks.20.attn.qkv.bias', 'blocks.20.attn.proj.weight', 'blocks.20.attn.proj.bias', 'blocks.20.cross_attn.q_linear.weight', 'blocks.20.cross_attn.q_linear.bias', 'blocks.20.cross_attn.kv_linear.weight', 'blocks.20.cross_attn.kv_linear.bias', 'blocks.20.cross_attn.proj.weight', 'blocks.20.cross_attn.proj.bias', 'blocks.20.mlp.fc1.weight', 'blocks.20.mlp.fc1.bias', 'blocks.20.mlp.fc2.weight', 'blocks.20.mlp.fc2.bias', 'blocks.21.scale_shift_table', 'blocks.21.attn.qkv.weight', 'blocks.21.attn.qkv.bias', 'blocks.21.attn.proj.weight', 'blocks.21.attn.proj.bias', 'blocks.21.cross_attn.q_linear.weight', 'blocks.21.cross_attn.q_linear.bias', 'blocks.21.cross_attn.kv_linear.weight', 'blocks.21.cross_attn.kv_linear.bias', 'blocks.21.cross_attn.proj.weight', 'blocks.21.cross_attn.proj.bias', 'blocks.21.mlp.fc1.weight', 'blocks.21.mlp.fc1.bias', 'blocks.21.mlp.fc2.weight', 'blocks.21.mlp.fc2.bias']
+2025-08-10 13:59:05,732 - PixArt - WARNING - Unexpected keys: []
+2025-08-10 13:59:05,735 - PixArt - INFO - PixArtMS Model Parameters: 419,556,128
+2025-08-10 13:59:05,736 - PixArt - INFO - PixArtMS Trainable Model Parameters: 21,255,552
+2025-08-10 13:59:05,737 - PixArt - INFO - Constructing dataset InternalDataMSSigma...
+2025-08-10 13:59:05,737 - PixArt - INFO - T5 max token length: 300
+2025-08-10 13:59:05,737 - PixArt - INFO - ratio of real user prompt: 1.0
+2025-08-10 13:59:07,351 - PixArt - INFO - data_info.json data volume: 608000
+2025-08-10 13:59:15,766 - PixArt - INFO - Dataset InternalDataMSSigma constructed. time: 10.03 s, length (use/ori): 607997/608000
+2025-08-10 13:59:15,766 - PixArt - WARNING - Using valid_num=0 in config file. Available 40 aspect_ratios: ['0.25', '0.26', '0.27', '0.28', '0.32', '0.33', '0.35', '0.4', '0.42', '0.48', '0.5', '0.52', '0.57', '0.6', '0.68', '0.72', '0.78', '0.82', '0.88', '0.94', '1.0', '1.07', '1.13', '1.21', '1.29', '1.38', '1.46', '1.67', '1.75', '2.0', '2.09', '2.4', '2.5', '2.89', '3.0', '3.11', '3.62', '3.75', '3.88', '4.0']
+2025-08-10 13:59:15,767 - PixArt - INFO - Automatically adapt lr to 0.00005 (using sqrt scaling rule).
+2025-08-10 13:59:15,805 - PixArt - INFO - CAMEWrapper Optimizer: total 300 param groups, 15 are learnable, 285 are fix. Lr group: 15 params with lr 0.00005; Weight decay group: 15 params with weight decay 0.03.
+2025-08-10 13:59:15,805 - PixArt - INFO - Lr schedule: constant, num_warmup_steps:1000.
+  0%|          | 0/37999 [00:00<?, ?it/s]  0%|          | 0/37999 [00:00<?, ?it/s]2025-08-10 13:59:22,835 - PixArt - INFO - Step/Epoch [1/1][1/37999]:total_eta: 1 day, 22:07:34, epoch_eta:23:03:45, time_all:0.219, time_data:0.116, lr:1.000e-07, s:(32, 32), loss:0.3057, grad_norm:0.2800
+  0%|          | 1/37999 [00:04<45:40:33,  4.33s/it]2025-08-10 13:59:23,122 - PixArt - INFO - Running validation... 
+
+  0%|          | 0/13 [00:00<?, ?it/s][A
+ 15%|█▌        | 2/13 [00:00<00:00, 18.65it/s][A
+ 31%|███       | 4/13 [00:00<00:00, 18.61it/s][A
+ 46%|████▌     | 6/13 [00:00<00:00, 18.53it/s][A
+ 62%|██████▏   | 8/13 [00:00<00:00, 18.61it/s][A
+ 77%|███████▋  | 10/13 [00:00<00:00, 18.66it/s][A
+ 92%|█████████▏| 12/13 [00:00<00:00, 18.67it/s][A100%|██████████| 13/13 [00:00<00:00, 20.06it/s]
+
+  0%|          | 0/13 [00:00<?, ?it/s][A
+ 15%|█▌        | 2/13 [00:00<00:00, 18.46it/s][A
+ 31%|███       | 4/13 [00:00<00:00, 18.72it/s][A
+ 46%|████▌     | 6/13 [00:00<00:00, 18.42it/s][A
+ 62%|██████▏   | 8/13 [00:00<00:00, 18.46it/s][A
+ 77%|███████▋  | 10/13 [00:00<00:00, 18.45it/s][A
+ 92%|█████████▏| 12/13 [00:00<00:00, 18.38it/s][A100%|██████████| 13/13 [00:00<00:00, 19.86it/s]
+
+  0%|          | 0/13 [00:00<?, ?it/s][A
+ 15%|█▌        | 2/13 [00:00<00:00, 18.34it/s][A
+ 31%|███       | 4/13 [00:00<00:00, 18.21it/s][A
+ 46%|████▌     | 6/13 [00:00<00:00, 18.17it/s][A
+ 62%|██████▏   | 8/13 [00:00<00:00, 17.84it/s][A
+ 77%|███████▋  | 10/13 [00:00<00:00, 17.51it/s][A
+ 92%|█████████▏| 12/13 [00:00<00:00, 17.50it/s][A100%|██████████| 13/13 [00:00<00:00, 19.08it/s]
+
+  0%|          | 0/13 [00:00<?, ?it/s][A
+ 15%|█▌        | 2/13 [00:00<00:00, 17.74it/s][A
+ 31%|███       | 4/13 [00:00<00:00, 17.88it/s][A
+ 46%|████▌     | 6/13 [00:00<00:00, 17.16it/s][A
+ 62%|██████▏   | 8/13 [00:00<00:00, 17.46it/s][A
+ 77%|███████▋  | 10/13 [00:00<00:00, 17.05it/s][A
+ 92%|█████████▏| 12/13 [00:00<00:00, 17.28it/s][A100%|██████████| 13/13 [00:00<00:00, 18.66it/s]
+
+  0%|          | 0/13 [00:00<?, ?it/s][A
+ 15%|█▌        | 2/13 [00:00<00:00, 16.53it/s][A
+ 31%|███       | 4/13 [00:00<00:00, 16.33it/s][A
+ 46%|████▌     | 6/13 [00:00<00:00, 16.87it/s][A
+ 62%|██████▏   | 8/13 [00:00<00:00, 17.03it/s][A
+ 77%|███████▋  | 10/13 [00:00<00:00, 16.85it/s][A
+ 92%|█████████▏| 12/13 [00:00<00:00, 16.60it/s][A100%|██████████| 13/13 [00:00<00:00, 17.98it/s]
+  0%|          | 1/37999 [00:13<140:03:57, 13.27s/it]  0%|          | 2/37999 [00:13<77:11:19,  7.31s/it]  0%|          | 2/37999 [00:13<60:54:47,  5.77s/it]   0%|          | 3/37999 [00:14<43:57:02,  4.16s/it]  0%|          | 3/37999 [00:14<35:06:43,  3.33s/it]  0%|          | 4/37999 [00:14<28:19:39,  2.68s/it]  0%|          | 4/37999 [00:14<22:58:45,  2.18s/it]  0%|          | 5/37999 [00:14<19:42:11,  1.87s/it]  0%|          | 5/37999 [00:15<16:17:38,  1.54s/it]  0%|          | 6/37999 [00:15<14:30:12,  1.37s/it]  0%|          | 6/37999 [00:15<12:14:51,  1.16s/it]  0%|          | 7/37999 [00:16<13:37:02,  1.29s/it]  0%|          | 7/37999 [00:16<12:06:19,  1.15s/it]  0%|          | 8/37999 [00:16<10:42:59,  1.02s/it]  0%|          | 8/37999 [00:17<9:41:18,  1.09it/s]   0%|          | 9/37999 [00:17<8:47:07,  1.20it/s]   0%|          | 9/37999 [00:17<8:04:46,  1.31it/s]  0%|          | 10/37999 [00:17<7:25:29,  1.42it/s]  0%|          | 10/37999 [00:17<6:55:56,  1.52it/s]  0%|          | 11/37999 [00:18<6:31:04,  1.62it/s]  0%|          | 11/37999 [00:18<6:09:48,  1.71it/s]  0%|          | 12/37999 [00:18<5:58:16,  1.77it/s]  0%|          | 12/37999 [00:18<5:45:23,  1.83it/s]  0%|          | 13/37999 [00:19<5:32:42,  1.90it/s]  0%|          | 13/37999 [00:19<5:22:20,  1.96it/s]  0%|          | 14/37999 [00:19<5:12:27,  2.03it/s]  0%|          | 14/37999 [00:19<5:05:21,  2.07it/s]  0%|          | 15/37999 [00:19<5:03:19,  2.09it/s]  0%|          | 15/37999 [00:20<4:58:14,  2.12it/s]  0%|          | 16/37999 [00:20<4:52:20,  2.17it/s]  0%|          | 16/37999 [00:20<4:49:11,  2.19it/s]  0%|          | 17/37999 [00:20<4:45:38,  2.22it/s]  0%|          | 17/37999 [00:20<4:41:53,  2.25it/s]  0%|          | 18/37999 [00:21<4:39:01,  2.27it/s]  0%|          | 18/37999 [00:21<4:37:48,  2.28it/s]  0%|          | 19/37999 [00:21<4:35:47,  2.30it/s]  0%|          | 19/37999 [00:21<4:33:41,  2.31it/s]2025-08-10 13:59:40,579 - PixArt - INFO - Step/Epoch [20/1][20/37999]:total_eta: 22:13:29, epoch_eta:11:06:34, time_all:0.887, time_data:0.447, lr:2.000e-06, s:(32, 32), loss:0.2947, grad_norm:0.2791
+  0%|          | 20/37999 [00:22<4:32:09,  2.33it/s]  0%|          | 20/37999 [00:22<4:30:43,  2.34it/s]  0%|          | 21/37999 [00:22<4:29:12,  2.35it/s]  0%|          | 21/37999 [00:22<4:28:29,  2.36it/s]  0%|          | 22/37999 [00:22<4:28:30,  2.36it/s]  0%|          | 22/37999 [00:22<4:27:47,  2.36it/s]  0%|          | 23/37999 [00:23<4:28:13,  2.36it/s]  0%|          | 23/37999 [00:23<4:27:43,  2.36it/s]  0%|          | 24/37999 [00:23<4:27:57,  2.36it/s]  0%|          | 24/37999 [00:23<4:27:31,  2.37it/s]  0%|          | 25/37999 [00:24<4:26:00,  2.38it/s]  0%|          | 25/37999 [00:24<4:26:33,  2.37it/s]  0%|          | 26/37999 [00:24<4:26:46,  2.37it/s]  0%|          | 26/37999 [00:24<4:27:26,  2.37it/s]  0%|          | 27/37999 [00:25<4:28:08,  2.36it/s]  0%|          | 27/37999 [00:25<4:28:22,  2.36it/s]  0%|          | 28/37999 [00:25<4:30:45,  2.34it/s]  0%|          | 28/37999 [00:25<4:31:51,  2.33it/s]  0%|          | 29/37999 [00:25<4:31:18,  2.33it/s]  0%|          | 29/37999 [00:25<4:32:19,  2.32it/s]  0%|          | 30/37999 [00:26<4:30:56,  2.34it/s]  0%|          | 30/37999 [00:26<4:30:11,  2.34it/s]  0%|          | 31/37999 [00:26<4:29:24,  2.35it/s]  0%|          | 31/37999 [00:26<4:30:14,  2.34it/s]  0%|          | 32/37999 [00:27<4:30:34,  2.34it/s]  0%|          | 32/37999 [00:27<4:29:30,  2.35it/s]  0%|          | 33/37999 [00:27<4:30:46,  2.34it/s]  0%|          | 33/37999 [00:27<4:30:41,  2.34it/s]  0%|          | 34/37999 [00:28<4:31:29,  2.33it/s]  0%|          | 34/37999 [00:28<4:31:21,  2.33it/s]  0%|          | 35/37999 [00:28<4:32:31,  2.32it/s]  0%|          | 35/37999 [00:28<4:31:42,  2.33it/s]  0%|          | 36/37999 [00:28<4:30:56,  2.34it/s]  0%|          | 36/37999 [00:28<4:30:51,  2.34it/s]  0%|          | 37/37999 [00:29<4:28:57,  2.35it/s]  0%|          | 37/37999 [00:29<4:30:12,  2.34it/s]  0%|          | 38/37999 [00:29<4:30:02,  2.34it/s]  0%|          | 38/37999 [00:29<4:29:14,  2.35it/s]  0%|          | 39/37999 [00:30<4:28:14,  2.36it/s]  0%|          | 39/37999 [00:30<4:29:00,  2.35it/s]2025-08-10 13:59:49,090 - PixArt - INFO - Step/Epoch [40/1][40/37999]:total_eta: 15:45:36, epoch_eta:7:52:33, time_all:0.426, time_data:0.003, lr:4.000e-06, s:(32, 32), loss:0.2526, grad_norm:0.1834
+  0%|          | 40/37999 [00:30<4:29:50,  2.34it/s]  0%|          | 40/37999 [00:30<4:29:15,  2.35it/s]  0%|          | 41/37999 [00:31<4:32:58,  2.32it/s]  0%|          | 41/37999 [00:31<4:32:27,  2.32it/s]  0%|          | 42/37999 [00:31<4:29:32,  2.35it/s]  0%|          | 42/37999 [00:31<4:28:55,  2.35it/s]  0%|          | 43/37999 [00:31<4:30:33,  2.34it/s]  0%|          | 43/37999 [00:31<4:30:59,  2.33it/s]  0%|          | 44/37999 [00:32<4:31:37,  2.33it/s]  0%|          | 44/37999 [00:32<4:31:41,  2.33it/s]  0%|          | 45/37999 [00:32<4:39:13,  2.27it/s]  0%|          | 45/37999 [00:32<4:38:55,  2.27it/s]  0%|          | 46/37999 [00:33<4:34:23,  2.31it/s]  0%|          | 46/37999 [00:33<4:33:33,  2.31it/s]  0%|          | 47/37999 [00:33<4:30:40,  2.34it/s]  0%|          | 47/37999 [00:33<4:30:27,  2.34it/s]  0%|          | 48/37999 [00:34<4:28:55,  2.35it/s]  0%|          | 48/37999 [00:34<4:28:29,  2.36it/s]  0%|          | 49/37999 [00:34<4:31:08,  2.33it/s]  0%|          | 49/37999 [00:34<4:30:44,  2.34it/s]  0%|          | 50/37999 [00:34<4:28:06,  2.36it/s]  0%|          | 50/37999 [00:34<4:28:10,  2.36it/s]  0%|          | 51/37999 [00:35<4:30:41,  2.34it/s]  0%|          | 51/37999 [00:35<4:31:36,  2.33it/s]  0%|          | 52/37999 [00:35<4:30:16,  2.34it/s]  0%|          | 52/37999 [00:35<4:30:03,  2.34it/s]  0%|          | 53/37999 [00:36<4:28:04,  2.36it/s]  0%|          | 53/37999 [00:36<4:28:02,  2.36it/s]  0%|          | 54/37999 [00:36<4:29:14,  2.35it/s]  0%|          | 54/37999 [00:36<4:29:00,  2.35it/s]  0%|          | 55/37999 [00:36<4:29:16,  2.35it/s]  0%|          | 55/37999 [00:37<4:28:58,  2.35it/s]  0%|          | 56/37999 [00:37<4:27:37,  2.36it/s]  0%|          | 56/37999 [00:37<4:27:20,  2.37it/s]  0%|          | 57/37999 [00:37<4:27:40,  2.36it/s]  0%|          | 57/37999 [00:37<4:28:09,  2.36it/s]  0%|          | 58/37999 [00:38<4:28:32,  2.35it/s]  0%|          | 58/37999 [00:38<4:28:14,  2.36it/s]  0%|          | 59/37999 [00:38<4:31:05,  2.33it/s]  0%|          | 59/37999 [00:38<4:32:15,  2.32it/s]2025-08-10 13:59:57,653 - PixArt - INFO - Step/Epoch [60/1][60/37999]:total_eta: 13:33:04, epoch_eta:6:46:13, time_all:0.428, time_data:0.003, lr:6.000e-06, s:(32, 32), loss:0.2161, grad_norm:0.1008
+  0%|          | 60/37999 [00:39<4:31:43,  2.33it/s]  0%|          | 60/37999 [00:39<4:32:18,  2.32it/s]  0%|          | 61/37999 [00:39<4:32:16,  2.32it/s]  0%|          | 61/37999 [00:39<4:32:59,  2.32it/s]  0%|          | 62/37999 [00:39<4:32:27,  2.32it/s]  0%|          | 62/37999 [00:40<4:31:40,  2.33it/s]  0%|          | 63/37999 [00:40<4:32:07,  2.32it/s]  0%|          | 63/37999 [00:40<4:33:59,  2.31it/s]  0%|          | 64/37999 [00:40<4:32:03,  2.32it/s]  0%|          | 64/37999 [00:40<4:30:59,  2.33it/s]  0%|          | 65/37999 [00:41<4:29:29,  2.35it/s]  0%|          | 65/37999 [00:41<4:29:02,  2.35it/s]  0%|          | 66/37999 [00:41<4:28:37,  2.35it/s]  0%|          | 66/37999 [00:41<4:27:48,  2.36it/s]  0%|          | 67/37999 [00:42<4:28:18,  2.36it/s]  0%|          | 67/37999 [00:42<4:29:27,  2.35it/s]  0%|          | 68/37999 [00:42<4:30:22,  2.34it/s]  0%|          | 68/37999 [00:42<4:30:24,  2.34it/s]  0%|          | 69/37999 [00:42<4:30:14,  2.34it/s]  0%|          | 69/37999 [00:43<4:30:27,  2.34it/s]  0%|          | 70/37999 [00:43<4:30:45,  2.33it/s]  0%|          | 70/37999 [00:43<4:29:56,  2.34it/s]  0%|          | 71/37999 [00:43<4:30:16,  2.34it/s]  0%|          | 71/37999 [00:43<4:31:40,  2.33it/s]  0%|          | 72/37999 [00:44<4:31:05,  2.33it/s]  0%|          | 72/37999 [00:44<4:30:27,  2.34it/s]

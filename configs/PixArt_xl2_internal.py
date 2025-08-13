@@ -104,3 +104,8 @@ final_output_loss_flag = False
 # Modfication of Mode
 transformer_blocks = []
 trainable_blocks = []
+
+
+reserve_memory=False
+
+stable_loss = False

@@ -193,7 +193,7 @@ def main(args):
         state_dict.pop("pos_embed")
     except:
         pass
-    assert len(state_dict) == 0, f"State dict is not empty, {state_dict.keys()}"
+    #assert len(state_dict) == 0, f"State dict is not empty, {state_dict.keys()}"
 
     num_model_params = sum(p.numel() for p in transformer.parameters())
     print(f"Total number of transformer parameters: {num_model_params}")

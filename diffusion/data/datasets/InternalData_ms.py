@@ -274,7 +274,7 @@ class InternalDataMSSigma(InternalDataSigma):
                 [
                     os.path.join(
                         self.root + suffix,
-                        f'img_sdxl_vae_features_{resolution}resolution_ms_new',
+                        f'img_sdxl_vae_features_{resolution}resolution_new',
                         replace_img_ext('_'.join(item['path'].rsplit('/', 1)), '.npy')
                     ) for item in meta_data_clean
                 ])

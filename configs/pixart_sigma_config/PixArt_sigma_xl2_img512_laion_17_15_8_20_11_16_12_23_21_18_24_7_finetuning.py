@@ -15,8 +15,8 @@ image_size = 512
 
 # model setting
 model = "PixArtMS_XL_2"
-mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
-fp32_attention = True
+mixed_precision = "bf16"  # ['fp16', 'no', 'bf16']
+fp32_attention = False
   # https://huggingface.co/PixArt-alpha/PixArt-Sigma
 load_from = '/export/data/sheid/pixart/second_pruning_attempt/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_12_23_21_18_24_7/checkpoints/epoch_1_step_38000.pth'
 ref_load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth" 
@@ -30,7 +30,7 @@ pe_interpolation = 1.0
 
 # training setting
 num_workers = 12
-train_batch_size = 8  # 48 as default
+train_batch_size = 16  # 48 as default
 num_epochs = 1  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True

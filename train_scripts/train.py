@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 current_file_path = Path(__file__).resolve()
 sys.path.insert(0, str(current_file_path.parent.parent))
+from scripts.stable_loss import temprngstate
 import numpy as np
 import torch
 from accelerate import Accelerator, InitProcessGroupKwargs
@@ -52,7 +53,78 @@ def set_fsdp_env():
     os.environ["FSDP_BACKWARD_PREFETCH"] = "BACKWARD_PRE"
     os.environ["FSDP_TRANSFORMER_CLS_TO_WRAP"] = "PixArtBlock"
 
+@torch.inference_mode()
+def compute_stable_loss():
+    for idx, batch in enumerate(tqdm(stable_loss_dataloader)):
+        if config.data_stable_loss.load_vae_feat:
+            z = batch[0]
+        else:
+            with torch.no_grad():
+                with torch.cuda.amp.autocast(
+                    enabled=(
+                        config.mixed_precision == "fp16"
+                        or config.mixed_precision == "bf16"
+                    )
+                ):
+                    posterior = vae.encode(batch[0]).latent_dist
+                    if config.sample_posterior:
+                        z = posterior.sample()
+                    else:
+                        z = posterior.mode()
 
+        clean_images = z * config.scale_factor
+        data_info = batch[3]
+
+        if config.data_stable_loss.load_t5_feat:
+            y = batch[1]
+            y_mask = batch[2]
+        else:
+            with torch.no_grad():
+                txt_tokens = tokenizer(
+                    batch[1],
+                    max_length=max_length,
+                    padding="max_length",
+                    truncation=True,
+                    return_tensors="pt",
+                ).to(accelerator.device)
+                y = text_encoder(
+                    txt_tokens.input_ids, attention_mask=txt_tokens.attention_mask
+                )[0][:, None]
+                y_mask = txt_tokens.attention_mask[:, None, None]
+
+        # Sample a random timestep for each image
+        bs = clean_images.shape[0]
+        timesteps = torch.randint(
+            0, config.train_sampling_steps, (bs,), device=clean_images.device
+        ).long()
+
+            # Predict the noise residual
+        stable_loss = []
+        with torch.no_grad():
+            with temprngstate(idx):
+                if config.intermediate_loss_flag:
+                    stable_loss_term = train_diffusion.training_losses(
+                        model,
+                        clean_images,
+                        timesteps,
+                        ref_model=ref_model,
+                        intermediate_loss_blocks=config.intermediate_loss_blocks,
+                        final_output_loss_flag=config.final_output_loss_flag,
+                        org_loss_flag = config.org_loss_flag,
+                        model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
+                    )
+                else:
+                    stable_loss_term = train_diffusion.training_losses(
+                        model,
+                        clean_images,
+                        timesteps,
+                        model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
+                    )
+        stable_loss.append(stable_loss_term["loss"].mean())
+    
+    f_stable_loss = sum(stable_loss) / len(stable_loss)
+    return f_stable_loss
+                
 @torch.inference_mode()
 def log_validation(model, step, device, vae=None):
     torch.cuda.empty_cache()
@@ -256,6 +328,10 @@ def train():
             logs = {args.loss_report_name: accelerator.gather(loss).mean().item()}
             if grad_norm is not None:
                 logs.update(grad_norm=accelerator.gather(grad_norm).mean().item())
+            if config.stable_loss:
+                if (step + 1) % config.log_interval_stable_loss==0 or (step + 1) == 1:
+                    s_loss = compute_stable_loss()
+                    logs["stable_loss"] = accelerator.gather(s_loss).mean().item()
             log_buffer.update(logs)
             if (step + 1) % config.log_interval == 0 or (step + 1) == 1:
                 t = (time.time() - last_tic) / config.log_interval
@@ -337,7 +413,19 @@ def train():
                 
         accelerator.wait_for_everyone()
 
+def reserve_memory():
+    gb_to_allocate = 20  # change to desired number of GB
+    bytes_per_element = 4  # float32 = 4 bytes
 
+    # Calculate number of elements needed
+    num_elements = gb_to_allocate * (1024**3) // bytes_per_element
+
+    # Allocate tensor on GPU
+    block_tensor = torch.empty(num_elements, dtype=torch.float32, device='cuda')
+
+    # Prevent it from being optimized away
+    block_tensor[0] = 1.0
+    
 def parse_args():
     parser = argparse.ArgumentParser(description="Process some integers.")
     parser.add_argument("config", type=str, help="config")
@@ -645,6 +733,16 @@ if __name__ == "__main__":
         max_length=max_length,
         config=config,
     )
+    if config.stable_loss:
+        dataset_stable_loss = build_dataset(
+        config.data_stable_loss,
+        resolution=image_size,
+        aspect_ratio_type=config.aspect_ratio_type,
+        real_prompt_ratio=config.real_prompt_ratio,
+        max_length=max_length,
+        config=config,
+    )
+        
     if config.multi_scale:
         batch_sampler = AspectRatioBatchSampler(
             sampler=RandomSampler(dataset),
@@ -659,12 +757,27 @@ if __name__ == "__main__":
         train_dataloader = build_dataloader(
             dataset, batch_sampler=batch_sampler, num_workers=config.num_workers
         )
+        if config.stable_loss:
+            # stable_loss_dataloader = build_dataloader(
+            # dataset_stable_loss, batch_sampler=batch_sampler, num_workers=config.num_workers
+            # )
+            stable_loss_dataloader = build_dataloader(
+            dataset_stable_loss,  num_workers=config.num_workers, batch_size=config.train_batch_size
+        )
     else:
         train_dataloader = build_dataloader(
             dataset,
             num_workers=config.num_workers,
             batch_size=config.train_batch_size,
             shuffle=True,
+        )
+        if config.stable_loss:
+            stable_loss_dataloader = build_dataloader(
+            dataset_stable_loss,  num_workers=config.num_workers, batch_size=config.train_batch_size
+        )
+    if config.stable_loss:
+        stable_loss_dataloader = accelerator.prepare(
+             stable_loss_dataloader
         )
     # build optimizer and lr scheduler
     lr_scale_ratio = 1
@@ -719,4 +832,9 @@ if __name__ == "__main__":
     optimizer, train_dataloader, lr_scheduler = accelerator.prepare(
         optimizer, train_dataloader, lr_scheduler
     )
+    if config.reserve_memory:
+        reserve_memory()
     train()
+
+
+
