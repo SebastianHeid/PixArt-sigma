@@ -37,7 +37,7 @@ def get_args():
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
     parser.add_argument('--txt_file', default='/export/home/sheid/skip_connection_pixart/PixArt-sigma/ImageNet/prompt.json', type=str)
-    parser.add_argument('--model_path', default='/export/home/sheid/skip_connection_pixart/PixArt-sigma/scripts/inference.py', type=str)
+    parser.add_argument('--model_path', default='/export/data/sheid/pixart/PixArt_sigma_xl2_img512_image_net_helix/epoch_70_step_150000.pth', type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
     parser.add_argument('--bs', default=1, type=int)
     parser.add_argument('--cfg_scale', default=4.5, type=float)
@@ -46,7 +46,7 @@ def get_args():
     parser.add_argument('--dataset', default='custom', type=str)
     parser.add_argument('--step', default=-1, type=int)
     parser.add_argument('--save_name', default='test_sample', type=str)
-    parser.add_argument('--save_path', default='/export/data/sheid/pixart/generated_coco/PixArt_sigma_xl2_img512_image_net_repa/', type=str,)
+    parser.add_argument('--save_path', default='/export/data/sheid/pixart/generated_coco/PixArt_sigma_xl2_img512_150k_image_net/', type=str,)
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
 
     return parser.parse_args()

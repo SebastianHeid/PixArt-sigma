@@ -1,0 +1,45 @@
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py:207: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()
+Traceback (most recent call last):
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 207, in <module>
+    main()
+  File "/export/home/sheid/.local/lib/python3.10/site-packages/typing_extensions.py", line 2853, in wrapper
+    return arg(*args, **kwargs)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 203, in main
+    launch(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 188, in launch
+    run(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 261, in launch_agent
+    result = agent.run()
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
+    result = f(*args, **kwargs)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
+    result = self._invoke_run(role)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 864, in _invoke_run
+    self._initialize_workers(self._worker_group)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
+    result = f(*args, **kwargs)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 683, in _initialize_workers
+    self._rendezvous(worker_group)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
+    result = f(*args, **kwargs)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 500, in _rendezvous
+    rdzv_info = spec.rdzv_handler.next_rendezvous()
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/elastic/rendezvous/static_tcp_rendezvous.py", line 67, in next_rendezvous
+    self._store = TCPStore(  # type: ignore[call-arg]
+torch.distributed.DistNetworkError: The server socket has failed to listen on any local network address. port: 12354, useIpv6: false, code: -98, name: EADDRINUSE, message: address already in use

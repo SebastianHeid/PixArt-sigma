@@ -13,22 +13,22 @@ data = dict(
 )
 data_stable_loss = dict(
     type="InternalDataMSSigma",
-    root="/export/home/sheid/PixArt-sigma/distillation",
+    root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/feature_pixart",
     img_root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/images",
     image_list_json=["data_info_stable_loss.json"],
     transform="default_train",
-    load_vae_feat=False,
-    load_t5_feat=False,
+    load_vae_feat=True,
+    load_t5_feat=True,
     load_img_vae_feat=False,
 )
-stable_loss = False
+stable_loss = True
 image_size = 512
 
 # model setting
 model = "PixArtMS_XL_2"
-mixed_precision = "bf16"  # ['fp16', 'no', 'bf16']
+mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
 fp32_attention = False
-load_from = "/export/data/sheid/pixart/shortcut_learning/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_12_23_21_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12500.pth"  # https://huggingface.co/PixArt-alpha/PixArt-Sigma
+load_from = "/export/data/sheid/pixart/shortcut_training/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_12_23_21_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12500.pth"  # https://huggingface.co/PixArt-alpha/PixArt-Sigma
 ref_load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth" 
 resume_from = None
 vae_pretrained = (
@@ -78,4 +78,3 @@ org_loss_flag = False
 transformer_blocks = [8,15,17, 20, 11, 16, 12, 23, 21, 18]
 trainable_blocks = []
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
-reserve_memory=True

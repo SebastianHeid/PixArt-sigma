@@ -11,7 +11,6 @@ from tqdm import tqdm
 
 current_file_path = Path(__file__).resolve()
 sys.path.insert(0, str(current_file_path.parent.parent))
-from scripts.stable_loss import temprngstate
 import numpy as np
 import torch
 from accelerate import Accelerator, InitProcessGroupKwargs
@@ -43,6 +42,7 @@ from diffusion.utils.misc import (
     set_random_seed,
 )
 from diffusion.utils.optimizer import auto_scale_lr, build_optimizer
+from scripts.stable_loss import temprngstate
 
 warnings.filterwarnings("ignore")  # ignore warning
 
@@ -67,10 +67,7 @@ def compute_stable_loss():
                     )
                 ):
                     posterior = vae.encode(batch[0]).latent_dist
-                    if config.sample_posterior:
-                        z = posterior.sample()
-                    else:
-                        z = posterior.mode()
+                    z = posterior.mode()
 
         clean_images = z * config.scale_factor
         data_info = batch[3]
@@ -414,7 +411,7 @@ def train():
         accelerator.wait_for_everyone()
 
 def reserve_memory():
-    gb_to_allocate = 20  # change to desired number of GB
+    gb_to_allocate = 15  # change to desired number of GB
     bytes_per_element = 4  # float32 = 4 bytes
 
     # Calculate number of elements needed

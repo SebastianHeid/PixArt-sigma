@@ -1,0 +1,417 @@
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py:207: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: '/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/image.so: undefined symbol: _ZN3c1017RegisterOperatorsD1Ev'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
+  warn(
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: '/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/image.so: undefined symbol: _ZN3c1017RegisterOperatorsD1Ev'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
+  warn(
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+/export/home/sheid/.local/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/export/home/sheid/.local/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+2025-08-14 16:48:37,967 - PixArt - INFO - Distributed environment: MULTI_GPU  Backend: nccl
+Num processes: 2
+Process index: 0
+Local process index: 0
+Device: cuda:0
+
+Mixed precision type: bf16
+
+2025-08-14 16:48:38,083 - PixArt - INFO - Config: 
+data_root = 'pixart-sigma-toy-dataset'
+data = dict(
+    type='InternalDataMSSigma',
+    root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/laion2M/feature_pixart',
+    image_list_json=['data_info.json'],
+    transform='default_train',
+    load_vae_feat=True,
+    load_t5_feat=True,
+    img_root=
+    '/export/data/vislearn/rother_subgroup/rother_datasets/LaionAE/laion2B-en-art_512/',
+    load_img_vae_feat=False)
+image_size = 512
+train_batch_size = 8
+eval_batch_size = 16
+use_fsdp = False
+valid_num = 0
+fp32_attention = False
+model = 'PixArtMS_XL_2'
+aspect_ratio_type = 'ASPECT_RATIO_512'
+multi_scale = False
+pe_interpolation = 1.0
+qk_norm = False
+kv_compress = False
+kv_compress_config = dict(sampling=None, scale_factor=1, kv_compress_layer=[])
+num_workers = 2
+train_sampling_steps = 1000
+visualize = True
+deterministic_validation = False
+eval_sampling_steps = 500
+model_max_length = 300
+lora_rank = 4
+num_epochs = 1
+gradient_accumulation_steps = 1
+grad_checkpointing = True
+gradient_clip = 0.01
+gc_step = 1
+auto_lr = dict(rule='sqrt')
+validation_prompts = [
+    'dog',
+    'portrait photo of a girl, photograph, highly detailed face, depth of field',
+    'Self-portrait oil painting, a beautiful cyborg with golden hair, 8k',
+    'Astronaut in a jungle, cold color palette, muted colors, detailed, 8k',
+    'A photo of beautiful mountain with realistic sunset and blue lake, highly detailed, masterpiece'
+]
+optimizer = dict(
+    type='CAMEWrapper',
+    lr=2e-05,
+    weight_decay=0.03,
+    eps=(1e-30, 1e-16),
+    betas=(0.9, 0.999, 0.9999))
+lr_schedule = 'constant'
+lr_schedule_args = dict(num_warmup_steps=1000)
+save_image_epochs = 1
+save_model_epochs = 1
+save_model_steps = 37990
+sample_posterior = True
+mixed_precision = 'bf16'
+scale_factor = 0.13025
+ema_rate = 0.9999
+tensorboard_mox_interval = 50
+log_interval = 20
+cfg_scale = 4
+mask_type = 'null'
+num_group_tokens = 0
+mask_loss_coef = 0.0
+load_mask_index = False
+vae_pretrained = '/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae'
+load_from = '/export/data/sheid/pixart/shortcut_learning/PixArt_sigma_xl2_img512_laion_17_15_8_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12501.pth'
+resume_from = None
+snr_loss = False
+real_prompt_ratio = 1.0
+class_dropout_prob = 0.1
+work_dir = '/export/data/sheid/pixart/shortcut_training/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning'
+s3_work_dir = None
+micro_condition = False
+seed = 43
+skip_step = 0
+loss_type = 'huber'
+huber_c = 0.001
+num_ddim_timesteps = 50
+w_max = 15.0
+w_min = 3.0
+ema_decay = 0.95
+intermediate_loss_flag = True
+intermediate_loss_blocks = [
+    8, 9, 11, 12, 13, 15, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27
+]
+final_output_loss_flag = True
+transformer_blocks = [8, 15, 17, 20, 11]
+trainable_blocks = []
+reserve_memory = False
+stable_loss = False
+image_list_json = ['data_info.json']
+data_stable_loss = dict(
+    type='InternalDataMSSigma',
+    root='/export/home/sheid/PixArt-sigma/distillation',
+    img_root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/images',
+    image_list_json=['data_info_stable_loss.json'],
+    transform='default_train',
+    load_vae_feat=False,
+    load_t5_feat=False,
+    load_img_vae_feat=False)
+ref_load_from = '/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth'
+log_interval_stable_loss = 1000
+org_loss_flag = False
+
+2025-08-14 16:48:38,083 - PixArt - INFO - World_size: 2, seed: 43
+2025-08-14 16:48:38,083 - PixArt - INFO - Initializing: DDP for training
+2025-08-14 16:48:38,083 - PixArt - INFO - vae scale factor: 0.13025
+2025-08-14 16:48:38,084 - PixArt - INFO - Preparing Visualization prompt embeddings...
+2025-08-14 16:48:38,084 - PixArt - INFO - Loading text encoder and tokenizer from /export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers ...
+You are using the default legacy behaviour of the <class 'transformers.models.t5.tokenization_t5.T5Tokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.34s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.07s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.11s/it]
+2025-08-14 16:48:56,689 - PixArt - WARNING - position embed interpolation: 1.0, base size: 32
+2025-08-14 16:48:56,689 - PixArt - WARNING - kv compress config: {'sampling': None, 'scale_factor': 1, 'kv_compress_layer': []}
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/export/home/sheid/PixArt-sigma/train_scripts/train.py", line 688, in <module>
+[rank1]:     missing, unexpected = load_checkpoint(
+[rank1]:   File "/export/home/sheid/PixArt-sigma/diffusion/utils/checkpoint.py", line 52, in load_checkpoint
+[rank1]:     checkpoint = torch.load(ckpt_file, map_location="cpu")
+[rank1]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 1479, in load
+[rank1]:     with _open_file_like(f, "rb") as opened_file:
+[rank1]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 759, in _open_file_like
+[rank1]:     return _open_file(name_or_buffer, mode)
+[rank1]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 740, in __init__
+[rank1]:     super().__init__(open(name, mode))
+[rank1]: FileNotFoundError: [Errno 2] No such file or directory: '/export/data/sheid/pixart/shortcut_learning/PixArt_sigma_xl2_img512_laion_17_15_8_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12501.pth'
+W0814 16:49:07.327000 250565 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 250575 closing signal SIGTERM
+E0814 16:49:08.143000 250565 site-packages/torch/distributed/elastic/multiprocessing/api.py:874] failed (exitcode: 1) local_rank: 1 (pid: 250576) of binary: /export/scratch/sheid/miniconda3/envs/mmcv_env/bin/python
+Traceback (most recent call last):
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 207, in <module>
+    main()
+  File "/export/home/sheid/.local/lib/python3.10/site-packages/typing_extensions.py", line 2853, in wrapper
+    return arg(*args, **kwargs)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 203, in main
+    launch(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 188, in launch
+    run(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 270, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+/export/home/sheid/PixArt-sigma/train_scripts/train.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2025-08-14_16:49:07
+  host      : hcigpu07
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 250576)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py:207: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: '/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/image.so: undefined symbol: _ZN3c1017RegisterOperatorsD1Ev'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
+  warn(
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: '/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/image.so: undefined symbol: _ZN3c1017RegisterOperatorsD1Ev'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
+  warn(
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+/export/home/sheid/.local/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/export/home/sheid/.local/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+2025-08-14 16:49:22,760 - PixArt - INFO - Distributed environment: MULTI_GPU  Backend: nccl
+Num processes: 2
+Process index: 0
+Local process index: 0
+Device: cuda:0
+
+Mixed precision type: fp16
+
+2025-08-14 16:49:22,868 - PixArt - INFO - Config: 
+data_root = 'pixart-sigma-toy-dataset'
+data = dict(
+    type='InternalDataMSSigma',
+    root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/json',
+    image_list_json=['data_info.json'],
+    transform='default_train',
+    load_vae_feat=False,
+    load_t5_feat=False,
+    img_root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/images'
+)
+image_size = 512
+train_batch_size = 8
+eval_batch_size = 16
+use_fsdp = False
+valid_num = 0
+fp32_attention = False
+model = 'PixArtMS_XL_2'
+aspect_ratio_type = 'ASPECT_RATIO_512'
+multi_scale = False
+pe_interpolation = 1.0
+qk_norm = False
+kv_compress = False
+kv_compress_config = dict(sampling=None, scale_factor=1, kv_compress_layer=[])
+num_workers = 3
+train_sampling_steps = 1000
+visualize = True
+deterministic_validation = False
+eval_sampling_steps = 500
+model_max_length = 300
+lora_rank = 4
+num_epochs = 2
+gradient_accumulation_steps = 1
+grad_checkpointing = True
+gradient_clip = 0.01
+gc_step = 1
+auto_lr = dict(rule='sqrt')
+validation_prompts = [
+    'dog',
+    'portrait photo of a girl, photograph, highly detailed face, depth of field',
+    'Self-portrait oil painting, a beautiful cyborg with golden hair, 8k',
+    'Astronaut in a jungle, cold color palette, muted colors, detailed, 8k',
+    'A photo of beautiful mountain with realistic sunset and blue lake, highly detailed, masterpiece'
+]
+optimizer = dict(
+    type='CAMEWrapper',
+    lr=2e-05,
+    weight_decay=0.03,
+    eps=(1e-30, 1e-16),
+    betas=(0.9, 0.999, 0.9999))
+lr_schedule = 'constant'
+lr_schedule_args = dict(num_warmup_steps=1000)
+save_image_epochs = 1
+save_model_epochs = 1
+save_model_steps = 12500
+sample_posterior = True
+mixed_precision = 'fp16'
+scale_factor = 0.13025
+ema_rate = 0.9999
+tensorboard_mox_interval = 50
+log_interval = 20
+cfg_scale = 4
+mask_type = 'null'
+num_group_tokens = 0
+mask_loss_coef = 0.0
+load_mask_index = False
+vae_pretrained = '/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae'
+load_from = '/export/data/sheid/pixart/shortcut_learning/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning/checkpoints/epoch_1_step_37990.pth'
+resume_from = None
+snr_loss = False
+real_prompt_ratio = 1.0
+class_dropout_prob = 0.1
+work_dir = '/export/data/sheid/pixart/shortcut_training/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning_trained_on_pixart_generated_images'
+s3_work_dir = None
+micro_condition = False
+seed = 43
+skip_step = 0
+loss_type = 'huber'
+huber_c = 0.001
+num_ddim_timesteps = 50
+w_max = 15.0
+w_min = 3.0
+ema_decay = 0.95
+intermediate_loss_flag = True
+intermediate_loss_blocks = [
+    8, 9, 11, 12, 13, 15, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27
+]
+final_output_loss_flag = True
+transformer_blocks = [8, 15, 17, 20, 11]
+trainable_blocks = []
+reserve_memory = False
+stable_loss = False
+image_list_json = ['data_info.json']
+data_stable_loss = dict(
+    type='InternalDataMSSigma',
+    root='/export/home/sheid/PixArt-sigma/distillation',
+    img_root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/images',
+    image_list_json=['data_info_stable_loss.json'],
+    transform='default_train',
+    load_vae_feat=False,
+    load_t5_feat=False,
+    load_img_vae_feat=False)
+ref_load_from = '/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth'
+log_interval_stable_loss = 1000
+org_loss_flag = False
+
+2025-08-14 16:49:22,868 - PixArt - INFO - World_size: 2, seed: 43
+2025-08-14 16:49:22,868 - PixArt - INFO - Initializing: DDP for training
+You are using the default legacy behaviour of the <class 'transformers.models.t5.tokenization_t5.T5Tokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+You are using the default legacy behaviour of the <class 'transformers.models.t5.tokenization_t5.T5Tokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.37s/it]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.30s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.10s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.13s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.14s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.18s/it]
+2025-08-14 16:49:33,600 - PixArt - INFO - vae scale factor: 0.13025
+2025-08-14 16:49:33,601 - PixArt - INFO - Preparing Visualization prompt embeddings...
+2025-08-14 16:49:41,938 - PixArt - WARNING - position embed interpolation: 1.0, base size: 32
+2025-08-14 16:49:41,938 - PixArt - WARNING - kv compress config: {'sampling': None, 'scale_factor': 1, 'kv_compress_layer': []}
+2025-08-14 16:49:55,154 - PixArt - WARNING - position embed interpolation: 1.0, base size: 32
+2025-08-14 16:49:55,155 - PixArt - WARNING - kv compress config: {'sampling': None, 'scale_factor': 1, 'kv_compress_layer': []}
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/export/home/sheid/PixArt-sigma/train_scripts/train.py", line 688, in <module>
+[rank1]:     missing, unexpected = load_checkpoint(
+[rank1]:   File "/export/home/sheid/PixArt-sigma/diffusion/utils/checkpoint.py", line 52, in load_checkpoint
+[rank1]:     checkpoint = torch.load(ckpt_file, map_location="cpu")
+[rank1]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 1479, in load
+[rank1]:     with _open_file_like(f, "rb") as opened_file:
+[rank1]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 759, in _open_file_like
+[rank1]:     return _open_file(name_or_buffer, mode)
+[rank1]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 740, in __init__
+[rank1]:     super().__init__(open(name, mode))
+[rank1]: FileNotFoundError: [Errno 2] No such file or directory: '/export/data/sheid/pixart/shortcut_learning/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning/checkpoints/epoch_1_step_37990.pth'
+2025-08-14 16:50:01,818 - PixArt - INFO - PixArtMS Model Parameters: 610,856,096
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/export/home/sheid/PixArt-sigma/train_scripts/train.py", line 688, in <module>
+[rank0]:     missing, unexpected = load_checkpoint(
+[rank0]:   File "/export/home/sheid/PixArt-sigma/diffusion/utils/checkpoint.py", line 52, in load_checkpoint
+[rank0]:     checkpoint = torch.load(ckpt_file, map_location="cpu")
+[rank0]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 1479, in load
+[rank0]:     with _open_file_like(f, "rb") as opened_file:
+[rank0]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 759, in _open_file_like
+[rank0]:     return _open_file(name_or_buffer, mode)
+[rank0]:   File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/serialization.py", line 740, in __init__
+[rank0]:     super().__init__(open(name, mode))
+[rank0]: FileNotFoundError: [Errno 2] No such file or directory: '/export/data/sheid/pixart/shortcut_learning/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning/checkpoints/epoch_1_step_37990.pth'
+W0814 16:50:01.953000 250812 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 250823 closing signal SIGTERM
+E0814 16:50:03.071000 250812 site-packages/torch/distributed/elastic/multiprocessing/api.py:874] failed (exitcode: 1) local_rank: 1 (pid: 250824) of binary: /export/scratch/sheid/miniconda3/envs/mmcv_env/bin/python
+Traceback (most recent call last):
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 207, in <module>
+    main()
+  File "/export/home/sheid/.local/lib/python3.10/site-packages/typing_extensions.py", line 2853, in wrapper
+    return arg(*args, **kwargs)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 203, in main
+    launch(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 188, in launch
+    run(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 270, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+/export/home/sheid/PixArt-sigma/train_scripts/train.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2025-08-14_16:50:01
+  host      : hcigpu07
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 250824)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py:207: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()

@@ -4,12 +4,12 @@ image_list_json = ["data_info.json"]
 
 data = dict(
     type="InternalDataMSSigma",
-    root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/json",
-    img_root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/images",
+    root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/feature_pixart",
+    img_root="/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/feature_pixart",
     image_list_json=image_list_json,
     transform="default_train",
-    load_vae_feat=False,
-    load_t5_feat=False,
+    load_vae_feat=True,
+    load_t5_feat=True,
 )
 data_stable_loss = dict(
     type="InternalDataMSSigma",
@@ -26,10 +26,10 @@ image_size = 512
 
 # model setting
 model = "PixArtMS_XL_2"
-mixed_precision = "bf16"  # ['fp16', 'no', 'bf16']
+mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
 fp32_attention = False
 ref_load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth"  # https://huggingface.co/PixArt-alpha/PixArt-Sigma
-load_from = "/export/data/sheid/pixart/shortcut_learning/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning/checkpoints/epoch_1_step_37990.pth" 
+load_from = "/export/data/sheid/pixart/shortcut_training/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning/checkpoints/epoch_1_step_37990.pth" 
 resume_from = None
 vae_pretrained = (
     "/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
@@ -40,7 +40,7 @@ pe_interpolation = 1.0
 
 # training setting
 num_workers = 3
-train_batch_size = 8  # 48 as default
+train_batch_size = 16  # 48 as default
 num_epochs = 2  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
@@ -59,7 +59,7 @@ visualize = True
 log_interval = 20
 log_interval_stable_loss = 1000
 save_model_epochs = 1
-save_model_steps = 50000
+save_model_steps = 12500
 work_dir = "output/debug"
 
 # pixart-sigma
@@ -78,3 +78,4 @@ org_loss_flag = False
 transformer_blocks = [8,15,17, 20, 11]
 trainable_blocks = []
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
+reserve_memory=True

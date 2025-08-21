@@ -1,0 +1,1 @@
+/export/home/sheid/PixArt-sigma/myScripts/run_train_equidistant.sh: line 243: syntax error: unexpected end of file
