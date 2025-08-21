@@ -303,6 +303,7 @@ def train():
                         intermediate_loss_blocks=config.intermediate_loss_blocks,
                         final_output_loss_flag=config.final_output_loss_flag,
                         org_loss_flag = config.org_loss_flag,
+                        self_att_feat_loss_flag = config.self_att_feat_loss_flag,
                         model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
                     )
                 else:
@@ -411,7 +412,7 @@ def train():
         accelerator.wait_for_everyone()
 
 def reserve_memory():
-    gb_to_allocate = 15  # change to desired number of GB
+    gb_to_allocate = 10  # change to desired number of GB
     bytes_per_element = 4  # float32 = 4 bytes
 
     # Calculate number of elements needed

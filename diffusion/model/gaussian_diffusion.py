@@ -787,6 +787,7 @@ class GaussianDiffusion:
         ref_model=None,
         intermediate_loss_blocks=[],
         final_output_loss_flag=False,
+        self_att_feat_loss_flag=False,
         org_loss_flag=True,
         model_kwargs=None,
         noise=None,
@@ -827,20 +828,26 @@ class GaussianDiffusion:
             if self.loss_type == LossType.RESCALED_KL:
                 terms["loss"] *= self.num_timesteps
         elif self.loss_type == LossType.MSE or self.loss_type == LossType.RESCALED_MSE:
-            model_output, feat_list = model(x_t, t, **model_kwargs, train=True)
+            model_output, feat_list, self_att_feat_list = model(x_t, t, **model_kwargs, train=True)
             if ref_model is not None:
                 with th.no_grad():
-                    ref_model_output, ref_feat_list = ref_model(
+                    ref_model_output, ref_feat_list, ref_self_att_feat_list = ref_model(
                         x_t, t, **model_kwargs, train=True
                     )
             if intermediate_loss_blocks:
                 terms["intermediate_loss"] = self.intermediate_loss(
                     feat_list,
                     ref_feat_list,
+                    intermediate_loss_blocks,
                     model_output,
                     ref_model_output,
-                    intermediate_loss_blocks,
                     final_output_loss_flag,
+                )
+            if self_att_feat_loss_flag:
+                terms["self_att_feat_loss"] = self.intermediate_loss(
+                    self_att_feat_list,
+                    ref_self_att_feat_list,
+                    intermediate_loss_blocks,
                 )
             if (
                 isinstance(model_output, dict)
@@ -1138,10 +1145,10 @@ class GaussianDiffusion:
         self,
         feat_list,
         ref_feat_list,
-        model_output,
-        ref_model_output,
         intermediate_loss_blocks,
-        final_output_loss_flag,
+        model_output=None,
+        ref_model_output=None,
+        final_output_loss_flag=False,
     ):
         """
         Compute intermediate loss for a single timestep.

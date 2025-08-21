@@ -74,6 +74,7 @@ class PixArtMSBlock(nn.Module):
         **block_kwargs,
     ):
         super().__init__()
+        self.self_attn_feat = None
         self.hidden_size = hidden_size
         self.norm1 = nn.LayerNorm(hidden_size, elementwise_affine=False, eps=1e-6)
         self.attn = AttentionKVCompress(
@@ -108,15 +109,17 @@ class PixArtMSBlock(nn.Module):
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
             self.scale_shift_table[None] + t.reshape(B, 6, -1)
         ).chunk(6, dim=1)
+        self_att_feat = self.attn(t2i_modulate(self.norm1(x), shift_msa, scale_msa), HW=HW)
         x = x + self.drop_path(
             gate_msa
-            * self.attn(t2i_modulate(self.norm1(x), shift_msa, scale_msa), HW=HW)
+            * self_att_feat
         )
         x = x + self.cross_attn(x, y, mask)
         x = x + self.drop_path(
             gate_mlp * self.mlp(t2i_modulate(self.norm2(x), shift_mlp, scale_mlp))
         )
-
+       
+        self.self_attn_feat = self_att_feat
         return x
 
 
@@ -227,6 +230,7 @@ class PixArtMS(PixArt):
         y: (N, 1, 120, C) tensor of class labels
         """
         feat_list = []
+        self_att_feat_list = []
         bs = x.shape[0]
         x = x.to(self.dtype)
         timestep = timestep.to(self.dtype)
@@ -279,12 +283,16 @@ class PixArtMS(PixArt):
             x = auto_grad_checkpoint(
                 block, x, y, t0, y_lens, (self.h, self.w), **kwargs
             )  # (N, T, D) #support grad checkpoint
+           
+            # x= out[0]
+            self_att_feat = block.self_attn_feat
             feat_list.append(x)
+            self_att_feat_list.append(self_att_feat)
 
         x = self.final_layer(x, t)  # (N, T, patch_size ** 2 * out_channels)
         x = self.unpatchify(x)  # (N, out_channels, H, W)
         if train:
-            return x, feat_list
+            return x, feat_list, self_att_feat_list
         else:
             return x
 

@@ -10,7 +10,7 @@ exec 2> >(tee -a "$ERRFILE" >&2)
 # --------------------------------
 
 
-available_gpus=(5,7)
+available_gpus=(2,3)
 # for gpu in "${available_gpus[@]}"; do
 #   export CUDA_VISIBLE_DEVICES=$gpu
 #  python -m torch.distributed.launch --nproc_per_node=2 --master_port=12332 \
@@ -29,14 +29,14 @@ available_gpus=(5,7)
 
 # done
 
-for gpu in "${available_gpus[@]}"; do
-  export CUDA_VISIBLE_DEVICES=$gpu
- python -m torch.distributed.launch --nproc_per_node=2 --master_port=12332 \
-          /export/home/sheid/PixArt-sigma/train_scripts/train.py \
-          /export/home/sheid/PixArt-sigma/configs/pixart_sigma_config/equidistant/PixArt_sigma_xl2_img512_laion_4_6_8_finetuning_on_Pixart.py \
-          --work-dir /export/data/sheid/pixart/equidistant/PixArt_sigma_xl2_img512_laion_4_6_8_finetuning_on_Pixart \
+# for gpu in "${available_gpus[@]}"; do
+#   export CUDA_VISIBLE_DEVICES=$gpu
+#  python -m torch.distributed.launch --nproc_per_node=2 --master_port=12332 \
+#           /export/home/sheid/PixArt-sigma/train_scripts/train.py \
+#           /export/home/sheid/PixArt-sigma/configs/pixart_sigma_config/equidistant/PixArt_sigma_xl2_img512_laion_4_6_8_finetuning_on_Pixart.py \
+#           --work-dir /export/data/sheid/pixart/equidistant/PixArt_sigma_xl2_img512_laion_4_6_8_finetuning_on_Pixart \
 
-done
+# done
 
 
 

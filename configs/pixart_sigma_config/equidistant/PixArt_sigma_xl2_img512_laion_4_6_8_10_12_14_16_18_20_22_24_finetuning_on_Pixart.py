@@ -69,4 +69,4 @@ transformer_blocks = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
 trainable_blocks = []
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
 
-reserve_memory=True
+reserve_memory=False
