@@ -1,0 +1,51 @@
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py:207: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()
+Traceback (most recent call last):
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/run.py", line 650, in determine_local_world_size
+    return int(nproc_per_node)
+ValueError: invalid literal for int() with base 10: '1-'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 207, in <module>
+    main()
+  File "/export/home/sheid/.local/lib/python3.10/site-packages/typing_extensions.py", line 2853, in wrapper
+    return arg(*args, **kwargs)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 203, in main
+    launch(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py", line 188, in launch
+    run(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/run.py", line 882, in run
+    config, cmd, cmd_args = config_from_args(args)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/run.py", line 763, in config_from_args
+    nproc_per_node = determine_local_world_size(args.nproc_per_node)
+  File "/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/run.py", line 679, in determine_local_world_size
+    raise ValueError(
+ValueError: Unsupported nproc_per_node value: 1-
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torch/distributed/launch.py:207: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  main()
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: '/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/torchvision/image.so: undefined symbol: _ZN3c1017RegisterOperatorsD1Ev'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
+  warn(
+/export/scratch/sheid/miniconda3/envs/mmcv_env/lib/python3.10/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+/export/home/sheid/.local/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)

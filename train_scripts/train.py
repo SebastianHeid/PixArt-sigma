@@ -412,7 +412,7 @@ def train():
         accelerator.wait_for_everyone()
 
 def reserve_memory():
-    gb_to_allocate = 10  # change to desired number of GB
+    gb_to_allocate = 20  # change to desired number of GB
     bytes_per_element = 4  # float32 = 4 bytes
 
     # Calculate number of elements needed

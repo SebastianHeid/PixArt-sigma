@@ -15,7 +15,7 @@ data = dict(
 image_size = 512
 # model setting
 model = "PixArtMS_XL_2"
-mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
+mixed_precision = "bf16"  # ['fp16', 'no', 'bf16']
 fp32_attention = False
   # https://huggingface.co/PixArt-alpha/PixArt-Sigma
 load_from = '/export/data/sheid/pixart/equidistant/PixArt_sigma_xl2_img512_laion_4_6_8_10_12_14_16_18_20_22_24_finetuning/checkpoints/epoch_1_step_37990.pth'
@@ -30,7 +30,7 @@ pe_interpolation = 1.0
 
 # training setting
 num_workers = 4
-train_batch_size = 8   # 48 as default
+train_batch_size = 16   # 48 as default
 num_epochs = 2  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
@@ -69,4 +69,4 @@ transformer_blocks = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
 trainable_blocks = []
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
 
-reserve_memory=False
+reserve_memory=True

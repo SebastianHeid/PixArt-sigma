@@ -1160,10 +1160,10 @@ class GaussianDiffusion:
                  Some mean or variance settings may also have other keys.
         """
         loss = []
-        alphas = self.normalization_feature_loss(ref_feat_list)
+        #alphas = self.normalization_feature_loss(ref_feat_list)
         for idx, block in enumerate(intermediate_loss_blocks):
-            #loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]))
-            loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]) * alphas[block])
+            loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]))
+            #loss.append(F.mse_loss(feat_list[block], ref_feat_list[block]) * alphas[block])
         if final_output_loss_flag:
             loss.append(F.mse_loss(model_output, ref_model_output))
         loss_th = th.stack(loss)

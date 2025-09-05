@@ -14,7 +14,7 @@ data = dict(
 image_size = 512
 # model setting
 model = "PixArtMS_XL_2"
-mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
+mixed_precision = "bf16"  # ['fp16', 'no', 'bf16']
 fp32_attention = False
   # https://huggingface.co/PixArt-alpha/PixArt-Sigma
 load_from = '/export/data/sheid/pixart/equidistant/PixArt_sigma_xl2_img512_laion_4_6_8_10_12_14_16_18/checkpoints/epoch_1_step_37990.pth'
@@ -29,7 +29,7 @@ pe_interpolation = 1.0
 
 # training setting
 num_workers = 4
-train_batch_size = 8   # 48 as default
+train_batch_size = 16   # 48 as default
 num_epochs = 1  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True

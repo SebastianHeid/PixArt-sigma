@@ -1,0 +1,245 @@
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launch.py:183: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  warnings.warn(
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(
+2025-08-22 16:41:09,110 - PixArt - INFO - Distributed environment: MULTI_GPU  Backend: nccl
+Num processes: 2
+Process index: 0
+Local process index: 0
+Device: cuda:0
+
+Mixed precision type: fp16
+
+2025-08-22 16:41:09,229 - PixArt - INFO - Config: 
+data_root = 'pixart-sigma-toy-dataset'
+data = dict(
+    type='InternalDataMSSigma',
+    root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/laion2M/feature_pixart',
+    image_list_json=['data_info.json'],
+    transform='default_train',
+    load_vae_feat=True,
+    load_t5_feat=True,
+    img_root=
+    '/export/data/vislearn/rother_subgroup/rother_datasets/LaionAE/laion2B-en-art_512/',
+    load_img_vae_feat=False)
+image_size = 512
+train_batch_size = 8
+eval_batch_size = 16
+use_fsdp = False
+valid_num = 0
+fp32_attention = False
+model = 'PixArtMS_XL_2'
+aspect_ratio_type = 'ASPECT_RATIO_512'
+multi_scale = False
+pe_interpolation = 1.0
+qk_norm = False
+kv_compress = False
+kv_compress_config = dict(sampling=None, scale_factor=1, kv_compress_layer=[])
+num_workers = 3
+train_sampling_steps = 1000
+visualize = True
+deterministic_validation = False
+eval_sampling_steps = 500
+model_max_length = 300
+lora_rank = 4
+num_epochs = 1
+gradient_accumulation_steps = 1
+grad_checkpointing = True
+gradient_clip = 0.01
+gc_step = 1
+auto_lr = dict(rule='sqrt')
+validation_prompts = [
+    'dog',
+    'portrait photo of a girl, photograph, highly detailed face, depth of field',
+    'Self-portrait oil painting, a beautiful cyborg with golden hair, 8k',
+    'Astronaut in a jungle, cold color palette, muted colors, detailed, 8k',
+    'A photo of beautiful mountain with realistic sunset and blue lake, highly detailed, masterpiece'
+]
+optimizer = dict(
+    type='CAMEWrapper',
+    lr=2e-05,
+    weight_decay=0.03,
+    eps=(1e-30, 1e-16),
+    betas=(0.9, 0.999, 0.9999))
+lr_schedule = 'constant'
+lr_schedule_args = dict(num_warmup_steps=1000)
+save_image_epochs = 1
+save_model_epochs = 1
+save_model_steps = 37990
+sample_posterior = True
+mixed_precision = 'fp16'
+scale_factor = 0.13025
+ema_rate = 0.9999
+tensorboard_mox_interval = 50
+log_interval = 20
+cfg_scale = 4
+mask_type = 'null'
+num_group_tokens = 0
+mask_loss_coef = 0.0
+load_mask_index = False
+vae_pretrained = '/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae'
+load_from = '/export/data/sheid/pixart/shortcut_training/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12500.pth'
+resume_from = None
+snr_loss = False
+real_prompt_ratio = 1.0
+class_dropout_prob = 0.1
+work_dir = '/export/data/sheid/pixart/shortcut_training/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_finetuning'
+s3_work_dir = None
+micro_condition = False
+seed = 43
+skip_step = 0
+loss_type = 'huber'
+huber_c = 0.001
+num_ddim_timesteps = 50
+w_max = 15.0
+w_min = 3.0
+ema_decay = 0.95
+intermediate_loss_flag = True
+intermediate_loss_blocks = [8, 9, 11, 12, 13, 17, 18, 20, 21, 22, 23, 24, 25]
+final_output_loss_flag = True
+transformer_blocks = [8, 15, 17, 20, 11, 16]
+trainable_blocks = []
+reserve_memory = False
+stable_loss = False
+self_att_feat_loss_flag = False
+image_list_json = ['data_info.json']
+data_stable_loss = dict(
+    type='InternalDataMSSigma',
+    root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/laion2M/feature_pixart',
+    img_root=
+    '/export/data/vislearn/rother_subgroup/sheid/pixart/pixart_generated_images/images',
+    image_list_json=['data_info_stable_loss.json'],
+    transform='default_train',
+    load_vae_feat=True,
+    load_t5_feat=True,
+    load_img_vae_feat=False)
+ref_load_from = '/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth'
+log_interval_stable_loss = 1000
+org_loss_flag = False
+
+2025-08-22 16:41:09,229 - PixArt - INFO - World_size: 2, seed: 43
+2025-08-22 16:41:09,229 - PixArt - INFO - Initializing: DDP for training
+2025-08-22 16:41:09,229 - PixArt - INFO - vae scale factor: 0.13025
+2025-08-22 16:41:09,229 - PixArt - INFO - Preparing Visualization prompt embeddings...
+2025-08-22 16:41:09,229 - PixArt - INFO - Loading text encoder and tokenizer from /export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers ...
+You are using the default legacy behaviour of the <class 'transformers.models.t5.tokenization_t5.T5Tokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.77s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:07<00:00,  3.78s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:07<00:00,  3.78s/it]
+2025-08-22 16:41:30,077 - PixArt - WARNING - position embed interpolation: 1.0, base size: 32
+2025-08-22 16:41:30,078 - PixArt - WARNING - kv compress config: {'sampling': None, 'scale_factor': 1, 'kv_compress_layer': []}
+2025-08-22 16:41:44,962 - PixArt - WARNING - position embed interpolation: 1.0, base size: 32
+2025-08-22 16:41:44,962 - PixArt - WARNING - kv compress config: {'sampling': None, 'scale_factor': 1, 'kv_compress_layer': []}
+2025-08-22 16:41:52,363 - PixArt - INFO - PixArtMS Model Parameters: 610,856,096
+2025-08-22 16:41:55,095 - PixArt - INFO - Load checkpoint from /export/data/sheid/pixart/shortcut_training/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12500.pth. Load ema: False.
+2025-08-22 16:41:56,718 - PixArt - INFO - Load checkpoint from /export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth. Load ema: False.
+2025-08-22 16:41:56,739 - PixArt - WARNING - Missing keys: ['pos_embed', 'blocks.8.scale_shift_table', 'blocks.8.attn.qkv.weight', 'blocks.8.attn.qkv.bias', 'blocks.8.attn.proj.weight', 'blocks.8.attn.proj.bias', 'blocks.8.cross_attn.q_linear.weight', 'blocks.8.cross_attn.q_linear.bias', 'blocks.8.cross_attn.kv_linear.weight', 'blocks.8.cross_attn.kv_linear.bias', 'blocks.8.cross_attn.proj.weight', 'blocks.8.cross_attn.proj.bias', 'blocks.8.mlp.fc1.weight', 'blocks.8.mlp.fc1.bias', 'blocks.8.mlp.fc2.weight', 'blocks.8.mlp.fc2.bias', 'blocks.11.scale_shift_table', 'blocks.11.attn.qkv.weight', 'blocks.11.attn.qkv.bias', 'blocks.11.attn.proj.weight', 'blocks.11.attn.proj.bias', 'blocks.11.cross_attn.q_linear.weight', 'blocks.11.cross_attn.q_linear.bias', 'blocks.11.cross_attn.kv_linear.weight', 'blocks.11.cross_attn.kv_linear.bias', 'blocks.11.cross_attn.proj.weight', 'blocks.11.cross_attn.proj.bias', 'blocks.11.mlp.fc1.weight', 'blocks.11.mlp.fc1.bias', 'blocks.11.mlp.fc2.weight', 'blocks.11.mlp.fc2.bias', 'blocks.15.scale_shift_table', 'blocks.15.attn.qkv.weight', 'blocks.15.attn.qkv.bias', 'blocks.15.attn.proj.weight', 'blocks.15.attn.proj.bias', 'blocks.15.cross_attn.q_linear.weight', 'blocks.15.cross_attn.q_linear.bias', 'blocks.15.cross_attn.kv_linear.weight', 'blocks.15.cross_attn.kv_linear.bias', 'blocks.15.cross_attn.proj.weight', 'blocks.15.cross_attn.proj.bias', 'blocks.15.mlp.fc1.weight', 'blocks.15.mlp.fc1.bias', 'blocks.15.mlp.fc2.weight', 'blocks.15.mlp.fc2.bias', 'blocks.17.scale_shift_table', 'blocks.17.attn.qkv.weight', 'blocks.17.attn.qkv.bias', 'blocks.17.attn.proj.weight', 'blocks.17.attn.proj.bias', 'blocks.17.cross_attn.q_linear.weight', 'blocks.17.cross_attn.q_linear.bias', 'blocks.17.cross_attn.kv_linear.weight', 'blocks.17.cross_attn.kv_linear.bias', 'blocks.17.cross_attn.proj.weight', 'blocks.17.cross_attn.proj.bias', 'blocks.17.mlp.fc1.weight', 'blocks.17.mlp.fc1.bias', 'blocks.17.mlp.fc2.weight', 'blocks.17.mlp.fc2.bias', 'blocks.20.scale_shift_table', 'blocks.20.attn.qkv.weight', 'blocks.20.attn.qkv.bias', 'blocks.20.attn.proj.weight', 'blocks.20.attn.proj.bias', 'blocks.20.cross_attn.q_linear.weight', 'blocks.20.cross_attn.q_linear.bias', 'blocks.20.cross_attn.kv_linear.weight', 'blocks.20.cross_attn.kv_linear.bias', 'blocks.20.cross_attn.proj.weight', 'blocks.20.cross_attn.proj.bias', 'blocks.20.mlp.fc1.weight', 'blocks.20.mlp.fc1.bias', 'blocks.20.mlp.fc2.weight', 'blocks.20.mlp.fc2.bias']
+2025-08-22 16:41:56,739 - PixArt - WARNING - Unexpected keys: []
+2025-08-22 16:41:56,741 - PixArt - INFO - PixArtMS Model Parameters: 483,322,784
+2025-08-22 16:41:56,743 - PixArt - INFO - PixArtMS Trainable Model Parameters: 483,322,784
+2025-08-22 16:41:56,743 - PixArt - INFO - Constructing dataset InternalDataMSSigma...
+2025-08-22 16:41:56,744 - PixArt - INFO - T5 max token length: 300
+2025-08-22 16:41:56,744 - PixArt - INFO - ratio of real user prompt: 1.0
+2025-08-22 16:41:58,576 - PixArt - INFO - data_info.json data volume: 608000
+2025-08-22 16:42:07,787 - PixArt - INFO - Dataset InternalDataMSSigma constructed. time: 11.04 s, length (use/ori): 607997/608000
+2025-08-22 16:42:07,789 - PixArt - INFO - Automatically adapt lr to 0.00001 (using sqrt scaling rule).
+2025-08-22 16:42:07,836 - PixArt - INFO - CAMEWrapper Optimizer: total 345 param groups, 345 are learnable, 0 are fix. Lr group: 345 params with lr 0.00001; Weight decay group: 345 params with weight decay 0.03.
+2025-08-22 16:42:07,836 - PixArt - INFO - Lr schedule: constant, num_warmup_steps:1000.
+Traceback (most recent call last):
+  File "/export/home/sheid/PixArt-sigma/train_scripts/train.py", line 827, in <module>
+Traceback (most recent call last):
+  File "/export/home/sheid/PixArt-sigma/train_scripts/train.py", line 827, in <module>
+    model = accelerator.prepare(model)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/accelerate/accelerator.py", line 1446, in prepare
+    model = accelerator.prepare(model)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/accelerate/accelerator.py", line 1446, in prepare
+    result = tuple(
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/accelerate/accelerator.py", line 1447, in <genexpr>
+    result = tuple(
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/accelerate/accelerator.py", line 1447, in <genexpr>
+    self._prepare_one(obj, first_pass=True, device_placement=d) for obj, d in zip(args, device_placement)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/accelerate/accelerator.py", line 1289, in _prepare_one
+    self._prepare_one(obj, first_pass=True, device_placement=d) for obj, d in zip(args, device_placement)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/accelerate/accelerator.py", line 1289, in _prepare_one
+    return self.prepare_model(obj, device_placement=device_placement)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/accelerate/accelerator.py", line 1595, in prepare_model
+    model = torch.nn.parallel.DistributedDataParallel(
+    return self.prepare_model(obj, device_placement=device_placement)  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 798, in __init__
+
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/accelerate/accelerator.py", line 1595, in prepare_model
+    model = torch.nn.parallel.DistributedDataParallel(
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 798, in __init__
+    _verify_param_shape_across_processes(self.process_group, parameters)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/utils.py", line 263, in _verify_param_shape_across_processes
+    _verify_param_shape_across_processes(self.process_group, parameters)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/utils.py", line 263, in _verify_param_shape_across_processes
+    return dist._verify_params_across_processes(process_group, tensors, logger)
+torch.distributed.DistBackendError: NCCL error in: ../torch/csrc/distributed/c10d/ProcessGroupNCCL.cpp:1691, invalid usage (run with NCCL_DEBUG=WARN for details), NCCL version 2.19.3
+ncclInvalidUsage: This usually reflects invalid usage of NCCL library.
+Last error:
+Duplicate GPU detected : rank 1 and rank 0 both on CUDA device a4000
+    return dist._verify_params_across_processes(process_group, tensors, logger)
+torch.distributed.DistBackendError: NCCL error in: ../torch/csrc/distributed/c10d/ProcessGroupNCCL.cpp:1691, invalid usage (run with NCCL_DEBUG=WARN for details), NCCL version 2.19.3
+ncclInvalidUsage: This usually reflects invalid usage of NCCL library.
+Last error:
+Duplicate GPU detected : rank 0 and rank 1 both on CUDA device a4000
+[2025-08-22 16:42:12,771] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 3926318) of binary: /export/scratch/sheid/miniconda3/envs/pixart/bin/python
+Traceback (most recent call last):
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launch.py", line 198, in <module>
+    main()
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launch.py", line 194, in main
+    launch(args)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launch.py", line 179, in launch
+    run(args)
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
+    elastic_launch(
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 268, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+/export/home/sheid/PixArt-sigma/train_scripts/train.py FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2025-08-22_16:42:12
+  host      : hcigpu07
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 3926319)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2025-08-22_16:42:12
+  host      : hcigpu07
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 3926318)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/torch/distributed/launch.py:183: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  warnings.warn(
+/export/scratch/sheid/miniconda3/envs/pixart/lib/python3.9/site-packages/mmcv/__init__.py:20: UserWarning: On January 1, 2023, MMCV will release v2.0.0, in which it will remove components related to the training process and add a data transformation module. In addition, it will rename the package names mmcv to mmcv-lite and mmcv-full to mmcv. See https://github.com/open-mmlab/mmcv/blob/master/docs/en/compatibility.md for more details.
+  warnings.warn(

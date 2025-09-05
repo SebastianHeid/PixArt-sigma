@@ -70,7 +70,7 @@ class_dropout_prob = 0.1
 
 # Intermediate loss
 intermediate_loss_flag = True
-intermediate_loss_blocks = [8,9,11,12,13,17,18,20,21,22,23,24,25,26,27]
+intermediate_loss_blocks = [8,9,11,12,13,17,18,20,21,22,23,24,25]
 final_output_loss_flag = True
 org_loss_flag = False
 

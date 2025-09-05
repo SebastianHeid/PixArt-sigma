@@ -40,7 +40,7 @@ pe_interpolation = 1.0
 
 # training setting
 num_workers = 3
-train_batch_size = 8  # 48 as default
+train_batch_size = 16  # 48 as default
 num_epochs = 1  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
@@ -70,7 +70,7 @@ class_dropout_prob = 0.1
 
 # Intermediate loss
 intermediate_loss_flag = True
-intermediate_loss_blocks = [8,9,12,13,17,18,21,22,23,24,25,26,27]
+intermediate_loss_blocks = [8,9,12,13,17,18,21,22,23,24,25]
 final_output_loss_flag = True
 org_loss_flag = False
 
@@ -78,3 +78,4 @@ org_loss_flag = False
 transformer_blocks = [8,15,17, 20, 11, 16, 12, 23, 21]
 trainable_blocks = []
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
+reserve_memory=True
