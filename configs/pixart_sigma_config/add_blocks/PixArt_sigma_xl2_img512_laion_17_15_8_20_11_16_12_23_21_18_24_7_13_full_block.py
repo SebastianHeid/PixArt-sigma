@@ -19,8 +19,8 @@ model = "PixArtMS_XL_2"
 mixed_precision = "fp16"  # ['fp16', 'no', 'bf16']
 fp32_attention = False
   # https://huggingface.co/PixArt-alpha/PixArt-Sigma
-load_from = '/export/data/sheid/pixart/second_pruning_attempt/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_12_23_21_18_24_7_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12500.pth'
 ref_load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth" 
+load_from = '/export/data/sheid/pixart/second_pruning_attempt/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_12_23_21_18_24_7_finetuning_trained_on_pixart_generated_images/checkpoints/epoch_2_step_12500.pth'
 resume_from = None
 vae_pretrained = (
     "/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
@@ -30,9 +30,9 @@ multi_scale = False  # if use multiscale dataset model training
 pe_interpolation = 1.0
 
 # training setting
-num_workers = 8
+num_workers = 3
 train_batch_size = 8  # 48 as default
-num_epochs = 1  # 3
+num_epochs = 5  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
 gradient_clip = 0.01
@@ -70,5 +70,9 @@ transformer_blocks = [17, 15, 8, 20, 11, 16, 12, 23, 21, 18, 24, 7, 13]
 trainable_blocks = [10]
 # wenn ich hier eine Block hinzufüge, dann funktioniert es nicht mehr
 
-reserve_memory=False
+add_param_blocks = [10]
+add_mlp_ratio = 4.0
+add_red_hidd_size_factor = 1
+add_num_head = 16
 
+reserve_memory=True

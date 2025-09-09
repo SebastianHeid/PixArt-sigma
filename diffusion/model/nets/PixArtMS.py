@@ -10,9 +10,6 @@
 # --------------------------------------------------------
 import torch
 import torch.nn as nn
-from timm.models.layers import DropPath
-from timm.models.vision_transformer import Mlp
-
 from diffusion.model.builder import MODELS
 from diffusion.model.nets.PixArt import PixArt, get_2d_sincos_pos_embed
 from diffusion.model.nets.PixArt_blocks import (
@@ -25,7 +22,25 @@ from diffusion.model.nets.PixArt_blocks import (
     t2i_modulate,
 )
 from diffusion.model.utils import auto_grad_checkpoint, to_2tuple
+from timm.models.layers import DropPath
+from timm.models.vision_transformer import Mlp
 
+
+class ZeroConv1d(nn.Module):
+    """Zero-initialized 1x1 conv over the feature dim for inputs [B, S, D]."""
+    def __init__(self, in_dim: int, out_dim: int):
+        super().__init__()
+        self.proj = nn.Conv1d(in_dim, out_dim, kernel_size=1)
+        nn.init.zeros_(self.proj.weight)
+        if self.proj.bias is not None:
+            nn.init.zeros_(self.proj.bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: [B, S, D] -> [B, D, S] -> conv1d -> [B, out_dim, S] -> [B, S, out_dim]
+        x = x.transpose(1, 2)
+        x = self.proj(x)
+        x = x.transpose(1, 2)
+        return x
 
 class PatchEmbed(nn.Module):
     """2D Image to Patch Embedding"""
@@ -116,7 +131,7 @@ class PixArtMSBlock(nn.Module):
         x = x + self.drop_path(
             gate_mlp * self.mlp(t2i_modulate(self.norm2(x), shift_mlp, scale_mlp))
         )
-
+      
         return x
 
 
@@ -149,6 +164,10 @@ class PixArtMS(PixArt):
         micro_condition=False,
         qk_norm=False,
         kv_compress_config=None,
+        add_mlp_ratio=None,
+        add_param_blocks=[],
+        add_red_hidd_size_factor=None,
+        add_num_head=16,
         **kwargs,
     ):
         super().__init__(
@@ -170,6 +189,10 @@ class PixArtMS(PixArt):
             kv_compress_config=kv_compress_config,
             **kwargs,
         )
+      
+        self.add_param_blocks = add_param_blocks
+   
+        self.add_red_hidd_size_factor = add_red_hidd_size_factor
         self.h = self.w = 0
         approx_gelu = lambda: nn.GELU(approximate="tanh")
         self.t_block = nn.Sequential(
@@ -217,6 +240,56 @@ class PixArtMS(PixArt):
         )
         self.final_layer = T2IFinalLayer(hidden_size, patch_size, self.out_channels)
 
+        if add_param_blocks:
+            assert hidden_size % self.add_red_hidd_size_factor == 0
+            add_hidden_size = hidden_size // self.add_red_hidd_size_factor
+            self.add_blocks = nn.ModuleList(
+                [
+                    PixArtMSBlock(
+                        add_hidden_size,
+                        add_num_head,
+                        mlp_ratio=add_mlp_ratio,
+                        drop_path=drop_path[i],
+                        sampling=kv_compress_config["sampling"],
+                        sr_ratio=(
+                            int(kv_compress_config["scale_factor"])
+                            if i in kv_compress_config["kv_compress_layer"]
+                            else 1
+                        ),
+                        qk_norm=qk_norm,
+                    )
+                    for i in range(len(add_param_blocks))
+                ]
+            )
+            
+            self.add_in_proj_x = nn.ModuleList([
+                nn.Linear(hidden_size, add_hidden_size)
+            for i in range(len(add_param_blocks))    
+            ]                 
+            )
+            self.add_out_proj_x = nn.ModuleList([
+                nn.Linear(add_hidden_size, hidden_size)
+            for i in range(len(add_param_blocks)) 
+            ]                       
+            )
+            self.add_in_proj_y = nn.ModuleList([
+                nn.Linear(hidden_size, add_hidden_size)
+            for i in range(len(add_param_blocks))    
+            ]                 
+            )
+            self.add_in_proj_t = nn.ModuleList([
+                nn.Linear(6*hidden_size, add_hidden_size*6)
+            for i in range(len(add_param_blocks))    
+            ]                 
+            )
+            self.zero_conv = nn.ModuleList([
+                ZeroConv1d(hidden_size, hidden_size)
+            for i in range(len(add_param_blocks))    
+            ]                 
+            )
+            
+         
+        
         self.initialize()
 
     def forward(self, x, timestep, y, mask=None, data_info=None, train=False, **kwargs):
@@ -226,6 +299,7 @@ class PixArtMS(PixArt):
         t: (N,) tensor of diffusion timesteps
         y: (N, 1, 120, C) tensor of class labels
         """
+        
         feat_list = []
         bs = x.shape[0]
         x = x.to(self.dtype)
@@ -249,6 +323,7 @@ class PixArtMS(PixArt):
         x = (
             self.x_embedder(x) + pos_embed
         )  # (N, T, D), where T = H * W / patch_size ** 2
+        timestep = timestep.requires_grad_(True) 
         t = self.t_embedder(timestep)  # (N, D)
 
         if self.micro_conditioning:
@@ -275,11 +350,26 @@ class PixArtMS(PixArt):
         else:
             y_lens = [y.shape[2]] * y.shape[0]
             y = y.squeeze(1).view(1, -1, x.shape[-1])
-        for block in self.blocks:
+        
+        add_idx = 0
+
+        for idx, block in enumerate(self.blocks):
             x = auto_grad_checkpoint(
                 block, x, y, t0, y_lens, (self.h, self.w), **kwargs
             )  # (N, T, D) #support grad checkpoint
             feat_list.append(x)
+            #if idx in self.add_param_blocks:
+            if idx in self.add_param_blocks:
+                x_a = auto_grad_checkpoint(self.add_in_proj_x[add_idx], x)
+                y_a = auto_grad_checkpoint(self.add_in_proj_y[add_idx], y)
+                t_a = auto_grad_checkpoint(self.add_in_proj_t[add_idx], t0)
+                x_o = auto_grad_checkpoint(self.add_blocks[add_idx], x_a, y_a, t_a)
+                x_o = auto_grad_checkpoint(self.add_out_proj_x[add_idx], x_o)
+                x_f = auto_grad_checkpoint(self.zero_conv[add_idx], x_o) 
+                x = x + x_f
+                add_idx += 1
+                
+            
 
         x = self.final_layer(x, t)  # (N, T, patch_size ** 2 * out_channels)
         x = self.unpatchify(x)  # (N, out_channels, H, W)

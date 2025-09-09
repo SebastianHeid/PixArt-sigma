@@ -12,19 +12,19 @@ import json
 import re
 from datetime import datetime
 
+import diffusion.data.datasets.utils as ds_utils
 import torch
 from diffusers.models import AutoencoderKL
+from diffusion import DPMS, IDDPM, SASolverSampler
+from diffusion.data.datasets import get_chunks
+from diffusion.model.modify_model import modify_model
+from diffusion.model.nets import PixArt_XL_2, PixArtMS
+from diffusion.model.utils import prepare_prompt_ar
 from PIL import Image
+from tools.download import find_model
 from torchvision.utils import save_image
 from tqdm import tqdm
 from transformers import T5EncoderModel, T5Tokenizer
-
-import diffusion.data.datasets.utils as ds_utils
-from diffusion import DPMS, IDDPM, SASolverSampler
-from diffusion.data.datasets import get_chunks
-from diffusion.model.nets import PixArt_XL_2, PixArtMS
-from diffusion.model.utils import prepare_prompt_ar
-from tools.download import find_model
 
 
 def get_args():
@@ -36,8 +36,9 @@ def get_args():
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
-    parser.add_argument('--txt_file', default='/export/home/sheid/skip_connection_pixart/PixArt-sigma/ImageNet/prompt.json', type=str)
-    parser.add_argument('--model_path', default='/export/home/sheid/skip_connection_pixart/PixArt-sigma/scripts/inference.py', type=str)
+    parser.add_argument('--txt_file', default='/export/home/sheid/MasterThesis_Evaluation/1k_prompts.json', type=str) 
+    #parser.add_argument('--txt_file', default='/export/data/vislearn/rother_subgroup/dzavadsk/datasets/coco2017/coco2017_image_captions_val.json', type=str)
+    parser.add_argument('--model_path', default='/export/data/sheid/pixart/add_blocks/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_12_23_21_18_24_7_13_sec_att/checkpoints/epoch_2_step_76000.pth', type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
     parser.add_argument('--bs', default=1, type=int)
     parser.add_argument('--cfg_scale', default=4.5, type=float)
@@ -46,8 +47,24 @@ def get_args():
     parser.add_argument('--dataset', default='custom', type=str)
     parser.add_argument('--step', default=-1, type=int)
     parser.add_argument('--save_name', default='test_sample', type=str)
-    parser.add_argument('--save_path', default='/export/data/sheid/pixart/generated_coco/PixArt_sigma_xl2_img512_image_net_repa/', type=str,)
+    parser.add_argument('--save_path', default='/export/scratch/sheid/pixart/post_training_addBlock_distalltion_attempt/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_12_23_21_18_24_7_13_sec_att/epoch_2_step_76000/', type=str,)
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
+    parser.add_argument(
+    '--add_param_blocks',
+    type=int,
+    nargs='+',          # one or more values
+    default=[10],
+    help='List of heads'
+)
+    parser.add_argument('--add_red_hidd_size_factor', default=2, type=int)
+    parser.add_argument('--add_num_head', default=8, type=int)
+    parser.add_argument('--add_mlp_ratio', default=2.0, type=float)
+    parser.add_argument(
+    '--transformer_blocks',
+    type=int,
+    nargs='+',          # one or more values
+    default=[17, 15, 8, 20, 11, 16, 12, 23, 21, 18, 24, 7, 13],
+)
 
     return parser.parse_args()
 
@@ -60,7 +77,6 @@ def set_env(seed=0):
 
 @torch.inference_mode()
 def visualize( items,keys, bs, sample_steps, cfg_scale):
-
     for idx, chunk in enumerate(tqdm(list(get_chunks(items, bs)), unit='batch')):
         key = keys[idx]
         prompts = []
@@ -145,10 +161,8 @@ def visualize( items,keys, bs, sample_steps, cfg_scale):
         torch.cuda.empty_cache()
         # Save images:
         os.umask(0o000)  # file permission: 666; dir permission: 777
-        print(samples.shape
-              )
         for i, sample in enumerate(samples):
-            save_path = os.path.join(save_root, f"{key}.jpg")
+            save_path = os.path.join(save_root, f"{key}.png")
             print("Saving path: ", save_path)
             save_image(sample, save_path, nrow=1, normalize=True, value_range=(-1, 1))
         # save_path = os.path.join(save_root, f"{key}.jpg")
@@ -164,6 +178,7 @@ def visualize( items,keys, bs, sample_steps, cfg_scale):
 
 
 if __name__ == '__main__':
+    print("START VISUALIZATION")
     args = get_args()
     # Setup PyTorch:
     seed = args.seed
@@ -185,12 +200,17 @@ if __name__ == '__main__':
     micro_condition = True if args.version == 'alpha' and args.image_size == 1024 else False
     pe_interpolation = args.pe_interpolation if args.pe_interpolation > 0 else args.image_size / 512
     if args.image_size in [512, 1024, 2048] or args.version == 'sigma':
+        print("Correct Pixart")
         model = PixArtMS(
             input_size=latent_size,
             pe_interpolation=pe_interpolation,
             micro_condition=micro_condition,
             model_max_length=max_sequence_length,
-             skip_connections=True
+             skip_connections=False,
+             add_mlp_ratio=args.add_mlp_ratio,
+             add_num_head=args.add_num_head,
+             add_param_blocks=args.add_param_blocks,
+             add_red_hidd_size_factor=args.add_red_hidd_size_factor,
         ).to(device)
     else:
         model = PixArtMS(
@@ -200,6 +220,7 @@ if __name__ == '__main__':
             skip_connections=True
         ).to(device)
 
+    model = modify_model(model, args.transformer_blocks)
     print("Generating sample from ckpt: %s" % args.model_path)
     state_dict = find_model(args.model_path)
     if 'pos_embed' in state_dict['state_dict']:
@@ -230,11 +251,15 @@ if __name__ == '__main__':
     # data setting
     # with open(args.txt_file, 'r') as f:
     #     items = [item.strip() for item in f.readlines()]
+    # with open(args.txt_file, "r") as file:
+    #     prompts = file.readlines()
+    # items = [prompt.strip() for prompt in prompts if prompt.strip()]
     with open(args.txt_file, "r") as f:
         data = json.load(f)
-
+    
     # Get string values, assuming each dict has one key-value pair
-    items = [d[0] for d in data.values()]
+    data = dict(sorted(data.items()))
+    items = [d for d in data.values()]
     keys = [k for k in data.keys()]
 
     # img save setting
@@ -252,3 +277,4 @@ if __name__ == '__main__':
     save_root = args.save_path
     os.makedirs(save_root, exist_ok=True)
     visualize( items,keys, args.bs, sample_steps, args.cfg_scale)
+    #visualize( items,keys, args.bs, sample_steps, args.cfg_scale)

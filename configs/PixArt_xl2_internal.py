@@ -109,3 +109,9 @@ trainable_blocks = []
 reserve_memory=False
 
 stable_loss = False
+
+
+# introduce additional parameters to compensate the whole parameter loss
+add_param_blocks = []
+add_mlp_ratio = None
+add_hidden_size = None

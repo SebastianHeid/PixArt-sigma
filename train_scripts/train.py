@@ -11,17 +11,11 @@ from tqdm import tqdm
 
 current_file_path = Path(__file__).resolve()
 sys.path.insert(0, str(current_file_path.parent.parent))
-from scripts.stable_loss import temprngstate
 import numpy as np
 import torch
 from accelerate import Accelerator, InitProcessGroupKwargs
 from accelerate.utils import DistributedType
 from diffusers.models import AutoencoderKL
-from mmcv.runner import LogBuffer
-from PIL import Image
-from torch.utils.data import RandomSampler
-from transformers import T5EncoderModel, T5Tokenizer
-
 from diffusion import DPMS, IDDPM
 from diffusion.data.builder import build_dataloader, build_dataset, set_data_root
 from diffusion.model.builder import build_model
@@ -43,6 +37,11 @@ from diffusion.utils.misc import (
     set_random_seed,
 )
 from diffusion.utils.optimizer import auto_scale_lr, build_optimizer
+from mmcv.runner import LogBuffer
+from PIL import Image
+from scripts.stable_loss import temprngstate
+from torch.utils.data import RandomSampler
+from transformers import T5EncoderModel, T5Tokenizer
 
 warnings.filterwarnings("ignore")  # ignore warning
 
@@ -386,7 +385,7 @@ def train():
                         lr_scheduler=lr_scheduler,
                     )
                 # exit after 38000 steps because now have to use 2Mio laion dataset instead of 600k -> was deleted
-                sys.exit()
+                
                 
             if config.visualize and (
                 global_step % config.eval_sampling_steps == 0 or (step + 1) == 1
@@ -660,6 +659,7 @@ if __name__ == "__main__":
         pred_sigma=pred_sigma,
         snr=config.snr_loss,
     )
+    print("BUILD MODEL")
     model = build_model(
         config.model,
         config.grad_checkpointing,
@@ -667,8 +667,13 @@ if __name__ == "__main__":
         input_size=latent_size,
         learn_sigma=learn_sigma,
         pred_sigma=pred_sigma,
+        add_mlp_ratio=config.add_mlp_ratio,
+        add_param_blocks=config.add_param_blocks,
+        add_red_hidd_size_factor=config.add_red_hidd_size_factor,
+        add_num_head=config.add_num_head,
         **model_kwargs,
     ).train()
+    print("BUILD REF MODEL")
     if config.intermediate_loss_flag:
         ref_model = build_model(
             config.model,
@@ -709,8 +714,26 @@ if __name__ == "__main__":
         for block_num in config.trainable_blocks:
             for param in model.blocks[block_num].parameters():
                 param.requires_grad = True
+        
+        if config.add_param_blocks:
+            for add_block_num in range(len(config.add_param_blocks)):
+                for block_param in model.add_blocks[add_block_num].parameters():
+                    param.requires_grad = True
+                for proj_in_x_param in model.add_in_proj_x[add_block_num].parameters():
+                    proj_in_x_param.requires_grad = True
+                for proj_in_y_param in model.add_in_proj_y[add_block_num].parameters():
+                    proj_in_y_param.requires_grad = True
+                for proj_in_t_param in model.add_in_proj_t[add_block_num].parameters():
+                    proj_in_t_param.requires_grad = True
+                for proj_out_x_param in model.add_out_proj_x[add_block_num].parameters():
+                    proj_out_x_param.requires_grad = True
+                for zero_conv_param in model.zero_conv[add_block_num].parameters():
+                    zero_conv_param.requires_grad = True
+      
+                
                 
     model = modify_model(model, config.transformer_blocks)
+    
     logger.info(
         f"{model.__class__.__name__} Model Parameters: {sum(p.numel() for p in model.parameters()):,}"
     )
