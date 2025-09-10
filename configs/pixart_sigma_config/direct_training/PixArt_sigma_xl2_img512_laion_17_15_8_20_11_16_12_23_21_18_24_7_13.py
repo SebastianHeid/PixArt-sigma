@@ -17,11 +17,9 @@ model = "PixArtMS_XL_2"
 mixed_precision = "bf16"  # ['fp16', 'no', 'bf16']
 fp32_attention = False
   # https://huggingface.co/PixArt-alpha/PixArt-Sigma
-#load_from = '/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth'
+load_from = '/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth'
 ref_load_from = "/export/scratch/sheid/pixart/PixArt-Sigma-XL-2-512-MS.pth" 
-resume_from = dict(
-    checkpoint="/export/data/sheid/pixart/direct_training/PixArt_sigma_xl2_img512_laion_17_15_8_20_11_16_12_23_21_18_24_7_13/checkpoints/epoch_5_step_228000.pth", load_ema=False, resume_optimizer=True, resume_lr_scheduler=True
-)
+
 vae_pretrained = (
     "/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers/vae"  # sdxl vae
 )
@@ -35,7 +33,7 @@ train_batch_size = 16  # 48 as default
 num_epochs = 20  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
-gradient_clip = 0.01
+gradient_clip = 0.001
 optimizer = dict(
     type="CAMEWrapper",
     lr=2e-5,

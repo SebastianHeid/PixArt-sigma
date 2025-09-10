@@ -1,4 +1,4 @@
-available_gpus=(5)
+available_gpus=(6)
 for gpu in "${available_gpus[@]}"; do
   export CUDA_VISIBLE_DEVICES=$gpu
  python -m torch.distributed.launch --nproc_per_node=1 --master_port=12337 \

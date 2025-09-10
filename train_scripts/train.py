@@ -315,10 +315,19 @@ def train():
                     )
                 loss = loss_term["loss"].mean()
                 accelerator.backward(loss)
+                
+                print(accelerator.sync_gradients)
+                print(loss)
                 if accelerator.sync_gradients:
                     grad_norm = accelerator.clip_grad_norm_(
                         model.parameters(), config.gradient_clip
                     )
+                    print(grad_norm)
+                
+                # if torch.isnan(grad_norm) or torch.isinf(grad_norm):
+                #     print("Skipping step due to corrupted gradients")
+                #     optimizer.zero_grad()
+                # else:
                 optimizer.step()
                 lr_scheduler.step()
 
