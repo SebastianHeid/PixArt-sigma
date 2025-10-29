@@ -9,12 +9,14 @@
 # MAE: https://github.com/facebookresearch/mae/blob/main/models_mae.py
 # --------------------------------------------------------
 import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import xformers.ops
 from einops import rearrange
-from timm.models.vision_transformer import Mlp, Attention as Attention_
+from timm.models.vision_transformer import Attention as Attention_
+from timm.models.vision_transformer import Mlp
 
 
 def modulate(x, shift, scale):
@@ -29,7 +31,6 @@ class MultiHeadCrossAttention(nn.Module):
     def __init__(self, d_model, num_heads, attn_drop=0., proj_drop=0., **block_kwargs):
         super(MultiHeadCrossAttention, self).__init__()
         assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
-
         self.d_model = d_model
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
@@ -47,6 +48,7 @@ class MultiHeadCrossAttention(nn.Module):
         q = self.q_linear(x).view(1, -1, self.num_heads, self.head_dim)
         kv = self.kv_linear(cond).view(1, -1, 2, self.num_heads, self.head_dim)
         k, v = kv.unbind(2)
+
         attn_bias = None
         if mask is not None:
             attn_bias = xformers.ops.fmha.BlockDiagonalMask.from_seqlens([N] * B, mask)
@@ -78,9 +80,10 @@ class AttentionKVCompress(Attention_):
             qkv_bias (bool:  If True, add a learnable bias to query, key, value.
         """
         super().__init__(dim, num_heads=num_heads, qkv_bias=qkv_bias, **block_kwargs)
-
         self.sampling=sampling    # ['conv', 'ave', 'uniform', 'uniform_every']
         self.sr_ratio = sr_ratio
+        self.qk_norm = qk_norm
+        self.sampling = sampling
         if sr_ratio > 1 and sampling == 'conv':
             # Avg Conv Init.
             self.sr = nn.Conv2d(dim, dim, groups=dim, kernel_size=sr_ratio, stride=sr_ratio)
@@ -129,10 +132,11 @@ class AttentionKVCompress(Attention_):
             H, W = HW
         qkv = self.qkv(x).reshape(B, N, 3, C)
         q, k, v = qkv.unbind(2)
+        
         dtype = q.dtype
         q = self.q_norm(q)
         k = self.k_norm(k)
-
+  
         # KV compression
         if self.sr_ratio > 1:
             k, new_N = self.downsample_2d(k, H, W, self.sr_ratio, sampling=self.sampling)

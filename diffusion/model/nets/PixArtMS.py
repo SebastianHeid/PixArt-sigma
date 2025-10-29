@@ -10,9 +10,6 @@
 # --------------------------------------------------------
 import torch
 import torch.nn as nn
-from timm.models.layers import DropPath
-from timm.models.vision_transformer import Mlp
-
 from diffusion.model.builder import MODELS
 from diffusion.model.nets.PixArt import PixArt, get_2d_sincos_pos_embed
 from diffusion.model.nets.PixArt_blocks import (
@@ -25,6 +22,8 @@ from diffusion.model.nets.PixArt_blocks import (
     t2i_modulate,
 )
 from diffusion.model.utils import auto_grad_checkpoint, to_2tuple
+from timm.models.layers import DropPath
+from timm.models.vision_transformer import Mlp
 
 
 class PatchEmbed(nn.Module):
@@ -86,6 +85,7 @@ class PixArtMSBlock(nn.Module):
             qk_norm=qk_norm,
             **block_kwargs,
         )
+
         self.cross_attn = MultiHeadCrossAttention(
             hidden_size, num_heads, **block_kwargs
         )
@@ -381,3 +381,4 @@ class PixArtMS(PixArt):
 @MODELS.register_module()
 def PixArtMS_XL_2(**kwargs):
     return PixArtMS(depth=28, hidden_size=1152, patch_size=2, num_heads=16, **kwargs)
+

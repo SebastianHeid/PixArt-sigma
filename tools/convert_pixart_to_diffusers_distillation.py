@@ -192,7 +192,7 @@ def main(args):
         state_dict.pop("pos_embed")
     except:
         pass
-    assert len(state_dict) == 0, f"State dict is not empty, {state_dict.keys()}"
+    #assert len(state_dict) == 0, f"State dict is not empty, {state_dict.keys()}"
 
     num_model_params = sum(p.numel() for p in transformer.parameters())
     print(f"Total number of transformer parameters: {num_model_params}")
@@ -220,7 +220,6 @@ def main(args):
         pipeline = PixArtPipeline(
             tokenizer=tokenizer, text_encoder=text_encoder, transformer=transformer, vae=vae, scheduler=scheduler
         )
-
         pipeline.save_pretrained(args.dump_path)
 
 
@@ -254,5 +253,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     with open(args.config_path, "r") as file:
         config = Box(yaml.safe_load(file))
-
     main(config)

@@ -206,7 +206,7 @@ def extract_caption_t5():
 def extract_img_vae(bs):
     print("Starting")
     accelerator = Accelerator(mixed_precision='fp16')
-    vae = AutoencoderKL.from_pretrained(f'{args.vae_models_dir}', torch_dtype=torch.float16).to(device)
+    vae = AutoencoderKL.from_pretrained(f'{args.vae_models_dir}/vae/', torch_dtype=torch.float16).to(device)
     print('VAE Loaded')
 
     vae_save_dir = f'{args.vae_save_root}/img_sdxl_vae_features_{image_resize}resolution_new'

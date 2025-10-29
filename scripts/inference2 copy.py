@@ -8,34 +8,38 @@ import warnings
 
 warnings.filterwarnings("ignore")  # ignore warning
 import argparse
+import json
 import re
 from datetime import datetime
 
+import diffusion.data.datasets.utils as ds_utils
 import torch
 from diffusers.models import AutoencoderKL
+from diffusion import DPMS, IDDPM, SASolverSampler
+from diffusion.data.datasets import get_chunks
+from diffusion.model.modify_model import modify_model
+from diffusion.model.nets import PixArt_XL_2, PixArtMS
+from diffusion.model.utils import prepare_prompt_ar
+from diffusion.utils.misc import DebugUnderflowOverflow, init_random_seed, read_config
+from PIL import Image
 from torchvision.utils import save_image
 from tqdm import tqdm
 from transformers import T5EncoderModel, T5Tokenizer
 
-import diffusion.data.datasets.utils as ds_utils
-from diffusion import DPMS, IDDPM, SASolverSampler
-from diffusion.data.datasets import get_chunks
-from diffusion.model.nets import PixArt_XL_2, PixArtMS_XL_2
-from diffusion.model.utils import prepare_prompt_ar
 from tools.download import find_model
 
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--image_size', default=1024, type=int)
+    parser.add_argument('--image_size', default=512, type=int)
     parser.add_argument('--version', default='sigma', type=str)
     parser.add_argument(
-        "--pipeline_load_from", default='/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers',
+        "--pipeline_load_from", default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/pixart_sigma_sdxlvae_T5_diffusers",
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
-    parser.add_argument('--txt_file', default='asset/samples.txt', type=str)
-    parser.add_argument('--model_path', default='output/pretrained_models/PixArt-XL-2-1024x1024.pth', type=str)
+    parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/100_prompts_laion_new.json', type=str)
+    parser.add_argument('--model_path', default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/PixArt-Sigma-XL-2-512-MS.pth", type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
     parser.add_argument('--bs', default=1, type=int)
     parser.add_argument('--cfg_scale', default=4.5, type=float)
@@ -43,8 +47,10 @@ def get_args():
     parser.add_argument('--seed', default=0, type=int)
     parser.add_argument('--dataset', default='custom', type=str)
     parser.add_argument('--step', default=-1, type=int)
-    parser.add_argument('--save_name', default='test_sample', type=str)
-    parser.add_argument('--save_path', default='/export/data/sheid/pixart/generated_coco/pixart_sigma_xl2_img512_laion2M_skipConnection/', type=str,)
+    parser.add_argument('--save_name', default='mlp', type=str)
+    parser.add_argument('--save_path', default='/gpfs/bwfor/work/ws/hd_om233-flux/pixart/block_evaluation/partially_removed_blocks/original', type=str,)
+    parser.add_argument('--pe_interpolation', default=1.0, type=float)
+    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/configs/pixart_sigma_config/partially_block_removal/First_Iteration.py", type=str)
 
     return parser.parse_args()
 
@@ -56,13 +62,12 @@ def set_env(seed=0):
         torch.randn(1, 4, args.image_size, args.image_size)
 
 @torch.inference_mode()
-def visualize(items, bs, sample_steps, cfg_scale):
+def visualize( items,keys, bs, sample_steps, cfg_scale):
 
-    for chunk in tqdm(list(get_chunks(items, bs)), unit='batch'):
-
+    for idx, chunk in enumerate(tqdm(list(get_chunks(items, bs)), unit='batch')):
+        key = keys[idx]
         prompts = []
         if bs == 1:
-            
             # save_path = os.path.join(save_root, f"{prompts[0][:100]}.jpg")
             # if os.path.exists(save_path):
             #     continue
@@ -74,15 +79,14 @@ def visualize(items, bs, sample_steps, cfg_scale):
                 ar = torch.tensor([[1.]], device=device).repeat(bs, 1)
                 latent_size_h, latent_size_w = latent_size, latent_size
             prompts.append(prompt_clean.strip())
-            print(prompts)
         else:
             hw = torch.tensor([[args.image_size, args.image_size]], dtype=torch.float, device=device).repeat(bs, 1)
             ar = torch.tensor([[1.]], device=device).repeat(bs, 1)
             for prompt in chunk:
                 prompts.append(prepare_prompt_ar(prompt, base_ratios, device=device, show=False)[0].strip())
             latent_size_h, latent_size_w = latent_size, latent_size
-
-        caption_token = tokenizer(prompts, max_length=max_sequence_length, padding="max_length", truncation=True,
+        print(f'prompts: {prompts[0]}')
+        caption_token = tokenizer(prompts[0], max_length=max_sequence_length, padding="max_length", truncation=True,
                                   return_tensors="pt").to(device)
         caption_embs = text_encoder(caption_token.input_ids, attention_mask=caption_token.attention_mask)[0]
         emb_masks = caption_token.attention_mask
@@ -138,20 +142,33 @@ def visualize(items, bs, sample_steps, cfg_scale):
                     unconditional_guidance_scale=cfg_scale,
                     model_kwargs=model_kwargs,
                 )[0]
-
         samples = samples.to(weight_dtype)
         samples = vae.decode(samples / vae.config.scaling_factor).sample
+        #print(torch.min(samples), torch.max(samples))
         torch.cuda.empty_cache()
         # Save images:
         os.umask(0o000)  # file permission: 666; dir permission: 777
+        print(samples.shape
+              )
         for i, sample in enumerate(samples):
-            save_path = os.path.join(save_root, f"{prompts[i][:100]}.jpg")
+            save_path = os.path.join(save_root, f"{key}.jpg")
             print("Saving path: ", save_path)
             save_image(sample, save_path, nrow=1, normalize=True, value_range=(-1, 1))
+        # save_path = os.path.join(save_root, f"{key}.jpg")
+        # samples = (
+        #     torch.clamp(127.5 * samples + 128.0, 0, 255)
+        #     .permute(0, 2, 3, 1)
+        #     .to("cpu", dtype=torch.uint8)
+        #     .numpy()[0]
+        #     )
+        # print(samples.shape)
+        # image = Image.fromarray(samples)
+        # image.save(save_path, format='JPEG', quality=95)
 
 
 if __name__ == '__main__':
     args = get_args()
+    config = read_config(args.config_path)
     # Setup PyTorch:
     seed = args.seed
     set_env(seed)
@@ -170,18 +187,30 @@ if __name__ == '__main__':
 
     # model setting
     micro_condition = True if args.version == 'alpha' and args.image_size == 1024 else False
+    pe_interpolation = args.pe_interpolation if args.pe_interpolation > 0 else args.image_size / 512
+    
+    _save_path = args.save_path
+    # for idx in range(16,28):
+    #     seed = args.seed
+    #     set_env(seed)
+    #     config.transformer_blocks_attn = [idx]
+    #     config.transformer_blocks_cross_attn = [idx]
+    #     config.transformer_blocks_mlp = [idx]
+    #args.save_path = _save_path + "/" +  str(idx) + "/"
     if args.image_size in [512, 1024, 2048] or args.version == 'sigma':
-        model = PixArtMS_XL_2(
+        model = PixArtMS(
             input_size=latent_size,
             pe_interpolation=pe_interpolation,
             micro_condition=micro_condition,
             model_max_length=max_sequence_length,
+            skip_connections=True
         ).to(device)
     else:
-        model = PixArt_XL_2(
+        model = PixArtMS(
             input_size=latent_size,
             pe_interpolation=pe_interpolation,
             model_max_length=max_sequence_length,
+            skip_connections=True
         ).to(device)
 
     print("Generating sample from ckpt: %s" % args.model_path)
@@ -191,7 +220,11 @@ if __name__ == '__main__':
     missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
     print('Missing keys: ', missing)
     print('Unexpected keys', unexpected)
+    
+    model = modify_model(model, config)
+    print("param block", sum(p.numel() for p in model.parameters()))
     model.eval()
+    model = model.to(device)
     model.to(weight_dtype)
     base_ratios = getattr(ds_utils, f'ASPECT_RATIO_{args.image_size}', ds_utils.ASPECT_RATIO_1024)
 
@@ -212,8 +245,14 @@ if __name__ == '__main__':
     work_dir = '/'+work_dir if args.model_path[0] == '/' else work_dir
 
     # data setting
-    with open(args.txt_file, 'r') as f:
-        items = [item.strip() for item in f.readlines()]
+    # with open(args.txt_file, 'r') as f:
+    #     items = [item.strip() for item in f.readlines()]
+    with open(args.txt_file, "r") as f:
+        data = json.load(f)
+
+    # Get string values, assuming each dict has one key-value pair
+    items = [d[0] for d in data.values()]
+    keys = [k for k in data.keys()]
 
     # img save setting
     try:
@@ -229,4 +268,4 @@ if __name__ == '__main__':
     #save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
     save_root = args.save_path
     os.makedirs(save_root, exist_ok=True)
-    visualize(items, args.bs, sample_steps, args.cfg_scale)
+    visualize( items,keys, args.bs, sample_steps, args.cfg_scale)

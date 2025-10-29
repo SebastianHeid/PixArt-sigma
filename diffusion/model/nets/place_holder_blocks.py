@@ -7,5 +7,5 @@ class Identity(nn.Module):
         super().__init__()
         self.self_attn_feat = None
 
-    def forward(self, x, *args):
+    def forward(self, x, *args, **kwargs):
         return x

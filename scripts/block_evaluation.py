@@ -10,6 +10,7 @@ warnings.filterwarnings("ignore")  # ignore warning
 import argparse
 import json
 import re
+import sys
 from datetime import datetime
 
 import diffusion.data.datasets.utils as ds_utils
@@ -28,6 +29,11 @@ from transformers import T5EncoderModel, T5Tokenizer
 
 from tools.download import find_model
 
+sys.path.append("/home/hd/hd_hd/hd_om233/partially_removal/MasterThesis_Evaluation")
+sys.path.append("/home/hd/hd_hd/hd_om233/partially_removal/")
+from MasterThesis_Evaluation.evaluation_CLIP_2 import compute_clip
+from MasterThesis_Evaluation.evaluation_cmmd import compute_cmmd
+
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -38,7 +44,7 @@ def get_args():
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
-    parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/prompt_test.json', type=str)
+    parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/100_prompts_laion.json', type=str)
     parser.add_argument('--model_path', default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/PixArt-Sigma-XL-2-512-MS.pth", type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
     parser.add_argument('--bs', default=1, type=int)
@@ -48,13 +54,59 @@ def get_args():
     parser.add_argument('--dataset', default='custom', type=str)
     parser.add_argument('--step', default=-1, type=int)
     parser.add_argument('--save_name', default='mlp', type=str)
-    parser.add_argument('--save_path', default='/home/hd/hd_hd/hd_om233/partially_removal/images/cross_attn/22', type=str,)
+    parser.add_argument('--save_path', default='/home/hd/hd_hd/hd_om233/partially_removal/img_all_attn_r600', type=str,)
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
-    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/configs/block_eval/block_inv.py", type=str)
+    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal/MasterThesis_Evaluation/configs/partially_remove_blocks/second_removal_stage.yaml", type=str)
+    parser.add_argument('--cross_attn', action='store_false', help='sd vae')
+    parser.add_argument('--attn', action='store_false', help='sd vae')
+    parser.add_argument('--mlp', action='store_false', help='sd vae')
+    parser.add_argument('--total_blocks', action='store_true', help='sd vae')
 
     return parser.parse_args()
 
+def best_network(idx, cmmd, lpips,clip, block_list, log_path, cmmd_flag = True, lpips_flag=False, clip_flag=True):
+    sorted_cmmd  = sorted(cmmd.items(), key=lambda item: item[1])
+    sorted_lpips = sorted(lpips.items(), key=lambda item: item[1])
+    sorted_clip = sorted(clip.items(), key=lambda item: item[1], reverse=True)
+    position_cmmd = {}
+    position_lpips = {}
+    position_clips = {}
+    total_position = {}
+    print("sorted_cmmd: ", sorted_cmmd)
+    
+    for idx, (key, _) in enumerate(sorted_cmmd):
+        position_cmmd[key] = idx
+    for idx, (key, _) in enumerate(sorted_lpips):
+        position_lpips[key] = idx
+    for idx, (key, _) in enumerate(sorted_clip):
+        position_clips[key] = idx
+    
+    print("position_cmmd", position_cmmd)
+    
+    for idx, key in enumerate(position_cmmd):
+        total_position[key] = 0
+        if cmmd_flag:
+            total_position[key] += position_cmmd[key]
+        if lpips_flag:
+            total_position[key] += position_lpips[key]
+        if clip_flag:
+            total_position[key] += position_clips[key] 
 
+    best_block = min(total_position, key=total_position.get)
+    
+    with open(log_path+"/results.txt", "a") as f: 
+        f.write("Best block: " + str(best_block) + "\n")
+        for i in range(len(block_list)):
+            if clip_flag:
+                f.write("Block: " + str(block_list[i]) + " CLIP: " + str(clip[block_list[i]]) + " CMMD: " + str(cmmd[block_list[i]]) + " total position: " +str(total_position[block_list[i]]) + "\n")
+            if lpips_flag:
+                f.write("Block: " + str(block_list[i]) + " LPIPS: " + str(lpips[block_list[i]]) + " CMMD: " + str(cmmd[block_list[i]]) + " total position: " +str(total_position[block_list[i]]) + "\n")
+            
+        f.write("\n")
+        f.write("\n")
+    return best_block
+    
+    
 def set_env(seed=0):
     torch.manual_seed(seed)
     torch.set_grad_enabled(False)
@@ -71,7 +123,9 @@ def visualize( items,keys, bs, sample_steps, cfg_scale):
             # save_path = os.path.join(save_root, f"{prompts[0][:100]}.jpg")
             # if os.path.exists(save_path):
             #     continue
+            
             prompt_clean, _, hw, ar, custom_hw = prepare_prompt_ar(chunk[0], base_ratios, device=device, show=False)  # ar for aspect ratio
+     
             if args.image_size == 1024:
                 latent_size_h, latent_size_w = int(hw[0, 0] // 8), int(hw[0, 1] // 8)
             else:
@@ -142,6 +196,8 @@ def visualize( items,keys, bs, sample_steps, cfg_scale):
                     unconditional_guidance_scale=cfg_scale,
                     model_kwargs=model_kwargs,
                 )[0]
+        
+
         samples = samples.to(weight_dtype)
         samples = vae.decode(samples / vae.config.scaling_factor).sample
         #print(torch.min(samples), torch.max(samples))
@@ -154,27 +210,24 @@ def visualize( items,keys, bs, sample_steps, cfg_scale):
             save_path = os.path.join(save_root, f"{key}.jpg")
             print("Saving path: ", save_path)
             save_image(sample, save_path, nrow=1, normalize=True, value_range=(-1, 1))
-        # save_path = os.path.join(save_root, f"{key}.jpg")
-        # samples = (
-        #     torch.clamp(127.5 * samples + 128.0, 0, 255)
-        #     .permute(0, 2, 3, 1)
-        #     .to("cpu", dtype=torch.uint8)
-        #     .numpy()[0]
-        #     )
-        # print(samples.shape)
-        # image = Image.fromarray(samples)
-        # image.save(save_path, format='JPEG', quality=95)
+        del samples
+        del caption_embs, caption_token,
+        torch.cuda.empty_cache()
+        
 
 
 if __name__ == '__main__':
     args = get_args()
     config = read_config(args.config_path)
+    args.model_path = config.model_path
+    args.save_path = config.save_path
     # Setup PyTorch:
     seed = args.seed
     set_env(seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     assert args.sampling_algo in ['iddpm', 'dpm-solver', 'sa-solver']
-
+    block_list = config.block_list
+    removed_block_list = config.removed_blocks
     # only support fixed latent size currently
     latent_size = args.image_size // 8
     max_sequence_length = {"alpha": 120, "sigma": 300}[args.version]
@@ -190,46 +243,10 @@ if __name__ == '__main__':
     pe_interpolation = args.pe_interpolation if args.pe_interpolation > 0 else args.image_size / 512
     
     _save_path = args.save_path
-    # for idx in range(16,28):
-    #     seed = args.seed
-    #     set_env(seed)
-    #     config.transformer_blocks_attn = [idx]
-    #     config.transformer_blocks_cross_attn = [idx]
-    #     config.transformer_blocks_mlp = [idx]
-    #args.save_path = _save_path + "/" +  str(idx) + "/"
-    if args.image_size in [512, 1024, 2048] or args.version == 'sigma':
-        model = PixArtMS(
-            input_size=latent_size,
-            pe_interpolation=pe_interpolation,
-            micro_condition=micro_condition,
-            model_max_length=max_sequence_length,
-            skip_connections=True
-        ).to(device)
-    else:
-        model = PixArtMS(
-            input_size=latent_size,
-            pe_interpolation=pe_interpolation,
-            model_max_length=max_sequence_length,
-            skip_connections=True
-        ).to(device)
-
-    print("Generating sample from ckpt: %s" % args.model_path)
-    state_dict = find_model(args.model_path)
-    if 'pos_embed' in state_dict['state_dict']:
-        del state_dict['state_dict']['pos_embed']
-    missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
-    print('Missing keys: ', missing)
-    print('Unexpected keys', unexpected)
+    lpips_list = []
+    cmmd_list = []
+    clip_list = []
     
-    model = modify_model(model, config)
-    state_dict = find_model(args.model_path)
-    if 'pos_embed' in state_dict['state_dict']:
-        del state_dict['state_dict']['pos_embed']
-    missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
-    print("param block", sum(p.numel() for p in model.parameters()))
-    model.eval()
-    model = model.to(device)
-    model.to(weight_dtype)
     base_ratios = getattr(ds_utils, f'ASPECT_RATIO_{args.image_size}', ds_utils.ASPECT_RATIO_1024)
 
     if args.sdvae:
@@ -245,31 +262,116 @@ if __name__ == '__main__':
     null_caption_token = tokenizer("", max_length=max_sequence_length, padding="max_length", truncation=True, return_tensors="pt").to(device)
     null_caption_embs = text_encoder(null_caption_token.input_ids, attention_mask=null_caption_token.attention_mask)[0]
 
-    work_dir = os.path.join(*args.model_path.split('/')[:-2])
-    work_dir = '/'+work_dir if args.model_path[0] == '/' else work_dir
+    for idx_removed in range(20):
+        lpips = {}
+        cmmd = {}
+        clip = {}
+        for idx in block_list:
+            seed = args.seed
+            set_env(seed)
 
-    # data setting
-    # with open(args.txt_file, 'r') as f:
-    #     items = [item.strip() for item in f.readlines()]
-    with open(args.txt_file, "r") as f:
-        data = json.load(f)
+            
+            if args.attn:
+                config.transformer_blocks_attn = removed_block_list.copy()
+                config.transformer_blocks_attn.append(idx)
+            if args.cross_attn:
+                config.transformer_blocks_cross_attn = removed_block_list.copy()
+                config.transformer_blocks_cross_attn.append(idx)
+            if args.mlp:
+                config.transformer_blocks_mlp = removed_block_list.copy()  
+                config.transformer_blocks_mlp.append(idx)
+            if args.total_blocks:
+                config.transformer_blocks = removed_block_list.copy()  
+                config.transformer_blocks.append(idx)
+            
+            args.save_path = _save_path + "/it_" + str(idx_removed) +  "/" +  str(idx) + "/"
+            
+            model = PixArtMS(
+                input_size=latent_size,
+                pe_interpolation=pe_interpolation,
+                micro_condition=micro_condition,
+                model_max_length=max_sequence_length,
+                skip_connections=True
+            ).to(device)
 
-    # Get string values, assuming each dict has one key-value pair
-    items = [d[0] for d in data.values()]
-    keys = [k for k in data.keys()]
 
-    # img save setting
-    try:
-        epoch_name = re.search(r'.*epoch_(\d+).*', args.model_path).group(1)
-        step_name = re.search(r'.*step_(\d+).*', args.model_path).group(1)
-    except:
-        epoch_name = 'unknown'
-        step_name = 'unknown'
-    img_save_dir = os.path.join(work_dir, 'vis')
-    os.umask(0o000)  # file permission: 666; dir permission: 777
-    os.makedirs(img_save_dir, exist_ok=True)
+            print("Generating sample from ckpt: %s" % args.model_path)
+            state_dict = find_model(args.model_path)
+            missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
+            print("missing: ", missing)
+            print("unexpected: ", unexpected)
 
-    #save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
-    save_root = args.save_path
-    os.makedirs(save_root, exist_ok=True)
-    visualize( items,keys, args.bs, sample_steps, args.cfg_scale)
+            
+            model = modify_model(model, config)
+            state_dict = find_model(args.model_path)
+            missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
+            print("missing: ", missing)
+            print("unexpected: ", unexpected)
+            model.eval()
+            model = model.to(device)
+            model.to(weight_dtype)
+            
+            work_dir = os.path.join(*args.model_path.split('/')[:-2])
+            work_dir = '/'+work_dir if args.model_path[0] == '/' else work_dir
+
+            # data setting
+            # with open(args.txt_file, 'r') as f:
+            #     items = [item.strip() for item in f.readlines()]
+            with open(args.txt_file, "r") as f:
+                data = json.load(f)
+
+            # Get string values, assuming each dict has one key-value pair
+            items = [d for d in data.values()]
+            keys = [k for k in data.keys()]
+
+            # img save setting
+            try:
+                epoch_name = re.search(r'.*epoch_(\d+).*', args.model_path).group(1)
+                step_name = re.search(r'.*step_(\d+).*', args.model_path).group(1)
+            except:
+                epoch_name = 'unknown'
+                step_name = 'unknown'
+            img_save_dir = os.path.join(work_dir, 'vis')
+            os.umask(0o000)  # file permission: 666; dir permission: 777
+            os.makedirs(img_save_dir, exist_ok=True)
+
+            #save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
+            save_root = args.save_path
+            os.makedirs(save_root, exist_ok=True)
+            visualize( items,keys, args.bs, sample_steps, args.cfg_scale)
+            
+        
+            cmmd[idx] = compute_cmmd(config.ref_path, args.save_path).item()
+            clip[idx] = compute_clip(args.save_path, args.txt_file ).item()
+            del model
+            torch.cuda.empty_cache()
+            print(f"GPU Memory after block {idx}: {torch.cuda.memory_allocated()/1e9:.2f}GB")
+        
+            
+
+        torch.cuda.empty_cache()
+        os.makedirs(config.log_path, exist_ok=True)
+        best_block = best_network(idx_removed,cmmd, lpips, clip, block_list, config.log_path)
+        removed_block_list.append(best_block)
+        block_list.remove(best_block)
+
+
+       
+            
+        with open(config.log_path+"/results.txt", "a") as f: 
+            f.write("Removed Block List: " + str(removed_block_list))
+            f.write("\n")
+            f.write("New Block List: " + str(block_list))
+            f.write("\n")  
+    
+        with open(config.log_path+"/lpips_dict.json", "w") as f:
+            json.dump(lpips_list, f)
+            f.write("\n") 
+        with open(config.log_path+"/cmmd_dict.json", "w") as f:
+            json.dump(cmmd_list, f)
+            f.write("\n") 
+        
+     
+        with open(config.log_path+"/_temp_new_removed_blocks.json", "w") as f:
+            json.dump(removed_block_list, f)
+            f.write("\n")   

@@ -111,3 +111,5 @@ reserve_memory=False
 stable_loss = False
 
 self_att_feat_loss_flag=False
+
+ref_load_from = None

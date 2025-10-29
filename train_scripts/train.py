@@ -16,11 +16,6 @@ import torch
 from accelerate import Accelerator, InitProcessGroupKwargs
 from accelerate.utils import DistributedType
 from diffusers.models import AutoencoderKL
-from mmcv.runner import LogBuffer
-from PIL import Image
-from torch.utils.data import RandomSampler
-from transformers import T5EncoderModel, T5Tokenizer
-
 from diffusion import DPMS, IDDPM
 from diffusion.data.builder import build_dataloader, build_dataset, set_data_root
 from diffusion.model.builder import build_model
@@ -42,7 +37,11 @@ from diffusion.utils.misc import (
     set_random_seed,
 )
 from diffusion.utils.optimizer import auto_scale_lr, build_optimizer
+from mmcv.runner import LogBuffer
+from PIL import Image
 from scripts.stable_loss import temprngstate
+from torch.utils.data import RandomSampler
+from transformers import T5EncoderModel, T5Tokenizer
 
 warnings.filterwarnings("ignore")  # ignore warning
 
@@ -131,7 +130,7 @@ def log_validation(model, step, device, vae=None):
     ).repeat(1, 1)
     ar = torch.tensor([[1.0]], device=device).repeat(1, 1)
     null_y = torch.load(
-        f"/export/scratch/sheid/pixart/pretrained_models/null_embed_diffusers_{max_length}token.pth"
+        f"/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/null_embed_diffusers_{max_length}token.pth"
     )
     null_y = null_y["uncond_prompt_embeds"].to(device)
 
@@ -316,13 +315,10 @@ def train():
                 loss = loss_term["loss"].mean()
                 accelerator.backward(loss)
                 
-                print(accelerator.sync_gradients)
-                print(loss)
                 if accelerator.sync_gradients:
                     grad_norm = accelerator.clip_grad_norm_(
                         model.parameters(), config.gradient_clip
                     )
-                    print(grad_norm)
                 
                 # if torch.isnan(grad_norm) or torch.isinf(grad_norm):
                 #     print("Skipping step due to corrupted gradients")
@@ -449,7 +445,7 @@ def parse_args():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument(
         "--pipeline_load_from",
-        default="/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers",
+        default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/pixart_sigma_sdxlvae_T5_diffusers",
         type=str,
         help="Download for loading text_encoder, "
         "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers",
@@ -582,12 +578,12 @@ if __name__ == "__main__":
         # preparing embeddings for visualization. We put it here for saving GPU memory
         validation_prompts = config.validation_prompts
         skip = True
-        Path("output/tmp").mkdir(parents=True, exist_ok=True)
+        Path(config.work_dir).mkdir(parents=True, exist_ok=True)
         for prompt in validation_prompts:
             if not (
-                os.path.exists(f"output/tmp/{prompt}_{max_length}token.pth")
+                os.path.exists(f"{config.work_dir}{prompt}_{max_length}token.pth")
                 and os.path.exists(
-                    f"output/pretrained_models/null_embed_diffusers_{max_length}token.pth"
+                    f"{config.work_dir}/null_embed_diffusers_{max_length}token.pth"
                 )
             ):
                 skip = False
@@ -641,7 +637,7 @@ if __name__ == "__main__":
                     "uncond_prompt_embeds": null_token_emb,
                     "uncond_prompt_embeds_mask": null_tokens.attention_mask,
                 },
-                f"/export/scratch/sheid/pixart/pretrained_models/null_embed_diffusers_{max_length}token.pth",
+                f"/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/null_embed_diffusers_{max_length}token.pth",
             )
             del null_tokens
             del null_token_emb
@@ -698,26 +694,36 @@ if __name__ == "__main__":
             load_ema=config.get("load_ema", False),
             max_length=max_length,
         )
-        if config.intermediate_loss_flag:
-            ref_missing, ref_unexpected = load_checkpoint(
-                config.ref_load_from,
-                ref_model,
-                load_ema=config.get("load_ema", False),
-                max_length=max_length,
-            )
-            ref_model.requires_grad_(False)
-        logger.warning(f"Missing keys: {missing}")
-        logger.warning(f"Unexpected keys: {unexpected}")
-
+    if config.ref_load_from is not None and config.intermediate_loss_flag:
+        ref_missing, ref_unexpected = load_checkpoint(
+            config.ref_load_from,
+            ref_model,
+            load_ema=config.get("load_ema", False),
+            max_length=max_length,
+        )
+        ref_model.requires_grad_(False)
+        
+                
+    model = modify_model(model, config)
+    if config.pruned_load_from is not None:
+        missing, unexpected = load_checkpoint(
+            config.pruned_load_from,
+            model,
+            load_ema=config.get("load_ema", False),
+            max_length=max_length,
+        )
     # modify model, e.g., remove transformer blocks
+
     if config.trainable_blocks:
         model.requires_grad_(False)  # Disable grad for all layers initially
 
         for block_num in config.trainable_blocks:
             for param in model.blocks[block_num].parameters():
                 param.requires_grad = True
-                
-    model = modify_model(model, config.transformer_blocks)
+     
+        logger.warning(f"Missing keys: {missing}")
+        logger.warning(f"Unexpected keys: {unexpected}")
+        
     logger.info(
         f"{model.__class__.__name__} Model Parameters: {sum(p.numel() for p in model.parameters()):,}"
     )

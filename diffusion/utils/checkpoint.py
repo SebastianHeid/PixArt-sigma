@@ -1,7 +1,7 @@
 import os
 import re
-import torch
 
+import torch
 from diffusion.utils.logger import get_root_logger
 
 
@@ -64,7 +64,7 @@ def load_checkpoint(checkpoint,
     else:
         state_dict = checkpoint.get('state_dict', checkpoint)  # to be compatible with the official checkpoint
 
-    null_embed = torch.load(f'/export/scratch/sheid/pixart/pretrained_models/null_embed_diffusers_{max_length}token.pth', map_location='cpu')
+    null_embed = torch.load(f'/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart//null_embed_diffusers_{max_length}token.pth', map_location='cpu')
     state_dict['y_embedder.y_embedding'] = null_embed['uncond_prompt_embeds'][0]
 
     missing, unexpect = model.load_state_dict(state_dict, strict=False)

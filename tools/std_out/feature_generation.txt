@@ -1,0 +1,11 @@
+=========================================================
+Starting job execution
+Job ID: 10297546
+Job Name: Eval
+Running on node: p01c01
+Allocated GPUs: 0
+=========================================================
+Extracting Single Image Resolution 512
+Starting
+VAE Loaded
+Done

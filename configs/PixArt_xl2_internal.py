@@ -111,3 +111,20 @@ reserve_memory=False
 stable_loss = False
 
 self_att_feat_loss_flag=False
+
+
+#Compress mlp, attn, cross_attn via SVD
+
+transformer_blocks_mlp = []
+rank_mlp = 512
+
+transformer_blocks_attn = []
+rank_attn = 128
+
+transformer_blocks_cross_attn = []
+rank_cross_attn = 128
+
+pruned_load_from = None
+
+
+ref_load_from = None
