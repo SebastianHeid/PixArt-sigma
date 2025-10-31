@@ -22,6 +22,7 @@ from diffusion.model.nets import PixArt_XL_2, PixArtMS
 from diffusion.model.utils import prepare_prompt_ar
 from diffusion.utils.misc import DebugUnderflowOverflow, init_random_seed, read_config
 from PIL import Image
+from safetensors.torch import load_file
 from torchvision.utils import save_image
 from tqdm import tqdm
 from transformers import T5EncoderModel, T5Tokenizer
@@ -39,7 +40,8 @@ def get_args():
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
     parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/prompt_test.json', type=str)
-    parser.add_argument('--model_path', default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/PixArt-Sigma-XL-2-512-MS.pth", type=str)
+    parser.add_argument('--model_path', default="", type=str)
+    parser.add_argument('--org_model_path', default="", type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
     parser.add_argument('--bs', default=1, type=int)
     parser.add_argument('--cfg_scale', default=4.5, type=float)
@@ -50,7 +52,7 @@ def get_args():
     parser.add_argument('--save_name', default='mlp', type=str)
     parser.add_argument('--save_path', default='/home/hd/hd_hd/hd_om233/partially_removal/images/cross_attn/22', type=str,)
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
-    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/configs/block_eval/block_inv.py", type=str)
+    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/GRASP/PixArt-sigma/configs/block_eval/block_inv.py", type=str)
 
     return parser.parse_args()
 
@@ -214,18 +216,51 @@ if __name__ == '__main__':
         ).to(device)
 
     print("Generating sample from ckpt: %s" % args.model_path)
-    state_dict = find_model(args.model_path)
-    if 'pos_embed' in state_dict['state_dict']:
-        del state_dict['state_dict']['pos_embed']
-    missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
-    print('Missing keys: ', missing)
-    print('Unexpected keys', unexpected)
     
+    
+    rank_dict = {}
+
+    # print("Lese Ranks aus state_dict...")
+    # for key, tensor in state_dict.items():
+    #     # Wir finden den Rang, indem wir auf die Shape des InLinear-Gewichts schauen
+    #     if key.endswith("InLinear.weight"):
+    #         # Shape ist [rank, in_features]
+    #         rank = tensor.shape[0]
+            
+    #         # Entferne ".InLinear.weight" um den Namen des Layers zu erhalten
+    #         layer_name = key.rsplit(".InLinear.weight", 1)[0]
+    #         rank_dict[layer_name] = rank
+
+    # print(f"Ranks erfolgreich ausgelesen für {len(rank_dict)} Layer.")
+    # print(rank_dict)
+    
+    
+    # state_dict = find_model(args.model_path)
+    # if 'pos_embed' in state_dict['state_dict']:
+    #     del state_dict['state_dict']['pos_embed']
+    # missing, unexpected = model.load_state_dict(state_dict, strict=False)
+    # print('Missing keys: ', missing)
+    # print('Unexpected keys', unexpected)
+    
+    if args.org_model_path:
+        print("LOAD ORG MODEL PATH")
+        state_dict = find_model(args.org_model_path)
+        if 'pos_embed' in state_dict['state_dict']:
+            del state_dict['state_dict']['pos_embed']
+        missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
+        print('Missing keys: ', missing)
+        print('Unexpected keys', unexpected)
     model = modify_model(model, config)
-    state_dict = find_model(args.model_path)
-    if 'pos_embed' in state_dict['state_dict']:
-        del state_dict['state_dict']['pos_embed']
-    missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
+    
+    if args.model_path != args.org_model_path:
+        print("LOAD MODEL PATH")
+        state_dict = load_file(args.model_path)
+        if 'pos_embed' in state_dict:
+            del state_dict['pos_embed']
+ 
+        missing, unexpected = model.load_state_dict(state_dict, strict=False)
+        print("missing", missing)
+        print("unexpected", unexpected)
     print("param block", sum(p.numel() for p in model.parameters()))
     model.eval()
     model = model.to(device)
@@ -273,3 +308,4 @@ if __name__ == '__main__':
     save_root = args.save_path
     os.makedirs(save_root, exist_ok=True)
     visualize( items,keys, args.bs, sample_steps, args.cfg_scale)
+    

@@ -556,3 +556,42 @@ def decompose_linear_to_svd(
     B = torch.diag(torch.sqrt(S_r)) @ Vh_r  # shape: [r, out_features]
     
     return A, B
+
+
+def grasp_decompose_linear_to_svd(
+        linear_layer: nn.Linear,
+        r: int,
+        reverse: bool = False,
+        return_full: bool = False,
+) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+    """
+    Decomposes a torch.nn.Linear layer into two LoRA-style matrices using truncated SVD.
+
+    Args:
+        linear_layer (nn.Linear): The original linear layer to decompose.
+        r (int): Rank for decomposition (r < min(in_features, out_features))
+
+    Returns:
+        A (nn.Parameter): Left matrix (in_features x r)
+        B (nn.Parameter): Right matrix (r x out_features)
+    """
+    # Get original weight (shape: out_features x in_features)
+    W = linear_layer.weight.data  # shape: [out_features, in_features]
+
+    # Perform full SVD on the transposed weight to get shape (in_features x out_features)
+    # This lets us get A (in_features x r) and B (r x out_features)
+    U, S, Vh = torch.linalg.svd(W, full_matrices=False)
+
+    # Truncate to rank-r
+    if not reverse:
+        U_r = U[:, :r]  # shape: [in_features, r]
+        S_r = S[:r]  # shape: [r]
+        Vh_r = Vh[:r, :]  # shape: [r, out_features]
+    else:
+        U_r = U[:, r:]  # shape: [in_features, full - r]
+        S_r = S[r:]  # shape: [full - r]
+        Vh_r = Vh[r:, :]  # shape: [full - r, out_features]
+
+  
+    
+    return  U_r, S_r, Vh_r

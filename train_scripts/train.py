@@ -7,6 +7,7 @@ import types
 import warnings
 from pathlib import Path
 
+from safetensors.torch import save_file
 from tqdm import tqdm
 
 current_file_path = Path(__file__).resolve()
@@ -19,7 +20,9 @@ from diffusers.models import AutoencoderKL
 from diffusion import DPMS, IDDPM
 from diffusion.data.builder import build_dataloader, build_dataset, set_data_root
 from diffusion.model.builder import build_model
+from diffusion.model.grasp_util import compile_grasp_model, dynamic_svd_selection
 from diffusion.model.modify_model import modify_model
+from diffusion.model.nets.pruned_model_parts import GRASPLayer
 from diffusion.utils.checkpoint import load_checkpoint, save_checkpoint
 from diffusion.utils.data_sampler import AspectRatioBatchSampler
 from diffusion.utils.dist_utils import (
@@ -145,7 +148,7 @@ def log_validation(model, step, device, vae=None):
         else:
             z = torch.randn(1, 4, latent_size, latent_size, device=device)
         embed = torch.load(
-            f"output/tmp/{prompt}_{max_length}token.pth", map_location="cpu"
+            f"/home/hd/hd_hd/hd_om233/GRASP/PixArt-sigma/output/tmp/{prompt}_{max_length}token.pth", map_location="cpu"
         )
         caption_embs, emb_masks = embed["caption_embeds"].to(device), embed[
             "emb_mask"
@@ -240,6 +243,7 @@ def train():
     load_vae_feat = getattr(train_dataloader.dataset, "load_vae_feat", False)
     load_t5_feat = getattr(train_dataloader.dataset, "load_t5_feat", False)
     # Now you train the model
+    grasp_layer_grads = {}
     for epoch in range(start_epoch + 1, config.num_epochs + 1):
         data_time_start = time.time()
         data_time_all = 0
@@ -315,17 +319,33 @@ def train():
                 loss = loss_term["loss"].mean()
                 accelerator.backward(loss)
                 
+                for name, module in model.named_modules():
+                    # Prüfe, ob das Modul ein GRASPLayer ist
+                    if isinstance(module, GRASPLayer):
+                        
+                        # Stelle sicher, dass der Gradient existiert (falls der Layer genutzt wurde)
+                        if module.S.grad is not None:
+                            
+                            # WICHTIG: Erstelle eine Kopie des Gradienten.
+                            # .detach() entkoppelt ihn vom Graphen.
+                            # .clone() erstellt eine neue, unabhängige Kopie.
+                            # Dies ist nötig, da optimizer.zero_grad() den Gradienten bald löscht.
+                            grad_copy = module.S.grad.detach().clone()
+
+                            # Füge den Gradienten dem Dictionary hinzu oder addiere ihn
+                            if name not in grasp_layer_grads:
+                                grasp_layer_grads[name] = grad_copy
+                            else:
+                                grasp_layer_grads[name] += grad_copy
+                
+                
                 if accelerator.sync_gradients:
                     grad_norm = accelerator.clip_grad_norm_(
                         model.parameters(), config.gradient_clip
                     )
                 
-                # if torch.isnan(grad_norm) or torch.isinf(grad_norm):
-                #     print("Skipping step due to corrupted gradients")
-                #     optimizer.zero_grad()
-                # else:
-                optimizer.step()
-                lr_scheduler.step()
+               
+
 
             lr = lr_scheduler.get_last_lr()[0]
             logs = {args.loss_report_name: accelerator.gather(loss).mean().item()}
@@ -376,45 +396,39 @@ def train():
             data_time_start = time.time()
 
             if config.save_model_steps and global_step % config.save_model_steps == 0:
-                accelerator.wait_for_everyone()
-                if accelerator.is_main_process:
-                    print("Saving checkpoint...")
-                    os.umask(0o000)
-                    save_checkpoint(
-                        os.path.join(config.work_dir, "checkpoints"),
-                        epoch=epoch,
-                        step=global_step,
-                        model=accelerator.unwrap_model(model),
-                        optimizer=optimizer,
-                        lr_scheduler=lr_scheduler,
-                    )
-                # exit after 38000 steps because now have to use 2Mio laion dataset instead of 600k -> was deleted
-                sys.exit()
-                
-            if config.visualize and (
-                global_step % config.eval_sampling_steps == 0 or (step + 1) == 1
-            ):
-                accelerator.wait_for_everyone()
-                if accelerator.is_main_process:
-                    log_validation(
-                        model, global_step, device=accelerator.device, vae=vae
-                    )
-                    model.train()
-
-        if epoch % config.save_model_epochs == 0 or epoch == config.num_epochs:
-            accelerator.wait_for_everyone()
-            if accelerator.is_main_process:
-                os.umask(0o000)
-                save_checkpoint(
-                    os.path.join(config.work_dir, "checkpoints"),
-                    epoch=epoch,
-                    step=global_step,
-                    model=accelerator.unwrap_model(model),
-                    optimizer=optimizer,
-                    lr_scheduler=lr_scheduler,
+                indices_dict, grasp_values_dict = dynamic_svd_selection(
+                    model,
+                    grasp_layer_grads=grasp_layer_grads,
+                    metric="taylor",  # WICHTIG: "taylor" (Gradient * Wert) ist die empfohlene Metrik
+                    compression_ratio=0.5 # Ihr gewünschtes Kompressionsverhältnis, z.B. 0.5
+                )
+                print(indices_dict)
+                compressed_model = compile_grasp_model(
+                    model=model,
+                    indices_dict=indices_dict,
+                    merge=False,  # WICHTIG: False = nutzt SVDLinear (effizient), True = fusioniert zu nn.Linear
+                    sigma_fuse="UV" # Standardeinstellung
                 )
                 
-        accelerator.wait_for_everyone()
+                unwrapped_model = accelerator.unwrap_model(compressed_model)
+
+                # 3. Nur auf dem Hauptprozess (rank 0) speichern
+                if accelerator.is_main_process:
+                    
+                    # 4. Den state_dict vom entpackten Modell holen
+                    compressed_state_dict = unwrapped_model.state_dict()
+                    
+                    # 5. Speicherpfad definieren (Beispiel)
+                    save_path = os.path.join(config.output_dir, "compressed_model.safetensors")
+                    
+                    # 6. Mit safetensors speichern (bevorzugte Methode)
+                    # (Eventuell müssen Sie 'pip install safetensors' ausführen)
+                    save_file(compressed_state_dict, save_path)
+                    
+                    print(f"Komprimiertes Modell state_dict erfolgreich gespeichert in: {save_path}")
+                
+                sys.exit()
+            
 
 def reserve_memory():
     gb_to_allocate = 20  # change to desired number of GB
@@ -618,7 +632,7 @@ if __name__ == "__main__":
                         "caption_embeds": caption_emb,
                         "emb_mask": txt_tokens.attention_mask,
                     },
-                    f"output/tmp/{prompt}_{max_length}token.pth",
+                    f"/home/hd/hd_hd/hd_om233/GRASP/PixArt-sigma/output/tmp/{prompt}_{max_length}token.pth",
                 )
                 del txt_tokens
                 del caption_emb
@@ -704,6 +718,7 @@ if __name__ == "__main__":
         ref_model.requires_grad_(False)
         
                 
+                
     model = modify_model(model, config)
     if config.pruned_load_from is not None:
         missing, unexpected = load_checkpoint(
@@ -714,22 +729,18 @@ if __name__ == "__main__":
         )
     # modify model, e.g., remove transformer blocks
 
-    if config.trainable_blocks:
-        model.requires_grad_(False)  # Disable grad for all layers initially
-
-        for block_num in config.trainable_blocks:
-            for param in model.blocks[block_num].parameters():
-                param.requires_grad = True
+    for name, param in model.named_parameters():
+        if '.S' not in name: # Nur S-Vektoren bleiben trainierbar
+            param.requires_grad = False
      
-        logger.warning(f"Missing keys: {missing}")
-        logger.warning(f"Unexpected keys: {unexpected}")
         
-    logger.info(
+    print(
         f"{model.__class__.__name__} Model Parameters: {sum(p.numel() for p in model.parameters()):,}"
     )
-    logger.info(
+    print(
         f"{model.__class__.__name__} Trainable Model Parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
     )
+
 
     # prepare for FSDP clip grad norm calculation
     if accelerator.distributed_type == DistributedType.FSDP:
@@ -848,6 +859,8 @@ if __name__ == "__main__":
     if config.reserve_memory:
         reserve_memory()
     train()
+
+
 
 
 

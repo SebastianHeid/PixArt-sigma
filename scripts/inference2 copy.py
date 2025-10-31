@@ -38,7 +38,7 @@ def get_args():
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
-    parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/100_prompts_laion_new.json', type=str)
+    parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/prompt_test.json', type=str)
     parser.add_argument('--model_path', default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/PixArt-Sigma-XL-2-512-MS.pth", type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
     parser.add_argument('--bs', default=1, type=int)
@@ -48,9 +48,9 @@ def get_args():
     parser.add_argument('--dataset', default='custom', type=str)
     parser.add_argument('--step', default=-1, type=int)
     parser.add_argument('--save_name', default='mlp', type=str)
-    parser.add_argument('--save_path', default='/gpfs/bwfor/work/ws/hd_om233-flux/pixart/block_evaluation/partially_removed_blocks/original', type=str,)
+    parser.add_argument('--save_path', default='/home/hd/hd_hd/hd_om233/partially_removal/images/cross_attn/22', type=str,)
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
-    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/configs/pixart_sigma_config/partially_block_removal/First_Iteration.py", type=str)
+    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/GRASP/PixArt-sigma/configs/block_eval/block_inv.py", type=str)
 
     return parser.parse_args()
 
@@ -222,6 +222,10 @@ if __name__ == '__main__':
     print('Unexpected keys', unexpected)
     
     model = modify_model(model, config)
+    state_dict = find_model(args.model_path)
+    if 'pos_embed' in state_dict['state_dict']:
+        del state_dict['state_dict']['pos_embed']
+    missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
     print("param block", sum(p.numel() for p in model.parameters()))
     model.eval()
     model = model.to(device)
