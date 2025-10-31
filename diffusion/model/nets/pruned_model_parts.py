@@ -73,7 +73,7 @@ class GRASPLayer(nn.Module):
    
     
 class GraspdMLP(nn.Module):
-    def __init__(self, block: PixArtMSBlock, rank: int):
+    def __init__(self, block: PixArtMSBlock):
         super().__init__()
         
         original_layer = block.mlp.fc1
@@ -101,8 +101,7 @@ class GraspAttentionKVCompress(nn.Module):
 
     def __init__(
         self,
-        block: PixArtMSBlock, 
-        rank: int,
+        block: PixArtMSBlock
     ):
         """
         Args:
@@ -258,7 +257,7 @@ class GraspAttentionKVCompress(nn.Module):
         return x
     
 class GraspMultiHeadCrossAttention(nn.Module):
-    def __init__(self, block, rank):
+    def __init__(self, block):
         super().__init__()
 
         self.d_model = block.cross_attn.d_model
