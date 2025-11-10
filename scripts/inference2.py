@@ -35,11 +35,11 @@ def get_args():
     parser.add_argument('--image_size', default=512, type=int)
     parser.add_argument('--version', default='sigma', type=str)
     parser.add_argument(
-        "--pipeline_load_from", default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/pixart_sigma_sdxlvae_T5_diffusers",
+        "--pipeline_load_from", default="/export/scratch/sheid/pixart/pixart_sigma_sdxlvae_T5_diffusers",
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
-    parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/prompt_test.json', type=str)
+    parser.add_argument('--txt_file', default='', type=str)
     parser.add_argument('--model_path', default="", type=str)
     parser.add_argument('--org_model_path', default="", type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
@@ -52,7 +52,7 @@ def get_args():
     parser.add_argument('--save_name', default='mlp', type=str)
     parser.add_argument('--save_path', default='/home/hd/hd_hd/hd_om233/partially_removal/images/cross_attn/22', type=str,)
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
-    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/GRASP/PixArt-sigma/configs/block_eval/block_inv.py", type=str)
+    parser.add_argument('--config_path', default="/export/home/sheid/GRASP/PixArt-sigma/configs/block_eval/block_inv.py", type=str)
 
     return parser.parse_args()
 

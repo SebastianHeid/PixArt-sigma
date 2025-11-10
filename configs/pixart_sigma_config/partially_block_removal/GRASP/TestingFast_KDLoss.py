@@ -49,7 +49,7 @@ eval_sampling_steps = 500
 visualize = True
 log_interval = 20
 save_model_epochs = 1
-save_model_steps = 10000
+save_model_steps = 1000
 work_dir = "output/debug"
 
 
@@ -60,10 +60,10 @@ model_max_length = 300
 class_dropout_prob = 0.1
 
 # Intermediate loss
-intermediate_loss_flag = False
+intermediate_loss_flag = True
 intermediate_loss_blocks = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
-final_output_loss_flag = False
-org_loss_flag = True
+final_output_loss_flag = True
+org_loss_flag = False
 
 # Modfication of Model
 transformer_blocks = []
@@ -84,6 +84,6 @@ rank_cross_attn = 128
 
 invSVD_blocks =  [4, 0, 3, 1, 5, 7, 25, 27, 2, 6, 18]
 grasp_compressed_blocks = []
-output_dir = "/export/home/sheid/GRASP/output/11_blocks"
+output_dir = "/export/home/sheid/GRASP/output/11_blocksFast_KD"
 
 compression_ratio = 0.5

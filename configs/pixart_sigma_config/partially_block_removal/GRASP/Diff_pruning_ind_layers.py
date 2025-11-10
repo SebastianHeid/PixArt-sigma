@@ -31,7 +31,7 @@ pe_interpolation = 1.0
 
 # training setting
 num_workers = 16
-train_batch_size = 16  # 48 as default
+train_batch_size = 32  # 48 as default
 num_epochs = 1  # 3
 gradient_accumulation_steps = 1
 grad_checkpointing = True
@@ -49,7 +49,7 @@ eval_sampling_steps = 500
 visualize = True
 log_interval = 20
 save_model_epochs = 1
-save_model_steps = 10000
+save_model_steps = 100
 work_dir = "output/debug"
 
 
@@ -84,6 +84,8 @@ rank_cross_attn = 128
 
 invSVD_blocks =  [4, 0, 3, 1, 5, 7, 25, 27, 2, 6, 18]
 grasp_compressed_blocks = []
-output_dir = "/export/home/sheid/GRASP/output/11_blocks"
+output_dir = "/export/home/sheid/GRASP/output/11_blocks_diff_pruning_individual_layers"
 
 compression_ratio = 0.5
+prune_all_layers_together = False
+threshold= 0.05

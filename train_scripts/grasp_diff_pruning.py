@@ -3,7 +3,7 @@ import datetime
 import os
 import sys
 import time
-import types
+import json
 import warnings
 from pathlib import Path
 
@@ -31,7 +31,7 @@ from diffusion.utils.misc import (
     set_random_seed,
 )
 from transformers import T5EncoderModel, T5Tokenizer
-from diffusion.model.nets.modeling_grasp import GRASPBaseModel
+from diffusion.model.nets.modeling_grasp_diff_pruning import GRASPBaseModel
 
 def set_fsdp_env():
     os.environ["ACCELERATE_USE_FSDP"] = "true"
@@ -60,21 +60,19 @@ def main(model,
         
     layers_id.sort(reverse=True)
     grasp_model.to(device=device)
-    for layer_id in tqdm(layers_id, desc="GRASP Compressing", total=len(layers_id), leave=True):
-        grasp_model.compress_block(layer_id)
-        grasp_model.to(device=device)
-        # ✅ Freeze everything except S BEFORE prepare()
-        
-        # KORRIGIERTE LOGIK in main()
+    
+    if config.prune_all_layers_together:
+        for layer_id in tqdm(layers_id, desc="GRASP Compressing", total=len(layers_id), leave=True):
+            grasp_model.compress_block(layer_id)
+            grasp_model.to(device=device)
+            
+            # KORRIGIERTE LOGIK in main()
         for name, param in grasp_model.model.named_parameters():
-            # Prüft, ob der Parameter zur aktuellen Schicht gehört UND ein .S-Vektor ist
-            if f"blocks.{layer_id}." in name and name.endswith(".S"):
+            if name.endswith(".S"):
                 param.requires_grad = True
             else:
                 param.requires_grad = False
-
-        # ✅ Now wrap
-     
+        
         grasp_layer_grads = grasp_model.get_svdlayer_gradients(dataloader, device=device, train_diffusion=train_diffusion, save_model_steps=config.save_model_steps)
         indices_dict = grasp_model.dynamic_svd_selection(
                 grasp_layer_grads,
@@ -82,13 +80,32 @@ def main(model,
             )
         grasp_model.compile_grasp_model(indices_dict)
 
+    else:
+        for layer_id in tqdm(layers_id, desc="GRASP Compressing", total=len(layers_id), leave=True):
+            grasp_model.compress_block(layer_id)
+            grasp_model.to(device=device)
+            
+            # KORRIGIERTE LOGIK in main()
+            for name, param in grasp_model.model.named_parameters():
+                # Prüft, ob der Parameter zur aktuellen Schicht gehört UND ein .S-Vektor ist
+                if f"blocks.{layer_id}." in name and name.endswith(".S"):
+                    param.requires_grad = True
+                else:
+                    param.requires_grad = False
         
+            grasp_layer_grads = grasp_model.get_svdlayer_gradients(dataloader, device=device, train_diffusion=train_diffusion, save_model_steps=config.save_model_steps)
+            indices_dict = grasp_model.dynamic_svd_selection(
+                    grasp_layer_grads,
+                    compression_ratio=config.compression_ratio
+                )
+            grasp_model.compile_grasp_model(indices_dict)
+    
     # 4. Den state_dict vom entpackten Modell holen
     compressed_state_dict = grasp_model.model.state_dict()
-    
+
     # 5. Speicherpfad definieren (Beispiel)
     save_path = os.path.join(config.output_dir, "compressed_model.safetensors")
-    
+    os.makedirs(config.output_dir, exist_ok=True)
     # 6. Mit safetensors speichern (bevorzugte Methode)
     # (Eventuell müssen Sie 'pip install safetensors' ausführen)
     save_file(compressed_state_dict, save_path)
@@ -97,7 +114,7 @@ def main(model,
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Process some integers.")
-    parser.add_argument("--config", default="/export/home/sheid/GRASP/PixArt-sigma/configs/pixart_sigma_config/partially_block_removal/GRASP/Testing.py", type=str, help="config")
+    parser.add_argument("--config", default="/export/home/sheid/GRASP/PixArt-sigma/configs/pixart_sigma_config/partially_block_removal/GRASP/Diff_pruning_all_layers.py", type=str, help="config")
     
     parser.add_argument("--loss_report_name", type=str, default="loss")
     parser.add_argument(

@@ -5,6 +5,20 @@ import torch
 import torch.nn as nn
 from diffusion.model.nets.pruned_model_parts import GRASPLayer, SVDLinear
 
+def adaptive_rank_selection(svd_importance_list, target_ratio):
+    total_sum = sum(svd_importance_list)
+    target_sum = total_sum * target_ratio
+
+    sorted_list = sorted(enumerate(svd_importance_list), key=lambda x: -x[1])
+
+    cumulative_sum = 0
+    indices = []
+    for index, value in sorted_list:
+        cumulative_sum += value
+        indices.append(index)
+        if cumulative_sum >= target_sum:
+            break
+    return indices
 
 def dynamic_svd_selection(
             model,

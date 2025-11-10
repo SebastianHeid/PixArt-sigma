@@ -139,30 +139,35 @@ class GRASPBaseModel(nn.Module):
 
             # Sample a random timestep for each image
             bs = clean_images.shape[0]
-            timesteps = torch.randint(
-                0, self.config.train_sampling_steps, (bs,), device=clean_images.device
-            ).long()
-            grad_norm = None
-            with torch.cuda.amp.autocast(enabled=True, dtype=autocast_dtype):
-                loss_term = train_diffusion.training_losses(
-                    self.model,
-                    clean_images,
-                    timesteps,
-                    model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
-                )
-                loss = loss_term["loss"].mean()
-            self.model.zero_grad()
-            loss.backward()
+            #self.model.zero_grad()
+            max_loss = 0
+            for timestep in tqdm(range(1,1000)):
+                self.model.zero_grad()
+                timesteps = torch.full((bs,), timestep, device=clean_images.device, dtype=torch.long)
+           
+                with torch.cuda.amp.autocast(enabled=True, dtype=autocast_dtype):
+                    loss_term = train_diffusion.training_losses(
+                        self.model,
+                        clean_images,
+                        timesteps,
+                        model_kwargs=dict(y=y, mask=y_mask, data_info=data_info),
+                    )
+                    loss = loss_term["loss"].mean()
+                max_loss = max(max_loss, loss)
+                if loss < max_loss*self.config.threshold:
+                    break
+                loss.backward()
+                
             
-            for grasp_layer_name in grasp_layer_names:
-                module: GRASPLayer = self.model.get_submodule(grasp_layer_name)
-                if not module:
-                    raise ValueError("module can not found")
-                grad_copy = module.S.grad.detach().clone()
-                if grasp_layer_name not in grasp_layer_grads:
-                    grasp_layer_grads[grasp_layer_name] = grad_copy
-                else:
-                    grasp_layer_grads[grasp_layer_name] += grad_copy
+                for grasp_layer_name in grasp_layer_names:
+                    module: GRASPLayer = self.model.get_submodule(grasp_layer_name)
+                    if not module:
+                        raise ValueError("module can not found")
+                    grad_copy = module.S.grad.detach().clone()
+                    if grasp_layer_name not in grasp_layer_grads:
+                        grasp_layer_grads[grasp_layer_name] = torch.abs(grad_copy)
+                    else:
+                        grasp_layer_grads[grasp_layer_name] += torch.abs(grad_copy)
             if batch_idx >= save_model_steps:
                 break
 
@@ -247,24 +252,24 @@ class GRASPBaseModel(nn.Module):
 
             rank_dict[grasp_layer_name] = S.shape[0]
 
-            if merge:
-                in_features = Vh.shape[1]
-                out_features = U.shape[0]
-                self._set_module(self.model, grasp_layer_name, nn.Linear(in_features=in_features, out_features=out_features, bias=True if bias is not None else False))
-                linear_layer: nn.Linear = self.model.get_submodule(grasp_layer_name)
+            # if merge:
+            #     in_features = Vh.shape[1]
+            #     out_features = U.shape[0]
+            #     self._set_module(self.model, grasp_layer_name, nn.Linear(in_features=in_features, out_features=out_features, bias=True if bias is not None else False))
+            #     linear_layer: nn.Linear = self.model.get_submodule(grasp_layer_name)
 
-                # re-initialize linear weight and bias
-                W_compressed = torch.mm(U, torch.mm(torch.diag(S), Vh))
-                linear_layer.weight.data = W_compressed
+            #     # re-initialize linear weight and bias
+            #     W_compressed = torch.mm(U, torch.mm(torch.diag(S), Vh))
+            #     linear_layer.weight.data = W_compressed
 
-                if bias is not None:
-                    linear_layer.bias = bias
+            #     if bias is not None:
+            #         linear_layer.bias = bias
                 
-                linear_layer.requires_grad_(False)
-            else:
-                self._set_module(self.model, grasp_layer_name, SVDLinear(U=U, S=S, Vh=Vh, bias=bias, sigma_fuse=sigma_fuse))
-                svd_linear_layer: SVDLinear = self.model.get_submodule(grasp_layer_name)
-                svd_linear_layer.requires_grad_(False)
+            #     linear_layer.requires_grad_(False)
+            #else:
+            self._set_module(self.model, grasp_layer_name, SVDLinear(U=U, S=S, Vh=Vh, bias=bias, sigma_fuse=sigma_fuse))
+            svd_linear_layer: SVDLinear = self.model.get_submodule(grasp_layer_name)
+            svd_linear_layer.requires_grad_(False)
             
             del grasp_layer
             if "cuda" in device:

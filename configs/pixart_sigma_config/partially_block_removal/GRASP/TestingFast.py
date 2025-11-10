@@ -1,4 +1,5 @@
 _base_ = ["../../PixArt_xl2_internal.py"]
+_base_ = ["../../PixArt_xl2_internal.py"]
 data_root = "pixart-sigma-toy-dataset"
 image_list_json = ["data_info.json"]
 
@@ -49,7 +50,7 @@ eval_sampling_steps = 500
 visualize = True
 log_interval = 20
 save_model_epochs = 1
-save_model_steps = 10000
+save_model_steps = 1000
 work_dir = "output/debug"
 
 
@@ -84,6 +85,6 @@ rank_cross_attn = 128
 
 invSVD_blocks =  [4, 0, 3, 1, 5, 7, 25, 27, 2, 6, 18]
 grasp_compressed_blocks = []
-output_dir = "/export/home/sheid/GRASP/output/11_blocks"
+output_dir = "/export/home/sheid/GRASP/output/11_blocksFast"
 
 compression_ratio = 0.5
