@@ -145,7 +145,7 @@ def log_validation(model, step, device, vae=None):
         else:
             z = torch.randn(1, 4, latent_size, latent_size, device=device)
         embed = torch.load(
-            f"output/tmp/{prompt}_{max_length}token.pth", map_location="cpu"
+            f"/home/hd/hd_hd/hd_om233/output/tmp/{prompt}_{max_length}token.pth", map_location="cpu"
         )
         caption_embs, emb_masks = embed["caption_embeds"].to(device), embed[
             "emb_mask"
@@ -618,7 +618,7 @@ if __name__ == "__main__":
                         "caption_embeds": caption_emb,
                         "emb_mask": txt_tokens.attention_mask,
                     },
-                    f"output/tmp/{prompt}_{max_length}token.pth",
+                    f"/home/hd/hd_hd/hd_om233/output/tmp/{prompt}_{max_length}token.pth",
                 )
                 del txt_tokens
                 del caption_emb
