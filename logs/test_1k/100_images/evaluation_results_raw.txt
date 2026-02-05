@@ -1,0 +1,202 @@
+
+--- Evaluation Run: first_removal_stage_large.yaml ---
+Iteration | Block | CMMD (Raw) | CLIP Score
+--------------------------------------------------
+
+--- Evaluation Run: first_removal_stage_large.yaml ---
+Iteration | Block | CMMD (Raw) | CLIP Score
+--------------------------------------------------
+
+--- Evaluation Run: first_removal_stage_large.yaml ---
+Iteration | Block | CMMD (Raw) | CLIP Score
+--------------------------------------------------
+
+--- Evaluation Run: first_removal_stage_large.yaml ---
+Iteration | Block | CMMD (Raw) | CLIP Score
+--------------------------------------------------
+
+--- Evaluation Run: first_removal_stage_large.yaml ---
+Iteration | Block | CMMD (Raw) | CLIP Score
+--------------------------------------------------
+    0     |   0   |   0.279188 |   0.107137
+    0     |   1   |   0.261784 |   0.105582
+    0     |   2   |   0.283122 |   0.107043
+    0     |   3   |   0.272632 |   0.107327
+    0     |   4   |   0.259519 |   0.106118
+    0     |   5   |   0.281811 |   0.107508
+    0     |   6   |   0.259638 |   0.106763
+    0     |   7   |   0.248075 |   0.106765
+    0     |   8   |   0.305891 |   0.105192
+    0     |   9   |   0.301123 |   0.106986
+    0     |  10   |   0.283480 |   0.102207
+    0     |  11   |   0.298023 |   0.109592
+    0     |  12   |   0.302792 |   0.105949
+    0     |  13   |   0.288129 |   0.103494
+    0     |  14   |   0.279784 |   0.102099
+    0     |  15   |   0.276566 |   0.105920
+    0     |  16   |   0.263929 |   0.106857
+    0     |  17   |   0.263929 |   0.103704
+    0     |  18   |   0.263453 |   0.107751
+    0     |  19   |   0.255466 |   0.104208
+    0     |  20   |   0.250101 |   0.105423
+    0     |  21   |   0.249147 |   0.104533
+    0     |  22   |   0.277758 |   0.105904
+    0     |  23   |   0.264525 |   0.105753
+    0     |  24   |   0.270724 |   0.106417
+    0     |  25   |   0.250578 |   0.105930
+    0     |  26   |   0.303030 |   0.104088
+    0     |  27   |   0.257611 |   0.103273
+
+Best block: 7
+Block: 0 CMMD: 0.2791881561279297 total position: 17
+Block: 1 CMMD: 0.2617835998535156 total position: 8
+Block: 2 CMMD: 0.28312206268310547 total position: 20
+Block: 3 CMMD: 0.2726316452026367 total position: 14
+Block: 4 CMMD: 0.2595186233520508 total position: 6
+Block: 5 CMMD: 0.2818107604980469 total position: 19
+Block: 6 CMMD: 0.25963783264160156 total position: 7
+Block: 7 CMMD: 0.24807453155517578 total position: 0
+Block: 8 CMMD: 0.3058910369873047 total position: 27
+Block: 9 CMMD: 0.30112266540527344 total position: 24
+Block: 10 CMMD: 0.2834796905517578 total position: 21
+Block: 11 CMMD: 0.2980232238769531 total position: 23
+Block: 12 CMMD: 0.3027915954589844 total position: 25
+Block: 13 CMMD: 0.2881288528442383 total position: 22
+Block: 14 CMMD: 0.2797842025756836 total position: 18
+Block: 15 CMMD: 0.2765655517578125 total position: 15
+Block: 16 CMMD: 0.2639293670654297 total position: 10
+Block: 17 CMMD: 0.2639293670654297 total position: 11
+Block: 18 CMMD: 0.26345252990722656 total position: 9
+Block: 19 CMMD: 0.2554655075073242 total position: 4
+Block: 20 CMMD: 0.25010108947753906 total position: 2
+Block: 21 CMMD: 0.2491474151611328 total position: 1
+Block: 22 CMMD: 0.2777576446533203 total position: 16
+Block: 23 CMMD: 0.2645254135131836 total position: 12
+Block: 24 CMMD: 0.2707242965698242 total position: 13
+Block: 25 CMMD: 0.2505779266357422 total position: 3
+Block: 26 CMMD: 0.30303001403808594 total position: 26
+Block: 27 CMMD: 0.2576112747192383 total position: 5
+
+--- Evaluation Run: first_removal_stage_large.yaml ---
+Iteration | Block | CMMD (Raw) | CLIP Score
+--------------------------------------------------
+    0     |   0   |   0.269294 |   0.107137
+    0     |   1   |   0.248075 |   0.105582
+
+--- Evaluation Run: first_removal_stage_large.yaml ---
+Iteration | Block | CMMD (Raw) | CLIP Score
+--------------------------------------------------
+    0     |   2   |   0.273585 |   0.107043
+    0     |   3   |   0.263453 |   0.107327
+    0     |   0   |   0.269651 |   0.107137
+    0     |   4   |   0.254154 |   0.106118
+    0     |   5   |   0.272274 |   0.107508
+    0     |   1   |   0.248075 |   0.105582
+    0     |   6   |   0.253439 |   0.106763
+    0     |   2   |   0.273466 |   0.107043
+    0     |   7   |   0.241399 |   0.106765
+    0     |   3   |   0.263214 |   0.107327
+    0     |   8   |   0.296354 |   0.105192
+    0     |   4   |   0.254035 |   0.106118
+    0     |   9   |   0.297070 |   0.106986
+    0     |  10   |   0.286222 |   0.102207
+    0     |   5   |   0.272274 |   0.107508
+    0     |  11   |   0.293136 |   0.109592
+    0     |   6   |   0.253201 |   0.106763
+    0     |  12   |   0.295877 |   0.105949
+    0     |   7   |   0.241756 |   0.106765
+    0     |  13   |   0.285625 |   0.103494
+    0     |   8   |   0.296354 |   0.105192
+    0     |  14   |   0.279307 |   0.102099
+    0     |   9   |   0.296950 |   0.106986
+    0     |  15   |   0.271559 |   0.105920
+    0     |  16   |   0.256538 |   0.106857
+    0     |  10   |   0.286698 |   0.102207
+    0     |  17   |   0.254750 |   0.103704
+    0     |  11   |   0.292778 |   0.109592
+    0     |  18   |   0.258565 |   0.107751
+    0     |  12   |   0.295877 |   0.105949
+    0     |  19   |   0.247955 |   0.104208
+    0     |  20   |   0.240326 |   0.105423
+    0     |  13   |   0.285506 |   0.103494
+    0     |  21   |   0.243068 |   0.104533
+    0     |  14   |   0.278950 |   0.102099
+    0     |  22   |   0.270844 |   0.105904
+    0     |  15   |   0.271320 |   0.105920
+    0     |  23   |   0.256538 |   0.105753
+    0     |  16   |   0.256300 |   0.106857
+    0     |  24   |   0.262022 |   0.106417
+    0     |  17   |   0.254750 |   0.103704
+    0     |  25   |   0.244737 |   0.105930
+    0     |  26   |   0.305057 |   0.104088
+    0     |  18   |   0.258446 |   0.107751
+    0     |  27   |   0.252485 |   0.103273
+
+Best block: 20
+Block: 0 CMMD: 0.26929378509521484 total position: 15
+Block: 1 CMMD: 0.24807453155517578 total position: 5
+Block: 2 CMMD: 0.27358531951904297 total position: 19
+Block: 3 CMMD: 0.26345252990722656 total position: 14
+Block: 4 CMMD: 0.2541542053222656 total position: 8
+Block: 5 CMMD: 0.2722740173339844 total position: 18
+Block: 6 CMMD: 0.25343894958496094 total position: 7
+Block: 7 CMMD: 0.24139881134033203 total position: 1
+Block: 8 CMMD: 0.2963542938232422 total position: 25
+Block: 9 CMMD: 0.2970695495605469 total position: 26
+Block: 10 CMMD: 0.2862215042114258 total position: 22
+Block: 11 CMMD: 0.2931356430053711 total position: 23
+Block: 12 CMMD: 0.29587745666503906 total position: 24
+Block: 13 CMMD: 0.2856254577636719 total position: 21
+Block: 14 CMMD: 0.27930736541748047 total position: 20
+Block: 15 CMMD: 0.2715587615966797 total position: 17
+Block: 16 CMMD: 0.25653839111328125 total position: 10
+Block: 17 CMMD: 0.25475025177001953 total position: 9
+Block: 18 CMMD: 0.25856494903564453 total position: 12
+Block: 19 CMMD: 0.247955322265625 total position: 4
+Block: 20 CMMD: 0.240325927734375 total position: 0
+Block: 21 CMMD: 0.24306774139404297 total position: 2
+Block: 22 CMMD: 0.270843505859375 total position: 16
+Block: 23 CMMD: 0.25653839111328125 total position: 11
+Block: 24 CMMD: 0.2620220184326172 total position: 13
+Block: 25 CMMD: 0.2447366714477539 total position: 3
+Block: 26 CMMD: 0.3050565719604492 total position: 27
+Block: 27 CMMD: 0.2524852752685547 total position: 6
+    0     |  19   |   0.247836 |   0.104208
+    0     |  20   |   0.239968 |   0.105423
+    0     |  21   |   0.242710 |   0.104533
+    0     |  22   |   0.270605 |   0.105904
+    0     |  23   |   0.257015 |   0.105753
+    0     |  24   |   0.262141 |   0.106417
+    0     |  25   |   0.244737 |   0.105930
+    0     |  26   |   0.305295 |   0.104088
+    0     |  27   |   0.252485 |   0.103273
+
+Best block: 20
+Block: 0 CMMD: 0.2696514129638672 total position: 15
+Block: 1 CMMD: 0.24807453155517578 total position: 5
+Block: 2 CMMD: 0.2734661102294922 total position: 19
+Block: 3 CMMD: 0.263214111328125 total position: 14
+Block: 4 CMMD: 0.25403499603271484 total position: 8
+Block: 5 CMMD: 0.2722740173339844 total position: 18
+Block: 6 CMMD: 0.2532005310058594 total position: 7
+Block: 7 CMMD: 0.24175643920898438 total position: 1
+Block: 8 CMMD: 0.2963542938232422 total position: 25
+Block: 9 CMMD: 0.2969503402709961 total position: 26
+Block: 10 CMMD: 0.2866983413696289 total position: 22
+Block: 11 CMMD: 0.29277801513671875 total position: 23
+Block: 12 CMMD: 0.29587745666503906 total position: 24
+Block: 13 CMMD: 0.2855062484741211 total position: 21
+Block: 14 CMMD: 0.2789497375488281 total position: 20
+Block: 15 CMMD: 0.2713203430175781 total position: 17
+Block: 16 CMMD: 0.2562999725341797 total position: 10
+Block: 17 CMMD: 0.25475025177001953 total position: 9
+Block: 18 CMMD: 0.25844573974609375 total position: 12
+Block: 19 CMMD: 0.24783611297607422 total position: 4
+Block: 20 CMMD: 0.23996829986572266 total position: 0
+Block: 21 CMMD: 0.24271011352539062 total position: 2
+Block: 22 CMMD: 0.27060508728027344 total position: 16
+Block: 23 CMMD: 0.2570152282714844 total position: 11
+Block: 24 CMMD: 0.26214122772216797 total position: 13
+Block: 25 CMMD: 0.2447366714477539 total position: 3
+Block: 26 CMMD: 0.3052949905395508 total position: 27
+Block: 27 CMMD: 0.2524852752685547 total position: 6

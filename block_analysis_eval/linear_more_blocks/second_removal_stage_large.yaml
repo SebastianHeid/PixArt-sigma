@@ -1,0 +1,45 @@
+model:
+  name: "MyPixArt"
+  path: "PixArt-alpha/PixArt-Sigma-XL-2-512-MS"
+  transformer_blocks: []
+transformer_blocks: []
+block_list: [2,3,4,6,9,10,11,12,13,14,15,16,17,18,19,20,22,23,24,26,27]
+
+checkpoint_path: /gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/PixArt-Sigma-XL-2-512-MS/checkpoints/transformer/diffusion_pytorch_model.safetensors
+
+distill_method: MyPixArt
+dump_path: /gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/PixArt-Sigma-XL-2-512-MS/checkpoints
+
+gpu: 2
+image_size: 512
+kv_compress: false
+micro_condition: false
+only_transformer: true
+orig_ckpt_path: "/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/PixArt-Sigma-XL-2-512-MS.pth"
+model_path: "/gpfs/bwfor/work/ws/hd_om233-flux/pixart/model_distillation/partially_removal_individual_compression/linear_compression_more_blocks/First_Iteration_finetuning_on_pixart/checkpoints/epoch_2_step_12500.pth"
+qk_norm: false
+removed_blocks: []
+save_path: /gpfs/bwfor/work/ws/hd_om233-flux/pixart/block_evaluation/partially_removal_individual_compression/block_analysis/linear_more_blocks/Second_Iteration_rep/
+seed: 42
+training_steps: 12500
+version: sigma
+
+ref_path: /gpfs/bwfor/work/ws/hd_om233-flux/pixart/block_evaluation/partially_removed_blocks/original
+
+compression_ratio_mlp:  [0.3, 0.285, 0.27, 0.255, 0.24, 0.225, 0.21, 0.195, 0.18, 0.165, 0.15, 0.135, 0.12, 0.105, 0.09, 0.075, 0.06, 0.045, 0.03, 0.015]
+compression_ratio_attn:  [0.3, 0.285, 0.27, 0.255, 0.24, 0.225, 0.21, 0.195, 0.18, 0.165, 0.15, 0.135, 0.12, 0.105, 0.09, 0.075, 0.06, 0.045, 0.03, 0.015]
+compression_ratio_cross_attn: [0.3, 0.285, 0.27, 0.255, 0.24, 0.225, 0.21, 0.195, 0.18, 0.165, 0.15, 0.135, 0.12, 0.105, 0.09, 0.075, 0.06, 0.045, 0.03, 0.015]
+
+transformer_blocks_mlp: [1, 0, 4, 2, 20, 3, 27, 5, 7, 6, 17, 25, 14, 22, 9, 13, 21, 11, 10, 8]
+transformer_blocks_attn: [1, 0, 4, 2, 20, 3, 27, 5, 7, 6, 17, 25, 14, 22, 9, 13, 21, 11, 10, 8]
+transformer_blocks_cross_attn: [1, 0, 4, 2, 20, 3, 27, 5, 7, 6, 17, 25, 14, 22, 9, 13, 21, 11, 10, 8]
+
+
+new_block:  []
+compression_ratios: [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
+base_cmmd: 0.0
+
+
+
+prompt_path: /home/hd/hd_hd/hd_om233/partially_removal/100_prompts_laion.json
+log_path: /home/hd/hd_hd/hd_om233/partially_removal_individual_compression/PixArt-sigma/logs/linear_more_blocks/Second_Iteration_rep

@@ -11,13 +11,13 @@ import argparse
 import json
 import re
 from datetime import datetime
-
+import random
 import diffusion.data.datasets.utils as ds_utils
 import torch
 from diffusers.models import AutoencoderKL
 from diffusion import DPMS, IDDPM, SASolverSampler
 from diffusion.data.datasets import get_chunks
-from diffusion.model.modify_model import modify_model
+from diffusion.model.modify_model import modify_model_base
 from diffusion.model.nets import PixArt_XL_2, PixArtMS
 from diffusion.model.utils import prepare_prompt_ar
 from diffusion.utils.misc import DebugUnderflowOverflow, init_random_seed, read_config
@@ -38,7 +38,7 @@ def get_args():
         type=str, help="Download for loading text_encoder, "
                        "tokenizer and vae from https://huggingface.co/PixArt-alpha/pixart_sigma_sdxlvae_T5_diffusers"
     )
-    parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/100_prompts_laion.json', type=str)
+    parser.add_argument('--txt_file', default='/home/hd/hd_hd/hd_om233/partially_removal/block_eval/1k_prompts.json', type=str)
     parser.add_argument('--model_path', default="/gpfs/bwfor/work/ws/hd_om233-flux/model_pixart/PixArt-Sigma-XL-2-512-MS.pth", type=str)
     parser.add_argument('--sdvae', action='store_true', help='sd vae')
     parser.add_argument('--bs', default=1, type=int)
@@ -50,7 +50,7 @@ def get_args():
     parser.add_argument('--save_name', default='mlp', type=str)
     parser.add_argument('--save_path', default='/home/hd/hd_hd/hd_om233/partially_removal/images/test/', type=str,)
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
-    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal/PixArt-sigma/configs/block_eval/block_inv.py", type=str)
+    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal_individual_compression/PixArt-sigma/configs/block_eval/block_inv.py", type=str)
 
     return parser.parse_args()
 
@@ -76,7 +76,7 @@ def set_env(seed=0):
         
         
 @torch.inference_mode()
-def visualize( items,keys, bs, sample_steps, cfg_scale):
+def visualize( items,keys, bs, sample_steps, cfg_scale, seed):
 
     for idx, chunk in enumerate(tqdm(list(get_chunks(items, bs)), unit='batch')):
         key = keys[idx]
@@ -165,7 +165,7 @@ def visualize( items,keys, bs, sample_steps, cfg_scale):
         print(samples.shape
               )
         for i, sample in enumerate(samples):
-            save_path = os.path.join(save_root, f"{key}.jpg")
+            save_path = os.path.join(save_root, f"{key}.png")
             print("Saving path: ", save_path)
             save_image(sample, save_path, nrow=1, normalize=True, value_range=(-1, 1))
         # save_path = os.path.join(save_root, f"{key}.jpg")
@@ -234,9 +234,10 @@ if __name__ == '__main__':
     missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
     print('Missing keys: ', missing)
     print('Unexpected keys', unexpected)
-    
-    model = modify_model(model, config)
-    print("param block", sum(p.numel() for p in model.parameters()))
+    print("Param  block", sum(p.numel() for p in model.parameters()))
+    #model = modify_model_base(model, config)
+    print("param compressed model", sum(p.numel() for p in model.parameters()))
+    print("Param compressed block", sum(p.numel() for p in model.blocks[0].parameters()))
     state_dict = find_model(args.model_path)
     if 'pos_embed' in state_dict['state_dict']:
         del state_dict['state_dict']['pos_embed']
@@ -287,4 +288,7 @@ if __name__ == '__main__':
     #save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
     save_root = args.save_path
     os.makedirs(save_root, exist_ok=True)
-    visualize( items,keys, args.bs, sample_steps, args.cfg_scale)
+  
+    set_env(seed)
+    print(keys[750])
+    visualize( items,keys, args.bs, sample_steps, args.cfg_scale, seed)

@@ -19,7 +19,7 @@ from diffusers.models import AutoencoderKL
 from diffusion import DPMS, IDDPM
 from diffusion.data.builder import build_dataloader, build_dataset, set_data_root
 from diffusion.model.builder import build_model
-from diffusion.model.modify_model import modify_model
+from diffusion.model.modify_model import modify_model_training, modify_model_base
 from diffusion.utils.checkpoint import load_checkpoint, save_checkpoint
 from diffusion.utils.data_sampler import AspectRatioBatchSampler
 from diffusion.utils.dist_utils import (
@@ -704,14 +704,28 @@ if __name__ == "__main__":
         ref_model.requires_grad_(False)
         
                 
-    model = modify_model(model, config)
+    model = modify_model_base(model, config)
     if config.pruned_load_from is not None:
+        print("LOAD PRUNED WEIGHTS")
         missing, unexpected = load_checkpoint(
             config.pruned_load_from,
             model,
             load_ema=config.get("load_ema", False),
             max_length=max_length,
         )
+        print("Missing: ", missing)
+        print("Unexpected: ", unexpected)
+    model = modify_model_training(model, config)
+    if config.current_pruned_load_from is not None:
+        print("LOAD PRUNED WEIGHTS")
+        missing, unexpected = load_checkpoint(
+            config.current_pruned_load_from,
+            model,
+            load_ema=config.get("load_ema", False),
+            max_length=max_length,
+        )
+        print("Missing: ", missing)
+        print("Unexpected: ", unexpected)
     # modify model, e.g., remove transformer blocks
 
     if config.trainable_blocks:

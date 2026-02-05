@@ -189,7 +189,7 @@ class InternalDataMSSigma(InternalDataSigma):
                  img_root="",
                  image_list_json='data_info.json',
                  transform=None,
-                 resolution=256,
+                 resolution=512,
                  sample_subset=None,
                  load_vae_feat=False,
                  load_t5_feat=False,

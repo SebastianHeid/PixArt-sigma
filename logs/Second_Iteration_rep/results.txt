@@ -1,0 +1,462 @@
+Best block: 16
+Block: 0 CMMD: 0.11573235193888347 total position: 14
+Block: 1 CMMD: 0.12367963790893555 total position: 22
+Block: 2 CMMD: 0.11722246805826823 total position: 16
+Block: 3 CMMD: 0.12133802686418803 total position: 20
+Block: 4 CMMD: 0.13113021850585938 total position: 23
+Block: 5 CMMD: 0.0864267349243164 total position: 2
+Block: 6 CMMD: 0.11239733014787943 total position: 12
+Block: 7 CMMD: 0.08791685104370117 total position: 4
+Block: 8 CMMD: 0.08463859558105469 total position: 1
+Block: 9 CMMD: 0.09179115295410156 total position: 5
+Block: 10 CMMD: 0.0998377799987793 total position: 8
+Block: 11 CMMD: 0.10371208190917969 total position: 10
+Block: 12 CMMD: 0.12218952178955078 total position: 21
+Block: 13 CMMD: 0.12069940567016602 total position: 19
+Block: 14 CMMD: 0.11622905731201172 total position: 15
+Block: 15 CMMD: 0.11146068572998047 total position: 11
+Block: 16 CMMD: 0.08255243301391602 total position: 0
+Block: 17 CMMD: 0.08732080459594727 total position: 3
+Block: 18 CMMD: 0.09655952453613281 total position: 6
+Block: 19 CMMD: 0.10341405868530273 total position: 9
+Block: 20 CMMD: 0.1481601170131138 total position: 25
+Block: 21 CMMD: 0.09894371032714844 total position: 7
+Block: 22 CMMD: 0.12010335922241211 total position: 18
+Block: 23 CMMD: 0.11980533599853516 total position: 17
+Block: 24 CMMD: 0.16063451766967773 total position: 26
+Block: 25 CMMD: 0.14560563223702563 total position: 24
+Block: 26 CMMD: 0.17583370208740234 total position: 27
+Block: 27 CMMD: 0.11265277862548828 total position: 13
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 17
+Block: 0 CMMD: 0.6591280301411947 total position: 24
+Block: 1 CMMD: 0.6030003229777019 total position: 19
+Block: 2 CMMD: 0.6784995396931967 total position: 25
+Block: 3 CMMD: 0.6505421229771203 total position: 22
+Block: 4 CMMD: 0.6536642710367839 total position: 23
+Block: 5 CMMD: 0.4809349775314331 total position: 12
+Block: 6 CMMD: 0.5734818322317939 total position: 17
+Block: 7 CMMD: 0.4205852746963501 total position: 6
+Block: 8 CMMD: 0.37282705307006836 total position: 3
+Block: 9 CMMD: 0.42945146560668945 total position: 8
+Block: 10 CMMD: 0.4786252975463867 total position: 11
+Block: 11 CMMD: 0.4220008850097656 total position: 7
+Block: 12 CMMD: 0.6937980651855469 total position: 26
+Block: 13 CMMD: 0.5055218935012817 total position: 13
+Block: 14 CMMD: 0.5465000867843628 total position: 15
+Block: 15 CMMD: 0.3719329833984375 total position: 2
+Block: 16 CMMD: 0.564257303873698 total position: 16
+Block: 17 CMMD: 0.34481287002563477 total position: 0
+Block: 18 CMMD: 0.4336237907409668 total position: 9
+Block: 19 CMMD: 0.46521425247192383 total position: 10
+Block: 20 CMMD: 0.7203647068568636 total position: 27
+Block: 21 CMMD: 0.35822391510009766 total position: 1
+Block: 22 CMMD: 0.3796815872192383 total position: 4
+Block: 23 CMMD: 0.6467103958129883 total position: 21
+Block: 24 CMMD: 0.5948543548583984 total position: 18
+Block: 25 CMMD: 0.6058386393955774 total position: 20
+Block: 26 CMMD: 0.5182623863220215 total position: 14
+Block: 27 CMMD: 0.39458274841308594 total position: 5
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 16
+Block: 0 CMMD: 0.11573235193888347 total position: 14
+Block: 1 CMMD: 0.12367963790893555 total position: 22
+Block: 2 CMMD: 0.11722246805826823 total position: 16
+Block: 3 CMMD: 0.12133802686418803 total position: 20
+Block: 4 CMMD: 0.13113021850585938 total position: 23
+Block: 5 CMMD: 0.0864267349243164 total position: 2
+Block: 6 CMMD: 0.11239733014787943 total position: 12
+Block: 7 CMMD: 0.08791685104370117 total position: 4
+Block: 8 CMMD: 0.08463859558105469 total position: 1
+Block: 9 CMMD: 0.09179115295410156 total position: 5
+Block: 10 CMMD: 0.0998377799987793 total position: 8
+Block: 11 CMMD: 0.10371208190917969 total position: 10
+Block: 12 CMMD: 0.12218952178955078 total position: 21
+Block: 13 CMMD: 0.12069940567016602 total position: 19
+Block: 14 CMMD: 0.11622905731201172 total position: 15
+Block: 15 CMMD: 0.11146068572998047 total position: 11
+Block: 16 CMMD: 0.08255243301391602 total position: 0
+Block: 17 CMMD: 0.08732080459594727 total position: 3
+Block: 18 CMMD: 0.09655952453613281 total position: 6
+Block: 19 CMMD: 0.10341405868530273 total position: 9
+Block: 20 CMMD: 0.1481601170131138 total position: 25
+Block: 21 CMMD: 0.09894371032714844 total position: 7
+Block: 22 CMMD: 0.12010335922241211 total position: 18
+Block: 23 CMMD: 0.11980533599853516 total position: 17
+Block: 24 CMMD: 0.16063451766967773 total position: 26
+Block: 25 CMMD: 0.14560563223702563 total position: 24
+Block: 26 CMMD: 0.17583370208740234 total position: 27
+Block: 27 CMMD: 0.11265277862548828 total position: 13
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 17
+Block: 0 CMMD: 0.6591280301411947 total position: 24
+Block: 1 CMMD: 0.6030003229777019 total position: 19
+Block: 2 CMMD: 0.6784995396931967 total position: 25
+Block: 3 CMMD: 0.6505421229771203 total position: 22
+Block: 4 CMMD: 0.6536642710367839 total position: 23
+Block: 5 CMMD: 0.4809349775314331 total position: 12
+Block: 6 CMMD: 0.5734818322317939 total position: 17
+Block: 7 CMMD: 0.4205852746963501 total position: 6
+Block: 8 CMMD: 0.37282705307006836 total position: 3
+Block: 9 CMMD: 0.42945146560668945 total position: 8
+Block: 10 CMMD: 0.4786252975463867 total position: 11
+Block: 11 CMMD: 0.4220008850097656 total position: 7
+Block: 12 CMMD: 0.6937980651855469 total position: 26
+Block: 13 CMMD: 0.5055218935012817 total position: 13
+Block: 14 CMMD: 0.5465000867843628 total position: 15
+Block: 15 CMMD: 0.3719329833984375 total position: 2
+Block: 16 CMMD: 0.564257303873698 total position: 16
+Block: 17 CMMD: 0.34481287002563477 total position: 0
+Block: 18 CMMD: 0.4336237907409668 total position: 9
+Block: 19 CMMD: 0.46521425247192383 total position: 10
+Block: 20 CMMD: 0.7203647068568636 total position: 27
+Block: 21 CMMD: 0.35822391510009766 total position: 1
+Block: 22 CMMD: 0.3796815872192383 total position: 4
+Block: 23 CMMD: 0.6467103958129883 total position: 21
+Block: 24 CMMD: 0.5948543548583984 total position: 18
+Block: 25 CMMD: 0.6058386393955774 total position: 20
+Block: 26 CMMD: 0.5182623863220215 total position: 14
+Block: 27 CMMD: 0.39458274841308594 total position: 5
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 27
+Block: 0 CMMD: 2.427399158477783 total position: 24
+Block: 1 CMMD: 2.368291219075521 total position: 23
+Block: 2 CMMD: 2.8659900029500327 total position: 26
+Block: 3 CMMD: 2.3501259940011154 total position: 21
+Block: 4 CMMD: 2.35140323638916 total position: 22
+Block: 5 CMMD: 1.7311424016952515 total position: 10
+Block: 6 CMMD: 2.299887793404715 total position: 19
+Block: 7 CMMD: 1.6354024410247803 total position: 6
+Block: 8 CMMD: 1.5184283256530762 total position: 4
+Block: 9 CMMD: 1.5559792518615723 total position: 5
+Block: 10 CMMD: 1.6942620277404785 total position: 9
+Block: 11 CMMD: 1.3780593872070312 total position: 2
+Block: 12 CMMD: 2.0620226860046387 total position: 15
+Block: 13 CMMD: 2.080574631690979 total position: 16
+Block: 14 CMMD: 2.218782901763916 total position: 17
+Block: 15 CMMD: 2.047121524810791 total position: 12
+Block: 16 CMMD: 2.315143744150798 total position: 20
+Block: 17 CMMD: 2.2818644841512046 total position: 18
+Block: 18 CMMD: 2.8786063194274902 total position: 27
+Block: 19 CMMD: 1.684725284576416 total position: 8
+Block: 20 CMMD: 2.689020974295479 total position: 25
+Block: 21 CMMD: 1.6567111015319824 total position: 7
+Block: 22 CMMD: 1.2955069541931152 total position: 1
+Block: 23 CMMD: 2.0489096641540527 total position: 13
+Block: 24 CMMD: 1.8414855003356934 total position: 11
+Block: 25 CMMD: 2.0589147295270642 total position: 14
+Block: 26 CMMD: 1.4522671699523926 total position: 3
+Block: 27 CMMD: 1.2478232383728027 total position: 0
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 26
+Block: 0 CMMD: 14.51323429743449 total position: 27
+Block: 1 CMMD: 14.445185661315918 total position: 25
+Block: 2 CMMD: 14.217694600423178 total position: 22
+Block: 3 CMMD: 12.182337897164478 total position: 17
+Block: 4 CMMD: 14.161070187886557 total position: 21
+Block: 5 CMMD: 10.841712355613708 total position: 15
+Block: 6 CMMD: 12.63320446014404 total position: 19
+Block: 7 CMMD: 10.707974433898926 total position: 13
+Block: 8 CMMD: 8.88824462890625 total position: 8
+Block: 9 CMMD: 8.782148361206055 total position: 4
+Block: 10 CMMD: 8.641481399536133 total position: 1
+Block: 11 CMMD: 8.744895458221436 total position: 2
+Block: 12 CMMD: 8.912980556488037 total position: 9
+Block: 13 CMMD: 10.798126459121704 total position: 14
+Block: 14 CMMD: 10.941550135612488 total position: 16
+Block: 15 CMMD: 8.868873119354248 total position: 6
+Block: 16 CMMD: 14.46207364400228 total position: 26
+Block: 17 CMMD: 14.297664165496826 total position: 23
+Block: 18 CMMD: 8.803308010101318 total position: 5
+Block: 19 CMMD: 8.755624294281006 total position: 3
+Block: 20 CMMD: 12.353914124625065 total position: 18
+Block: 21 CMMD: 8.912980556488037 total position: 10
+Block: 22 CMMD: 8.878707885742188 total position: 7
+Block: 23 CMMD: 9.48786735534668 total position: 12
+Block: 24 CMMD: 9.163320064544678 total position: 11
+Block: 25 CMMD: 13.102803911481582 total position: 20
+Block: 26 CMMD: 8.510351181030273 total position: 0
+Block: 27 CMMD: 14.444688955942791 total position: 24
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 10
+Block: 0 CMMD: 19.282102584838864 total position: 26
+Block: 1 CMMD: 19.076797697279183 total position: 22
+Block: 2 CMMD: 19.045670827229813 total position: 21
+Block: 3 CMMD: 16.111986977713446 total position: 16
+Block: 4 CMMD: 18.526448143853077 total position: 20
+Block: 5 CMMD: 14.325479666392006 total position: 14
+Block: 6 CMMD: 16.57860619681222 total position: 18
+Block: 7 CMMD: 14.167030652364092 total position: 12
+Block: 8 CMMD: 11.655092239379883 total position: 4
+Block: 9 CMMD: 11.627276738484701 total position: 3
+Block: 10 CMMD: 11.336406071980795 total position: 0
+Block: 11 CMMD: 11.768341064453125 total position: 6
+Block: 12 CMMD: 11.601448059082031 total position: 2
+Block: 13 CMMD: 14.214714368184405 total position: 13
+Block: 14 CMMD: 14.380117257436114 total position: 15
+Block: 15 CMMD: 12.253522872924805 total position: 10
+Block: 16 CMMD: 19.525157080756287 total position: 27
+Block: 17 CMMD: 19.17945014105902 total position: 24
+Block: 18 CMMD: 11.690457661946615 total position: 5
+Block: 19 CMMD: 11.862913767496746 total position: 7
+Block: 20 CMMD: 16.194298153831845 total position: 17
+Block: 21 CMMD: 11.876821517944336 total position: 8
+Block: 22 CMMD: 11.537472407023113 total position: 1
+Block: 23 CMMD: 12.768109639485678 total position: 11
+Block: 24 CMMD: 12.008746465047201 total position: 9
+Block: 25 CMMD: 16.766502743675595 total position: 19
+Block: 26 CMMD: 19.18276151021321 total position: 25
+Block: 27 CMMD: 19.118520948621956 total position: 23
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26, 10]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.3]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 22
+Block: 0 CMMD: 22.744470172458218 total position: 22
+Block: 1 CMMD: 22.889508141411667 total position: 24
+Block: 2 CMMD: 22.95772234598795 total position: 25
+Block: 3 CMMD: 19.475391932896205 total position: 17
+Block: 4 CMMD: 22.241142061021588 total position: 20
+Block: 5 CMMD: 17.038981119791664 total position: 12
+Block: 6 CMMD: 19.72856975737072 total position: 18
+Block: 7 CMMD: 17.05686251322428 total position: 13
+Block: 8 CMMD: 13.63356908162435 total position: 3
+Block: 9 CMMD: 13.726949691772461 total position: 5
+Block: 10 CMMD: 19.185315994989303 total position: 16
+Block: 11 CMMD: 13.621648152669271 total position: 2
+Block: 12 CMMD: 13.49012056986491 total position: 1
+Block: 13 CMMD: 16.912817955017086 total position: 11
+Block: 14 CMMD: 17.34991868336995 total position: 14
+Block: 15 CMMD: 14.116764068603516 total position: 9
+Block: 16 CMMD: 23.215346866183804 total position: 27
+Block: 17 CMMD: 22.737185160319004 total position: 21
+Block: 18 CMMD: 13.86245091756185 total position: 8
+Block: 19 CMMD: 13.764699300130209 total position: 6
+Block: 20 CMMD: 19.04056185767764 total position: 15
+Block: 21 CMMD: 13.686021169026693 total position: 4
+Block: 22 CMMD: 13.419389724731445 total position: 0
+Block: 23 CMMD: 14.719565709431967 total position: 10
+Block: 24 CMMD: 13.839006423950195 total position: 7
+Block: 25 CMMD: 19.89092145647321 total position: 19
+Block: 26 CMMD: 23.058387968275277 total position: 26
+Block: 27 CMMD: 22.88354767693413 total position: 23
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26, 10, 22]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.3, 0.3]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 24
+Block: 0 CMMD: 21.436479356553814 total position: 26
+Block: 1 CMMD: 21.467606226603184 total position: 27
+Block: 2 CMMD: 21.38018608093261 total position: 25
+Block: 3 CMMD: 17.6503544762021 total position: 15
+Block: 4 CMMD: 21.201372146606438 total position: 22
+Block: 5 CMMD: 15.86129268010457 total position: 10
+Block: 6 CMMD: 18.07780492873419 total position: 18
+Block: 7 CMMD: 16.07785622278849 total position: 13
+Block: 8 CMMD: 12.784798940022787 total position: 4
+Block: 9 CMMD: 13.08878262837728 total position: 6
+Block: 10 CMMD: 18.11243238903227 total position: 19
+Block: 11 CMMD: 13.05540402730306 total position: 5
+Block: 12 CMMD: 12.768904368082683 total position: 3
+Block: 13 CMMD: 15.926361083984371 total position: 11
+Block: 14 CMMD: 16.011297702789303 total position: 12
+Block: 15 CMMD: 13.506015141805014 total position: 8
+Block: 16 CMMD: 20.77685462103949 total position: 20
+Block: 17 CMMD: 21.156999799940316 total position: 21
+Block: 18 CMMD: 13.0919615427653 total position: 7
+Block: 19 CMMD: 12.609163920084637 total position: 2
+Block: 20 CMMD: 17.532848176502043 total position: 14
+Block: 21 CMMD: 12.607574462890625 total position: 1
+Block: 22 CMMD: 17.88536707560221 total position: 17
+Block: 23 CMMD: 14.350414276123047 total position: 9
+Block: 24 CMMD: 12.321074803670248 total position: 0
+Block: 25 CMMD: 17.81043552217029 total position: 16
+Block: 26 CMMD: 21.32389280531141 total position: 24
+Block: 27 CMMD: 21.25038041008843 total position: 23
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26, 10, 22, 24]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 9
+Block: 0 CMMD: 24.12133746676974 total position: 25
+Block: 1 CMMD: 23.991531795925557 total position: 23
+Block: 2 CMMD: 23.806757397121846 total position: 22
+Block: 3 CMMD: 20.518757048107325 total position: 17
+Block: 4 CMMD: 24.45711029900444 total position: 26
+Block: 5 CMMD: 18.336872259775795 total position: 12
+Block: 6 CMMD: 20.329725174676803 total position: 16
+Block: 7 CMMD: 17.807384332021073 total position: 11
+Block: 8 CMMD: 14.324585596720379 total position: 8
+Block: 9 CMMD: 13.84576161702474 total position: 0
+Block: 10 CMMD: 20.56871141706194 total position: 18
+Block: 11 CMMD: 14.244715372721355 total position: 6
+Block: 12 CMMD: 13.904174168904623 total position: 1
+Block: 13 CMMD: 17.602245012919106 total position: 9
+Block: 14 CMMD: 17.682711283365883 total position: 10
+Block: 15 CMMD: 13.99834950764974 total position: 3
+Block: 16 CMMD: 24.55181545681423 total position: 27
+Block: 17 CMMD: 23.6723158094618 total position: 20
+Block: 18 CMMD: 13.96457354227702 total position: 2
+Block: 19 CMMD: 14.233986536661785 total position: 5
+Block: 20 CMMD: 19.407272338867184 total position: 13
+Block: 21 CMMD: 14.299949010213217 total position: 7
+Block: 22 CMMD: 20.175320761544363 total position: 14
+Block: 23 CMMD: 14.211734135945639 total position: 4
+Block: 24 CMMD: 20.304747990199495 total position: 15
+Block: 25 CMMD: 20.76058160691034 total position: 19
+Block: 26 CMMD: 24.089548322889534 total position: 24
+Block: 27 CMMD: 23.793511920505093 total position: 21
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26, 10, 22, 24, 9]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 18
+Block: 0 CMMD: 35.91179847717285 total position: 27
+Block: 1 CMMD: 35.832325617472335 total position: 24
+Block: 2 CMMD: 35.450855890909835 total position: 20
+Block: 3 CMMD: 29.899392809186647 total position: 13
+Block: 4 CMMD: 35.68430741628011 total position: 21
+Block: 5 CMMD: 27.020275592803976 total position: 11
+Block: 6 CMMD: 30.764511653355175 total position: 19
+Block: 7 CMMD: 25.727599859237692 total position: 8
+Block: 8 CMMD: 21.22044563293457 total position: 5
+Block: 9 CMMD: 30.64104488917758 total position: 17
+Block: 10 CMMD: 30.672550201416 total position: 18
+Block: 11 CMMD: 21.870136260986328 total position: 7
+Block: 12 CMMD: 20.61009407043457 total position: 1
+Block: 13 CMMD: 26.153773069381735 total position: 10
+Block: 14 CMMD: 26.093423366546652 total position: 9
+Block: 15 CMMD: 21.480321884155273 total position: 6
+Block: 16 CMMD: 35.887956619262695 total position: 26
+Block: 17 CMMD: 35.84523995717367 total position: 25
+Block: 18 CMMD: 20.270347595214844 total position: 0
+Block: 19 CMMD: 20.737051963806152 total position: 2
+Block: 20 CMMD: 28.657061713082435 total position: 12
+Block: 21 CMMD: 21.172165870666504 total position: 3
+Block: 22 CMMD: 30.348130634852804 total position: 16
+Block: 23 CMMD: 21.205544471740723 total position: 4
+Block: 24 CMMD: 30.255317687988267 total position: 15
+Block: 25 CMMD: 30.220406396048396 total position: 14
+Block: 26 CMMD: 35.69026788075765 total position: 22
+Block: 27 CMMD: 35.82735856374105 total position: 23
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26, 10, 22, 24, 9, 18]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 19
+Block: 0 CMMD: 37.070115407307945 total position: 27
+Block: 1 CMMD: 36.632021268208824 total position: 24
+Block: 2 CMMD: 36.288301150004074 total position: 22
+Block: 3 CMMD: 30.164207730974454 total position: 13
+Block: 4 CMMD: 36.45916779836019 total position: 23
+Block: 5 CMMD: 27.928501367568995 total position: 11
+Block: 6 CMMD: 30.97227641514368 total position: 14
+Block: 7 CMMD: 27.057528495788596 total position: 9
+Block: 8 CMMD: 21.8123197555542 total position: 3
+Block: 9 CMMD: 31.073604311261843 total position: 15
+Block: 10 CMMD: 32.717841012137264 total position: 19
+Block: 11 CMMD: 22.348761558532715 total position: 6
+Block: 12 CMMD: 21.42786979675293 total position: 2
+Block: 13 CMMD: 27.081370353698752 total position: 10
+Block: 14 CMMD: 26.77142620086672 total position: 8
+Block: 15 CMMD: 22.109150886535645 total position: 5
+Block: 16 CMMD: 37.03733285268148 total position: 26
+Block: 17 CMMD: 36.081671714782715 total position: 21
+Block: 18 CMMD: 26.234984397888205 total position: 7
+Block: 19 CMMD: 19.76490020751953 total position: 0
+Block: 20 CMMD: 30.054364885602663 total position: 12
+Block: 21 CMMD: 20.42531967163086 total position: 1
+Block: 22 CMMD: 31.746285302298393 total position: 18
+Block: 23 CMMD: 21.97742462158203 total position: 4
+Block: 24 CMMD: 31.249863760811927 total position: 16
+Block: 25 CMMD: 31.384399959019238 total position: 17
+Block: 26 CMMD: 36.85851891835531 total position: 25
+Block: 27 CMMD: 36.04690233866374 total position: 20
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26, 10, 22, 24, 9, 18, 19]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 12
+Block: 0 CMMD: 43.401122093200684 total position: 27
+Block: 1 CMMD: 41.87822341918945 total position: 24
+Block: 2 CMMD: 41.66861375172933 total position: 23
+Block: 3 CMMD: 36.43887383597236 total position: 18
+Block: 4 CMMD: 42.01730092366537 total position: 25
+Block: 5 CMMD: 31.764060258865385 total position: 10
+Block: 6 CMMD: 35.683597837175626 total position: 13
+Block: 7 CMMD: 31.483173370361357 total position: 9
+Block: 8 CMMD: 24.889707565307617 total position: 1
+Block: 9 CMMD: 36.879096712384886 total position: 19
+Block: 10 CMMD: 34.77249826703751 total position: 12
+Block: 11 CMMD: 25.01070499420166 total position: 2
+Block: 12 CMMD: 24.352669715881348 total position: 0
+Block: 13 CMMD: 31.44517540931704 total position: 8
+Block: 14 CMMD: 30.945241451263453 total position: 6
+Block: 15 CMMD: 25.18177032470703 total position: 3
+Block: 16 CMMD: 41.353702545166016 total position: 20
+Block: 17 CMMD: 41.35568936665853 total position: 21
+Block: 18 CMMD: 31.042844057083155 total position: 7
+Block: 19 CMMD: 32.10306167602542 total position: 11
+Block: 20 CMMD: 35.7891832079206 total position: 14
+Block: 21 CMMD: 25.303959846496582 total position: 5
+Block: 22 CMMD: 36.06847354343957 total position: 16
+Block: 23 CMMD: 25.23362636566162 total position: 4
+Block: 24 CMMD: 35.983324050903306 total position: 15
+Block: 25 CMMD: 36.34861537388391 total position: 17
+Block: 26 CMMD: 42.448441187540695 total position: 26
+Block: 27 CMMD: 41.656692822774254 total position: 22
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26, 10, 22, 24, 9, 18, 19, 12]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+
+Best block: 15
+Block: 0 CMMD: 41.50370756785075 total position: 22
+Block: 1 CMMD: 42.345126469930015 total position: 26
+Block: 2 CMMD: 41.682521502176925 total position: 25
+Block: 3 CMMD: 35.9330858503069 total position: 16
+Block: 4 CMMD: 43.367346127827965 total position: 27
+Block: 5 CMMD: 31.949579715728788 total position: 10
+Block: 6 CMMD: 35.89136259896413 total position: 15
+Block: 7 CMMD: 30.802190303802515 total position: 5
+Block: 8 CMMD: 25.2532958984375 total position: 4
+Block: 9 CMMD: 36.257505416870096 total position: 18
+Block: 10 CMMD: 35.833460944039466 total position: 14
+Block: 11 CMMD: 24.926066398620605 total position: 2
+Block: 12 CMMD: 31.042098999023462 total position: 7
+Block: 13 CMMD: 31.009316444396998 total position: 6
+Block: 14 CMMD: 32.45398402214053 total position: 11
+Block: 15 CMMD: 24.288296699523926 total position: 0
+Block: 16 CMMD: 41.49675369262695 total position: 21
+Block: 17 CMMD: 41.60503546396892 total position: 23
+Block: 18 CMMD: 31.422078609466578 total position: 9
+Block: 19 CMMD: 31.107664108276392 total position: 8
+Block: 20 CMMD: 35.3004251207624 total position: 12
+Block: 21 CMMD: 25.069713592529297 total position: 3
+Block: 22 CMMD: 36.1706529344831 total position: 17
+Block: 23 CMMD: 24.735331535339355 total position: 1
+Block: 24 CMMD: 35.75086593627928 total position: 13
+Block: 25 CMMD: 36.515508379255 total position: 19
+Block: 26 CMMD: 41.67457421620687 total position: 24
+Block: 27 CMMD: 41.275223096211754 total position: 20
+Removed Block List: [1, 0, 4, 2, 6, 25, 20, 3, 14, 5, 7, 13, 16, 17, 27, 26, 10, 22, 24, 9, 18, 19, 12, 15]
+Compression Ratios: [0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.4, 0.4, 0.4, 0.4, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2]
+New Block List: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+

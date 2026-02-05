@@ -18,7 +18,7 @@ import torch
 from diffusers.models import AutoencoderKL
 from diffusion import DPMS, IDDPM, SASolverSampler
 from diffusion.data.datasets import get_chunks
-from diffusion.model.modify_model import modify_model
+from diffusion.model.modify_model import modify_model_base, modify_model_new, modify_model_current
 from diffusion.model.nets import PixArt_XL_2, PixArtMS
 from diffusion.model.utils import prepare_prompt_ar
 from diffusion.utils.misc import DebugUnderflowOverflow, init_random_seed, read_config
@@ -56,7 +56,7 @@ def get_args():
     parser.add_argument('--save_name', default='mlp', type=str)
     parser.add_argument('--save_path', default='/home/hd/hd_hd/hd_om233/partially_removal/img_all_attn_r600', type=str,)
     parser.add_argument('--pe_interpolation', default=1.0, type=float)
-    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal/MasterThesis_Evaluation/configs/partially_remove_blocks/second_removal_stage.yaml", type=str)
+    parser.add_argument('--config_path', default="/home/hd/hd_hd/hd_om233/partially_removal_individual_compression/PixArt-sigma/block_analysis_eval/first_removal_stage_large.yaml", type=str)
     parser.add_argument('--cross_attn', action='store_false', help='sd vae')
     parser.add_argument('--attn', action='store_false', help='sd vae')
     parser.add_argument('--mlp', action='store_false', help='sd vae')
@@ -64,47 +64,33 @@ def get_args():
 
     return parser.parse_args()
 
-def best_network(idx, cmmd, lpips,clip, block_list, log_path, cmmd_flag = True, lpips_flag=False, clip_flag=True):
+def best_network(idx, cmmd, cmmd_raw, block_list, config):
+    
+    
     sorted_cmmd  = sorted(cmmd.items(), key=lambda item: item[1])
-    sorted_lpips = sorted(lpips.items(), key=lambda item: item[1])
-    sorted_clip = sorted(clip.items(), key=lambda item: item[1], reverse=True)
+    best_raw_cmmd = cmmd_raw[sorted_cmmd[0][0]]
     position_cmmd = {}
-    position_lpips = {}
-    position_clips = {}
     total_position = {}
-    print("sorted_cmmd: ", sorted_cmmd)
+
     
     for idx, (key, _) in enumerate(sorted_cmmd):
         position_cmmd[key] = idx
-    for idx, (key, _) in enumerate(sorted_lpips):
-        position_lpips[key] = idx
-    for idx, (key, _) in enumerate(sorted_clip):
-        position_clips[key] = idx
+
     
-    print("position_cmmd", position_cmmd)
+ 
     
     for idx, key in enumerate(position_cmmd):
         total_position[key] = 0
-        if cmmd_flag:
-            total_position[key] += position_cmmd[key]
-        if lpips_flag:
-            total_position[key] += position_lpips[key]
-        if clip_flag:
-            total_position[key] += position_clips[key] 
+        total_position[key] += position_cmmd[key]
+  
 
     best_block = min(total_position, key=total_position.get)
     
-    with open(log_path+"/results.txt", "a") as f: 
+    with open(config.log_path+"/results.txt", "a") as f: 
         f.write("Best block: " + str(best_block) + "\n")
         for i in range(len(block_list)):
-            if clip_flag:
-                f.write("Block: " + str(block_list[i]) + " CLIP: " + str(clip[block_list[i]]) + " CMMD: " + str(cmmd[block_list[i]]) + " total position: " +str(total_position[block_list[i]]) + "\n")
-            if lpips_flag:
-                f.write("Block: " + str(block_list[i]) + " LPIPS: " + str(lpips[block_list[i]]) + " CMMD: " + str(cmmd[block_list[i]]) + " total position: " +str(total_position[block_list[i]]) + "\n")
-            
-        f.write("\n")
-        f.write("\n")
-    return best_block
+            f.write("Block: " + str(block_list[i]) + " CMMD: " + str(cmmd[block_list[i]]) + " total position: " +str(total_position[block_list[i]]) + "\n")
+    return best_block, best_raw_cmmd
     
     
 def set_env(seed=0):
@@ -262,27 +248,15 @@ if __name__ == '__main__':
     null_caption_token = tokenizer("", max_length=max_sequence_length, padding="max_length", truncation=True, return_tensors="pt").to(device)
     null_caption_embs = text_encoder(null_caption_token.input_ids, attention_mask=null_caption_token.attention_mask)[0]
 
-    for idx_removed in range(20):
-        lpips = {}
-        cmmd = {}
-        clip = {}
+    current_removed_blocks = []
+    current_compression_ratios = []
+    for idx_removed in range(len(config.compression_ratios)):
+        score = {}
+        raw_cmmd_values = {}
         for idx in block_list:
             seed = args.seed
             set_env(seed)
-
-            
-            if args.attn:
-                config.transformer_blocks_attn = removed_block_list.copy()
-                config.transformer_blocks_attn.append(idx)
-            if args.cross_attn:
-                config.transformer_blocks_cross_attn = removed_block_list.copy()
-                config.transformer_blocks_cross_attn.append(idx)
-            if args.mlp:
-                config.transformer_blocks_mlp = removed_block_list.copy()  
-                config.transformer_blocks_mlp.append(idx)
-            if args.total_blocks:
-                config.transformer_blocks = removed_block_list.copy()  
-                config.transformer_blocks.append(idx)
+            config.new_block = [idx]
             
             args.save_path = _save_path + "/it_" + str(idx_removed) +  "/" +  str(idx) + "/"
             
@@ -294,19 +268,15 @@ if __name__ == '__main__':
                 skip_connections=True
             ).to(device)
 
-
+        
             print("Generating sample from ckpt: %s" % args.model_path)
+            model = modify_model_base(model, config)
             state_dict = find_model(args.model_path)
             missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
             print("missing: ", missing)
             print("unexpected: ", unexpected)
-
-            
-            model = modify_model(model, config)
-            state_dict = find_model(args.model_path)
-            missing, unexpected = model.load_state_dict(state_dict['state_dict'], strict=False)
-            print("missing: ", missing)
-            print("unexpected: ", unexpected)
+            model = modify_model_current(config, model, current_removed_blocks, current_compression_ratios)
+            model = modify_model_new(model, config, idx_removed)
             model.eval()
             model = model.to(device)
             model.to(weight_dtype)
@@ -317,13 +287,14 @@ if __name__ == '__main__':
             # data setting
             # with open(args.txt_file, 'r') as f:
             #     items = [item.strip() for item in f.readlines()]
-            with open(args.txt_file, "r") as f:
+            print(config.txt_file)
+            with open(config.txt_file, "r") as f:
                 data = json.load(f)
 
             # Get string values, assuming each dict has one key-value pair
             items = [d for d in data.values()]
             keys = [k for k in data.keys()]
-
+            print("Len Items", len(items))
             # img save setting
             try:
                 epoch_name = re.search(r'.*epoch_(\d+).*', args.model_path).group(1)
@@ -338,40 +309,78 @@ if __name__ == '__main__':
             #save_root = os.path.join(img_save_dir, f"{datetime.now().date()}_{args.dataset}_epoch{epoch_name}_step{step_name}_scale{args.cfg_scale}_step{sample_steps}_size{args.image_size}_bs{args.bs}_samp{args.sampling_algo}_seed{seed}")
             save_root = args.save_path
             os.makedirs(save_root, exist_ok=True)
+            
             visualize( items,keys, args.bs, sample_steps, args.cfg_scale)
             
+            cmmd = compute_cmmd(config.ref_path, args.save_path).item()
+            print(cmmd)
+            delta_cmmd = cmmd - config.base_cmmd
+            if idx in config.transformer_blocks_mlp:
+                idx_ = config.transformer_blocks_mlp.index(idx)
+                old_total_compression_ratio = config.compression_ratio_mlp[idx_]
+                current_compression_ratio = config.compression_ratios[idx_removed]
+                new_total_compression_ratio = 1 - (1-old_total_compression_ratio) * (1-current_compression_ratio)
+                effective_comp_ratio = new_total_compression_ratio - old_total_compression_ratio
+            else: 
+                effective_comp_ratio = config.compression_ratios[idx_removed]
+            
+            print(effective_comp_ratio)
+            delta_cmmd /= effective_comp_ratio
         
-            cmmd[idx] = compute_cmmd(config.ref_path, args.save_path).item()
-            clip[idx] = compute_clip(args.save_path, args.txt_file ).item()
+            score[idx] = delta_cmmd
+            raw_cmmd_values[idx] = cmmd
             del model
             torch.cuda.empty_cache()
             print(f"GPU Memory after block {idx}: {torch.cuda.memory_allocated()/1e9:.2f}GB")
-        
+            
+         
             
 
         torch.cuda.empty_cache()
         os.makedirs(config.log_path, exist_ok=True)
-        best_block = best_network(idx_removed,cmmd, lpips, clip, block_list, config.log_path)
-        removed_block_list.append(best_block)
+        best_block, best_raw_cmmd = best_network(idx_removed,score,raw_cmmd_values , block_list, config)
+        print(best_raw_cmmd)
+        config.base_cmmd = best_raw_cmmd
+        if best_block in config.transformer_blocks_mlp:
+            idx_ = config.transformer_blocks_mlp.index(best_block)
+            old_total_compression_ratio = config.compression_ratio_mlp[idx_]
+            current_compression_ratio = config.compression_ratios[idx_removed]
+            new_total_compression_ratio = 1 - (1-old_total_compression_ratio) * (1-current_compression_ratio)
+            print("Best Block in Transformer Block")
+            idx_block = config.transformer_blocks_mlp.index(best_block)
+            print(idx_block)
+            current_removed_blocks.append(best_block)
+            current_compression_ratios.append(new_total_compression_ratio)
+        
+        else: 
+            new_total_compression_ratio = config.compression_ratios[idx_removed]
+            current_removed_blocks.append(best_block)
+            current_compression_ratios.append(new_total_compression_ratio)
+            
         block_list.remove(best_block)
+        
 
 
        
             
         with open(config.log_path+"/results.txt", "a") as f: 
-            f.write("Removed Block List: " + str(removed_block_list))
+            f.write("Removed Block List: " + str(config.transformer_blocks_mlp))
+            f.write("\n")
+            f.write("Compression Ratios: " + str(config.compression_ratio_mlp))
+            f.write("\n")
+            f.write("New Removed Block List: " + str(current_removed_blocks))
+            f.write("\n")
+            f.write("New Compression Ratios: " + str(current_compression_ratios))
             f.write("\n")
             f.write("New Block List: " + str(block_list))
             f.write("\n")  
-    
-        with open(config.log_path+"/lpips_dict.json", "w") as f:
-            json.dump(lpips_list, f)
-            f.write("\n") 
+            f.write("\n")
+
         with open(config.log_path+"/cmmd_dict.json", "w") as f:
-            json.dump(cmmd_list, f)
+            json.dump(score, f)
             f.write("\n") 
         
      
         with open(config.log_path+"/_temp_new_removed_blocks.json", "w") as f:
-            json.dump(removed_block_list, f)
+            json.dump(config.transformer_blocks_mlp, f)
             f.write("\n")   
